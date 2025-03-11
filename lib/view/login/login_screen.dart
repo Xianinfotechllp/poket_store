@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poketstore/view/bottombar/bottom_bar_screen.dart';
 import 'package:poketstore/view/forgote_password.dart/forgote_password.dart';
 import 'package:poketstore/view/reg/registration.dart';
 
@@ -91,21 +92,31 @@ class LoginScreen extends StatelessWidget {
 
               Padding(
                 padding: const EdgeInsets.all(15),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 7, 3, 201),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BottomBarScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 7, 3, 201),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
 
-                  height: 50,
-                  width: double.infinity,
-                  child: Center(
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    height: 50,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
