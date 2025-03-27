@@ -1,22 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
+import 'package:poketstore/view/bottombar/bottom_bar_screen.dart';
 import 'package:poketstore/view/login/login_screen.dart';
+import 'package:poketstore/view/set_location/set_location.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  void initState() {
-    super.initState();
-    Future.delayed(Duration(seconds: 3), () {
+  Future<void> _checkLoginStatus() async {
+    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+    final isLoggedIn = await loginProvider.isUserLoggedIn();
+
+    if (isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
+        MaterialPageRoute(builder: (context) => BottomBarScreen()),
       );
-    });
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SetLocation()),
+      );
+    }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  // void initState() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   onTap: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      MaterialPageRoute(builder: (context) => SetLocation()),
                     );
                   },
                   child: Container(
