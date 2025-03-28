@@ -1,36 +1,40 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/view/my_shop/add_product_screen.dart';
 import 'package:poketstore/view/my_shop/widget.dart';
+import 'package:provider/provider.dart';
 
-class MyShopScreen extends StatelessWidget {
+class MyShopScreen extends StatefulWidget {
   const MyShopScreen({super.key});
 
-  final List<Map<String, dynamic>> cartItems = const [
-    {
-      "name": "Bell Pepper Red",
-      "image": "assets/product1.png",
-      "quantity": 1,
-      "price": 4.99,
-    },
-    {
-      "name": "Green Apple",
-      "image": "assets/product1.png",
-      "quantity": 2,
-      "price": 3.49,
-    },
-    {
-      "name": "Bell Pepper Red",
-      "image": "assets/product1.png",
-      "quantity": 1,
-      "price": 4.99,
-    },
-    {
-      "name": "Bell Pepper Red",
-      "image": "assets/product1.png",
-      "quantity": 1,
-      "price": 4.99,
-    },
-  ];
+  @override
+  State<MyShopScreen> createState() => _MyShopScreenState();
+}
+
+class _MyShopScreenState extends State<MyShopScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () =>
+          Provider.of<FetchProductProvider>(
+            context,
+            listen: false,
+          ).loadProductsForUser(),
+    );
+  }
+
+  Future<void> _refreshProducts() async {
+    await Provider.of<FetchProductProvider>(
+      context,
+      listen: false,
+    ).loadProductsForUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +47,7 @@ class MyShopScreen extends StatelessWidget {
                 Container(
                   height: 200,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    // color: Colors.black,
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/myshope.png'),
                       fit: BoxFit.cover,
@@ -72,22 +75,78 @@ class MyShopScreen extends StatelessWidget {
                 ),
               ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  return MyShopeItemWidget(item: cartItems[index]);
+
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: "Search Products...",
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
                 },
               ),
             ),
+
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refreshProducts,
+                child: Consumer<FetchProductProvider>(
+                  builder: (context, productProvider, child) {
+                    if (productProvider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (productProvider.errorMessage.isNotEmpty) {
+                      return Center(child: Text(productProvider.errorMessage));
+                    } else if (productProvider.products.isEmpty) {
+                      return const Center(child: Text("No products available"));
+                    }
+
+                    // Filter products based on search query
+                    final filteredProducts =
+                        productProvider.products.where((product) {
+                          return product.name.toLowerCase().contains(
+                            _searchQuery,
+                          );
+                        }).toList();
+
+                    return productMyShopeGridView(
+                      filteredProducts.map((product) {
+                        return {
+                          "_id": product.id,
+                          "image": product.productImage,
+                          "name": product.name,
+                          "weight": product.productType,
+                          "price": "₹${product.price}",
+                        };
+                      }).toList(),
+                    );
+                  },
+                ),
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.all(15),
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AddProductScreen()),
-                  );
+                    MaterialPageRoute(
+                      builder: (context) => const AddProductScreen(),
+                    ),
+                  ).then((value) {
+                    if (value == true) {
+                      _refreshProducts();
+                    }
+                  });
                 },
                 child: Container(
                   height: 50,
@@ -96,7 +155,7 @@ class MyShopScreen extends StatelessWidget {
                     color: const Color.fromARGB(255, 7, 3, 201),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(

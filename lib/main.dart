@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:poketstore/controllers/bottombar_controller.dart';
+import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
+import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
+import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/controllers/notification_provider.dart';
 import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:poketstore/controllers/search_producer_controller.dart';
@@ -18,6 +20,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => BottomBarProvider()),
         ChangeNotifierProvider(create: (_) => SearchProducerProvider()),
         ChangeNotifierProvider(create: (context) => NotificationProvider()),
+        ChangeNotifierProvider(create: (context) => ProductProvider()),
+        ChangeNotifierProvider(create: (context) => FetchProductProvider()),
       ],
       child: const MyApp(),
     ),

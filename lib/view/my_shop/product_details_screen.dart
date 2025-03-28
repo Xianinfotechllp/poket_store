@@ -1,13 +1,12 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/view/home/widgets/product_details_widget.dart';
 import 'package:provider/provider.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
+class MyShopProductDetails extends StatelessWidget {
   final String productId;
-  const ProductDetailsScreen({super.key, required this.productId});
+  const MyShopProductDetails({super.key, required this.productId});
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +19,32 @@ class ProductDetailsScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.blue),
+            onPressed: () {
+              _showEditDialog(context, productId);
+              // Navigator.pushNamed(
+              //   context,
+              //   '/editProductScreen', // Change to your actual edit screen route
+              //   arguments: productId,
+              // );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              _confirmDelete(context, productId);
+            },
+          ),
+        ],
       ),
       body: Consumer<ProductProvider>(
         builder: (context, provider, child) {
           log(
             "ProductDetailsScreen: Provider state - isLoading: ${provider.isLoading}, product: ${provider.product}",
-          ); // Log provider state
+          );
+
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -36,6 +55,7 @@ class ProductDetailsScreen extends StatelessWidget {
 
           final product = provider.product!;
           log("Product fetched successfully: ${product.name}, ID: $productId");
+
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,10 +116,8 @@ class ProductDetailsScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Quantity Selector
                       Row(
                         children: [
-                          // buildQuantityButton(Icons.remove),
                           const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 8),
                             child: Text(
@@ -112,7 +130,7 @@ class ProductDetailsScreen extends StatelessWidget {
                           ),
                           Text(
                             product.quantity.toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -135,10 +153,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 const Divider(thickness: 1, color: Colors.grey),
 
                 // Product Details
-                buildExpandableSection(
-                  'Product Detail',
-                  // Icons.arrow_drop_down,
-                ),
+                buildExpandableSection('Product Detail'),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -152,44 +167,104 @@ class ProductDetailsScreen extends StatelessWidget {
                 /// Delivery Info
                 buildRowWithArrow('Estimated Delivery', product.estimatedTime),
                 const Divider(thickness: 1, color: Colors.grey),
-                // buildRowWithArrow('Quantity', product.quantity.toString()),
-                // const Divider(thickness: 1, color: Colors.grey),
                 buildRowWithArrow('Category', product.category.toString()),
                 const Divider(thickness: 1, color: Colors.grey),
                 buildRowWithArrow('Product Type', product.productType),
                 const Divider(thickness: 1, color: Colors.grey),
                 buildRowWithArrow('Delivery Option', product.deliveryOption),
                 const Divider(thickness: 1, color: Colors.grey),
-
-                /// Add to Cart Button
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 7, 3, 201),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () {},
-                    child: const Center(
-                      child: Text(
-                        'Add To Cart',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, String productId) {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
+    TextEditingController priceController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Edit Product"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Product Name"),
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(labelText: "Description"),
+                ),
+                TextField(
+                  controller: priceController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: "Price"),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final Map<String, dynamic> updatedData = {
+                    "name": nameController.text,
+                    "description": descriptionController.text,
+                    "price": int.tryParse(priceController.text) ?? 0,
+                  };
+
+                  Provider.of<ProductProvider>(
+                    context,
+                    listen: false,
+                  ).updateProduct(productId, updatedData).then((success) {
+                    if (success) {
+                      Navigator.pop(context, true);
+                    }
+                  });
+                },
+                child: const Text("Update"),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String productId) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Delete Product"),
+            content: const Text(
+              "Are you sure you want to delete this product?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Provider.of<ProductProvider>(
+                    context,
+                    listen: false,
+                  ).deleteProduct(productId).then((_) {
+                    Navigator.pop(context, true);
+                  });
+                },
+                child: const Text("Delete"),
+              ),
+            ],
+          ),
     );
   }
 }

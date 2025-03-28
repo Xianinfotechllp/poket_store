@@ -1,9 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/view/home/view/product_details_screen/product_details_screen.dart';
 import 'package:poketstore/view/home/widgets/home_widgets.dart';
 import 'package:poketstore/view/notification/notification.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  String searchQuery = "";
 
-  // Sample banner images
   final List<String> _bannerImages = [
     'assets/slider.png',
     'assets/slider.png',
@@ -29,29 +31,22 @@ class _HomeScreenState extends State<HomeScreen> {
     {"name": "Snacks", "color": Colors.orange.shade200},
   ];
 
-  final List<Map<String, dynamic>> _products = [
-    {
-      "image": "assets/product1.png",
-      "name": "Beef Bone",
-      "weight": "1Kg, Price",
-      "price": "₹4,99",
-    },
-    {
-      "image": "assets/product1.png",
-      "name": "Chicken Wings",
-      "weight": "500g, Price",
-      "price": "₹2,99",
-    },
-    {
-      "image": "assets/product1.png",
-      "name": "Pork Ribs",
-      "weight": "1Kg, Price",
-      "price": "₹5,99",
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<FetchProductProvider>(context, listen: false).loadProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = Provider.of<FetchProductProvider>(context);
+
+    // Filter products based on search query
+    final filteredProducts =
+        productProvider.products.where((product) {
+          return product.name.toLowerCase().contains(searchQuery.toLowerCase());
+        }).toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -60,26 +55,15 @@ class _HomeScreenState extends State<HomeScreen> {
         title: SizedBox(
           width: 63,
           height: 57,
-          child: Image(image: AssetImage("assets/name.png")),
+          child: Image.asset("assets/name.png"),
         ),
-        // leading: Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: Container(
-        //     color: Colors.black,
-        //     height: 150, // Increase the height
-        //     width: 140, // Increase the width
-        //     child: Image.asset('assets/name.png', fit: BoxFit.contain),
-        //   ),
-        // ),
         actions: [
           IconButton(
             icon: Icon(
               Icons.add_business_outlined,
               color: Colors.blue.shade900,
             ),
-            onPressed: () {
-              // Handle notification tap
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: Icon(
@@ -95,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,8 +91,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const TextField(
-                  decoration: InputDecoration(
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
                     hintText: 'Search Store',
                     border: InputBorder.none,
                     prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -118,11 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             // Carousel Slider
             CarouselSlider(
               options: CarouselOptions(
-                height: 100, // Increased height for better visuals
+                height: 100,
                 autoPlay: true,
                 enlargeCenterPage: true,
                 autoPlayInterval: const Duration(seconds: 3),
@@ -144,9 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }).toList(),
             ),
-
             const SizedBox(height: 10),
-
             // Page Indicator
             Center(
               child: AnimatedSmoothIndicator(
@@ -159,57 +144,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             // Groceries Section
             buildSectionTitle("Groceries", "See all"),
-            SizedBox(
-              // height: 120, // Ensure height for scrollable horizontal list
-              child: groceriesHorizontalList(_groceryItems),
-            ),
-
+            SizedBox(child: groceriesHorizontalList(_groceryItems)),
             // Stores Section
             buildSectionTitle("Stores", "See all"),
             storeHorizontalList(_groceryItems),
-            SizedBox(height: 20),
-            // Spacer container with a defined height
-            // buildSectionTitle("Exclusive Offers", "See all"),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsScreen(),
-                  ),
-                );
-              },
-              child: productHorizontalList(_products),
-            ),
-
-            // Exclusive Offer Section
-            buildSectionTitle("Exclusive Offer", "See all"),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsScreen(),
-                  ),
-                );
-              },
-              child: productHorizontalList(_products),
-            ),
-            buildSectionTitle("Best Selling", "See all"),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsScreen(),
-                  ),
-                );
-              },
-              child: productHorizontalList(_products),
-            ),
+            const SizedBox(height: 20),
+            // Products Section with Search Applied
+            productProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : productGridView(
+                  filteredProducts.map((product) {
+                    return {
+                      "_id": product.id,
+                      "image": product.productImage,
+                      "name": product.name,
+                      "weight": product.productType,
+                      "price": "₹${product.price}",
+                    };
+                  }).toList(),
+                ),
           ],
         ),
       ),

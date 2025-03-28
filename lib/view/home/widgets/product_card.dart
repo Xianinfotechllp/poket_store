@@ -5,13 +5,17 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String weight;
   final String price;
+  final IconData? icon;
+  // final String id;
 
   const ProductCard({
     Key? key,
     required this.imagePath,
+    // required this.id,
     required this.title,
     required this.weight,
     required this.price,
+    this.icon,
   }) : super(key: key);
 
   @override
@@ -50,7 +54,7 @@ class ProductCard extends StatelessWidget {
                     price,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const Icon(Icons.shopping_cart_outlined, color: Colors.black),
+                  Icon(icon, color: Colors.black),
                 ],
               ),
             ],

@@ -13,8 +13,8 @@ Widget buildQuantityButton(IconData icon) {
   );
 }
 
-/// Custom Method for Expandable Sections
-Widget buildExpandableSection(String title, IconData icon) {
+/// Custom Method for Expandable Sections  IconData icon
+Widget buildExpandableSection(String title) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Row(
@@ -24,7 +24,7 @@ Widget buildExpandableSection(String title, IconData icon) {
           title,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        Icon(icon, color: Colors.black),
+        // Icon(icon, color: Colors.black),
       ],
     ),
   );
