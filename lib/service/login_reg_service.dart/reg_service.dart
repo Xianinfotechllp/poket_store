@@ -6,7 +6,7 @@ import 'package:poketstore/model/login_reg_model/reg_model.dart';
 class RegistrationService {
   final Dio _dio = Dio();
   final String _registerUrl =
-      "https://shop-app-be.onrender.com/auth/user/register";
+      "https://shop-app-backend-main.onrender.com/auth/user/register";
 
   Future<RegistrationModel> registerUser(Map<String, dynamic> data) async {
     try {

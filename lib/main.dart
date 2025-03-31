@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
+import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart';
+import 'package:poketstore/controllers/cart_controller/cart_controller.dart';
+import 'package:poketstore/controllers/category_controller/category_controller.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
+import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
+import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/controllers/notification_provider.dart';
 import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
+import 'package:poketstore/controllers/order_controller/order_controller.dart';
 import 'package:poketstore/controllers/search_producer_controller.dart';
 import 'package:poketstore/controllers/set_location_controller.dart';
 import 'package:poketstore/view/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
-
-import 'controllers/bottom_bar_controller/bottombar_controller.dart';
 
 void main() {
   runApp(
@@ -19,6 +24,12 @@ void main() {
         ChangeNotifierProvider(create: (_) => BottomBarProvider()),
         ChangeNotifierProvider(create: (_) => SearchProducerProvider()),
         ChangeNotifierProvider(create: (context) => NotificationProvider()),
+        ChangeNotifierProvider(create: (context) => ProductProvider()),
+        ChangeNotifierProvider(create: (context) => FetchProductProvider()),
+        ChangeNotifierProvider(create: (context) => CategoryProvider()),
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+        ChangeNotifierProvider(create: (context) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => ShopProvider()),
       ],
       child: const MyApp(),
     ),

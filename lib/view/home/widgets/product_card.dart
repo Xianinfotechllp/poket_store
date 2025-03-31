@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
@@ -5,13 +7,17 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String weight;
   final String price;
+  final IconData? icon;
+  // final String id;
 
   const ProductCard({
     Key? key,
     required this.imagePath,
+    // required this.id,
     required this.title,
     required this.weight,
     required this.price,
+    this.icon,
   }) : super(key: key);
 
   @override
@@ -35,7 +41,12 @@ class ProductCard extends StatelessWidget {
                 height: 60,
                 width: 130,
                 decoration: BoxDecoration(
-                  image: DecorationImage(image: AssetImage(imagePath)),
+                  image: DecorationImage(
+                    image: FileImage(File(imagePath)),
+                    onError: (object, stacktrace) {
+                      print("error while loading image: $object");
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -50,7 +61,7 @@ class ProductCard extends StatelessWidget {
                     price,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const Icon(Icons.shopping_cart_outlined, color: Colors.black),
+                  Icon(icon, color: Colors.black),
                 ],
               ),
             ],

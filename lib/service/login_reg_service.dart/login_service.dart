@@ -13,7 +13,7 @@ class LoginService {
       log("Attempting login with mobileNumber: $mobileNumber");
 
       final response = await _dio.post(
-        'https://shop-app-be.onrender.com/auth/user/login',
+        'https://shop-app-backend-main.onrender.com/auth/user/login',
         data: {"mobileNumber": mobileNumber, "password": password},
       );
 
