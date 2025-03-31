@@ -34,19 +34,24 @@ class Product {
       id: json['_id'] ?? "",
       name: json['name'] ?? "",
       description: json['description'] ?? "",
-      price: json['price'] ?? "",
-      quantity: json['quantity'] ?? "",
+      price: int.tryParse(json['price'].toString()) ?? 0, // Ensure it's an int
+      quantity:
+          int.tryParse(json['quantity'].toString()) ?? 0, // Ensure it's an int
       category:
-          (json['category'] as List<dynamic>).map((e) => e.toString()).toList(),
+          (json['category'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       productImage: json['productImage'] ?? "",
       sold: json['sold'] ?? 0,
       estimatedTime: json['estimatedTime'] ?? "",
       productType: json['productType'] ?? "",
       deliveryOption: json['deliveryOption'] ?? "",
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] ?? "") ?? DateTime.now(),
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       '_id': id,

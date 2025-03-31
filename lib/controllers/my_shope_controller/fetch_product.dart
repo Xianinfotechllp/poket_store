@@ -45,7 +45,7 @@ class FetchProductProvider with ChangeNotifier {
         log("Products fetched successfully for user: $userId");
       }
     } catch (e) {
-      errorMessage = "Failed to load products: $e";
+      errorMessage = "Failed to load products controller: $e";
       log(errorMessage);
     }
 

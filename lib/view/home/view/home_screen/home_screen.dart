@@ -34,7 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<FetchProductProvider>(context, listen: false).loadProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FetchProductProvider>(context, listen: false).loadProducts();
+    });
   }
 
   @override
@@ -93,8 +95,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: TextField(
                   onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
+                    Future.microtask(() {
+                      if (mounted) {
+                        setState(() {
+                          searchQuery = value;
+                        });
+                      }
                     });
                   },
                   decoration: const InputDecoration(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
@@ -39,7 +41,12 @@ class ProductCard extends StatelessWidget {
                 height: 60,
                 width: 130,
                 decoration: BoxDecoration(
-                  image: DecorationImage(image: AssetImage(imagePath)),
+                  image: DecorationImage(
+                    image: FileImage(File(imagePath)),
+                    onError: (object, stacktrace) {
+                      print("error while loading image: $object");
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 10),

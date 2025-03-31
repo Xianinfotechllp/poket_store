@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
+import 'package:poketstore/view/add_shop/shope_list_screen.dart';
+import 'package:poketstore/view/order_screen/order_screen.dart';
+import 'package:poketstore/view/subscription/subscription.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -61,7 +64,12 @@ class ProfileScreen extends StatelessWidget {
             const Divider(),
 
             // Menu List
-            buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {}),
+            buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OrdersScreen()),
+              );
+            }),
             buildMenuItem(Icons.person_outline, "My Details", () {}),
             buildMenuItem(
               Icons.location_on_outlined,
@@ -72,10 +80,16 @@ class ProfileScreen extends StatelessWidget {
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddShop()),
+                MaterialPageRoute(builder: (context) => ShopListScreen()),
               );
             }),
             buildMenuItem(Icons.card_giftcard_outlined, "Promo Cord", () {}),
+            buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Subscription()),
+              );
+            }),
             buildMenuItem(Icons.notifications_outlined, "Notifications", () {}),
             buildMenuItem(Icons.help_outline, "Help", () {}),
             buildMenuItem(Icons.info_outline, "About", () {}),

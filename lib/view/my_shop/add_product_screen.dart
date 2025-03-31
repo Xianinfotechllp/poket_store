@@ -5,7 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:poketstore/controllers/category_controller/category_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
+import 'package:poketstore/view/my_shop/widget/category_dialog_box.dart';
 import 'package:provider/provider.dart';
 
 class AddProductScreen extends StatefulWidget {
@@ -25,6 +27,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _estimatedTimeController =
       TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
 
   String? _selectedType;
   String? _selectedDeliveryOption;
@@ -34,13 +37,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final List<String> _typeOptions = ["Per Pack", "Per Unit", "Per KG"];
   final List<String> _deliveryOptions = ["Home Delivery", "Store Pickup"];
   final List<String> _availabilityOptions = ["Available", "Out of Stock"];
-  final List<String> _categoryOptions = [
-    "Electronics",
-    "Clothing",
-    "Grocery",
-    "Home & Kitchen",
-    "Beauty",
-  ];
+  // final List<String> _categoryOptions = [
+  //   "Electronics",
+  //   "Clothing",
+  //   "Grocery",
+  //   "Home & Kitchen",
+  //   "Beauty",
+  // ];
 
   Future<void> _pickImage(ImageSource source) async {
     var status = await Permission.photos.request();
@@ -110,26 +113,38 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
   }
 
-  Future<void> _selectCategories() async {
-    await showDialog(
+  void _selectCategories() async {
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
+    );
+
+    // Show category selection dialog
+    List<String>? result = await showDialog(
       context: context,
       builder: (context) {
-        return MultiSelectDialog(
-          items:
-              _categoryOptions
-                  .map(
-                    (category) => MultiSelectItem<String>(category, category),
-                  )
-                  .toList(),
-          initialValue: _selectedCategories,
-          onConfirm: (values) {
-            setState(() {
-              _selectedCategories = values.cast<String>();
-            });
-          },
+        return CategorySelectionDialog(
+          categories: categoryProvider.categories,
+          selectedCategories: _selectedCategories,
         );
       },
     );
+
+    if (result != null) {
+      setState(() {
+        _selectedCategories = result;
+        _categoryController.text = _selectedCategories.join(", ");
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch categories when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CategoryProvider>(context, listen: false).loadCategories();
+    });
   }
 
   @override
@@ -206,7 +221,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         child: TextFormField(
                           decoration: InputDecoration(
                             labelText: "Select Categories",
-                            border: OutlineInputBorder(),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           controller: TextEditingController(
                             text:

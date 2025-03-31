@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/view/my_shop/add_product_screen.dart';
-import 'package:poketstore/view/my_shop/widget.dart';
+import 'package:poketstore/view/my_shop/widget/widget.dart';
 import 'package:provider/provider.dart';
 
 class MyShopScreen extends StatefulWidget {
@@ -27,13 +27,6 @@ class _MyShopScreenState extends State<MyShopScreen> {
             listen: false,
           ).loadProductsForUser(),
     );
-  }
-
-  Future<void> _refreshProducts() async {
-    await Provider.of<FetchProductProvider>(
-      context,
-      listen: false,
-    ).loadProductsForUser();
   }
 
   @override
@@ -97,39 +90,36 @@ class _MyShopScreenState extends State<MyShopScreen> {
             ),
 
             Expanded(
-              child: RefreshIndicator(
-                onRefresh: _refreshProducts,
-                child: Consumer<FetchProductProvider>(
-                  builder: (context, productProvider, child) {
-                    if (productProvider.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (productProvider.errorMessage.isNotEmpty) {
-                      return Center(child: Text(productProvider.errorMessage));
-                    } else if (productProvider.products.isEmpty) {
-                      return const Center(child: Text("No products available"));
-                    }
+              child: Consumer<FetchProductProvider>(
+                builder: (context, productProvider, child) {
+                  if (productProvider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (productProvider.errorMessage.isNotEmpty) {
+                    return Center(child: Text(productProvider.errorMessage));
+                  } else if (productProvider.products.isEmpty) {
+                    return const Center(child: Text("No products available"));
+                  }
 
-                    // Filter products based on search query
-                    final filteredProducts =
-                        productProvider.products.where((product) {
-                          return product.name.toLowerCase().contains(
-                            _searchQuery,
-                          );
-                        }).toList();
+                  // Filter products based on search query
+                  final filteredProducts =
+                      productProvider.products.where((product) {
+                        return product.name.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                      }).toList();
 
-                    return productMyShopeGridView(
-                      filteredProducts.map((product) {
-                        return {
-                          "_id": product.id,
-                          "image": product.productImage,
-                          "name": product.name,
-                          "weight": product.productType,
-                          "price": "₹${product.price}",
-                        };
-                      }).toList(),
-                    );
-                  },
-                ),
+                  return productMyShopeGridView(
+                    filteredProducts.map((product) {
+                      return {
+                        "_id": product.id,
+                        "image": product.productImage,
+                        "name": product.name,
+                        "weight": product.productType,
+                        "price": "₹${product.price}",
+                      };
+                    }).toList(),
+                  );
+                },
               ),
             ),
 
@@ -144,7 +134,10 @@ class _MyShopScreenState extends State<MyShopScreen> {
                     ),
                   ).then((value) {
                     if (value == true) {
-                      _refreshProducts();
+                      Provider.of<FetchProductProvider>(
+                        context,
+                        listen: false,
+                      ).loadProductsForUser();
                     }
                   });
                 },
