@@ -22,6 +22,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("imagePath $imagePath");
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Container(
@@ -42,7 +43,8 @@ class ProductCard extends StatelessWidget {
                 width: 130,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: FileImage(File(imagePath)),
+                    // image: FileImage(File(imagePath)),
+                    image: NetworkImage(imagePath),
                     onError: (object, stacktrace) {
                       print("error while loading image: $object");
                     },
