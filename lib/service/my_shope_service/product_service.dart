@@ -11,6 +11,7 @@ class ProductService {
   /// Add Product////
 
   Future<Product?> createProduct({
+    required String userId,
     required File productImage,
     required String name,
     required String description,
@@ -27,6 +28,7 @@ class ProductService {
           productImage.path,
           filename: productImage.path.split('/').last,
         ),
+        "userId": userId,
         "name": name,
         "description": description,
         "price": price.toString(),

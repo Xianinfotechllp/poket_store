@@ -12,6 +12,7 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> createProduct({
     required File productImage,
+    required String userId,
     required String name,
     required String description,
     required int price,
@@ -37,6 +38,7 @@ class ProductProvider with ChangeNotifier {
 
     product = await _productService.createProduct(
       productImage: productImage,
+      userId: userId,
       name: name,
       description: description,
       price: price,

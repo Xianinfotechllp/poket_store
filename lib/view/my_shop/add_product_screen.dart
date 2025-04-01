@@ -9,6 +9,7 @@ import 'package:poketstore/controllers/category_controller/category_controller.d
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/view/my_shop/widget/category_dialog_box.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -66,7 +67,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
   }
 
-  Future<void> _submitProduct() async {
+  Future<void> _submitProduct(BuildContext context) async {
     if (!_formKey.currentState!.validate() ||
         _selectedImage == null ||
         _selectedCategories.isEmpty) {
@@ -88,8 +89,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
     log("Product Type: $_selectedType");
     log("Delivery Option: $_selectedDeliveryOption");
     log("Image Path: ${_selectedImage!.path}");
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User ID not found, please login.")),
+      );
+      return;
+    }
+
     final provider = Provider.of<ProductProvider>(context, listen: false);
     await provider.createProduct(
+      userId: userId,
       productImage: _selectedImage!,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
@@ -269,7 +282,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           padding: const EdgeInsets.all(15),
                           child: GestureDetector(
                             onTap: () {
-                              _submitProduct();
+                              _submitProduct(context);
                             },
                             child: Container(
                               decoration: BoxDecoration(
