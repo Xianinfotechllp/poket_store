@@ -8,6 +8,8 @@ import 'package:poketstore/view/home/view/home_screen/home_screen.dart';
 import 'package:poketstore/view/my_shop/my_shop_screen.dart';
 import 'package:poketstore/view/profile/profile_screen.dart';
 
+import '../../controllers/bottom_bar_controller/bottombar_controller.dart';
+
 class BottomBarScreen extends StatelessWidget {
   const BottomBarScreen({super.key});
 
