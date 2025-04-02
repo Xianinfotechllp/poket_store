@@ -162,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : productGridView(
                   filteredProducts.map((product) {
+                    // print("product.productImage ${product.productImage}");
                     return {
                       "_id": product.id,
                       "image": product.productImage,

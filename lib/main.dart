@@ -14,8 +14,6 @@ import 'package:poketstore/controllers/set_location_controller.dart';
 import 'package:poketstore/view/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 
-import 'controllers/bottom_bar_controller/bottombar_controller.dart';
-
 void main() {
   runApp(
     MultiProvider(
