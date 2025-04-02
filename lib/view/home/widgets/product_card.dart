@@ -22,7 +22,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("imagePath $imagePath");
+    // print("imagePath $imagePath");
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Container(

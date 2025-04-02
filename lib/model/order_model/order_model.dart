@@ -19,8 +19,14 @@ class Address {
       pincode: json['pincode'] ?? "",
     );
   }
+
   Map<String, dynamic> toJson() {
-    return {'street': street, 'city': city, 'state': state, 'pincode': pincode};
+    return {
+      'street': street,
+      'city': city,
+      'state': state,
+      'pincode': pincode
+    };
   }
 }
 
@@ -41,10 +47,11 @@ class OrderItem {
     return OrderItem(
       productId: json['productId'] ?? "",
       name: json['name'] ?? "",
-      price: json['price'] ?? "",
-      quantity: json['quantity'] ?? "",
+      price: json['price'] is int ? json['price'] : int.tryParse(json['price'].toString()) ?? 0,
+      quantity: json['quantity'] is int ? json['quantity'] : int.tryParse(json['quantity'].toString()) ?? 0,
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'productId': productId,
@@ -79,21 +86,18 @@ class Order {
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['_id'] ?? "",
-      userId: json['userId'] ?? "",
+      userId: json['userId'] is Map ? json['userId']['_id'] ?? "" : json['userId'] ?? "",
       address: Address.fromJson(json['address'] ?? {}),
-      items:
-          (json['items'] as List)
-              .map((item) => OrderItem.fromJson(item))
-              .toList() ??
-          [],
+      items: (json['items'] as List?)
+          ?.map((item) => OrderItem.fromJson(item))
+          .toList() ?? [],
       totalAmount: json['totalAmount'] ?? 0,
       status: json['status'] ?? "",
       paymentStatus: json['paymentStatus'] ?? "",
-      createdAt: DateTime.parse(
-        json['createdAt'] ?? DateTime.now().toIso8601String(),
-      ),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
