@@ -149,21 +149,22 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> products) {
           onTap: () async {
             String productId = products[index]["_id"].toString();
             log("Tapped Product ID: $productId");
+
             Provider.of<ProductProvider>(
               context,
               listen: false,
             ).fetchProduct(productId);
-            final result = Navigator.push(
+
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (context) => MyShopProductDetails(
-                      productId: productId,
-                      // Pass product ID
-                    ),
+                    (context) => MyShopProductDetails(productId: productId),
               ),
             );
+
             if (result == true) {
+              log("Refreshing My Shop Screen...");
               Provider.of<FetchProductProvider>(
                 context,
                 listen: false,
