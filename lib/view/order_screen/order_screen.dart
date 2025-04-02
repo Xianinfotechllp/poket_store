@@ -227,7 +227,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Container(width: 60, height: 60, color: Colors.grey[100]),
+          child: Container(width: 60, height: 60,
+              // color: Colors.grey[100]
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                // image: FileImage(File(imagePath)),
+                image: AssetImage("assets/addproduct.png"),
+                fit: BoxFit.cover,
+                onError: (object, stacktrace) {
+                  print("error while loading image: $object");
+                },
+              ),
+            ),
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(

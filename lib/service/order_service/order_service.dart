@@ -39,7 +39,12 @@ class OrderService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        return Order.fromJson(response.data);
+        final data = response.data;
+        if (data.containsKey("order")) {
+          return Order.fromJson(data["order"]); // Extract 'order' before parsing
+        } else {
+          throw Exception("Order data not found in response");
+        }
       } else {
         throw Exception("Failed to fetch order details");
       }
@@ -48,4 +53,5 @@ class OrderService {
       return null;
     }
   }
+
 }
