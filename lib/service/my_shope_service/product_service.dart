@@ -57,18 +57,64 @@ class ProductService {
   Future<List<Product>> fetchProducts() async {
     try {
       final response = await _dio.get(baseUrl);
-      log("Response Data: ${response.data}"); // Log the full response
-      log("Status Code: ${response.statusCode}"); // Log status code
-      if (response.statusCode == 200) {
-        List<dynamic> productsJson = response.data["products"];
-        return productsJson.map((json) => Product.fromJson(json)).toList();
+
+      log("Response Status Code: ${response.statusCode}");
+      log("Response Data: ${response.data}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data.containsKey("products") && response.data["products"] is List) {
+          List<dynamic> productsJson = response.data["products"];
+
+          if (productsJson.isEmpty) {
+            log("No products found.");
+            return [];
+          }
+
+          // Map JSON to Product List
+          List<Product> productList = productsJson.map((json) {
+            log("Processing Product: ${json['name']}");
+
+            // Handle incorrect category format
+            List<String> categories;
+            if (json["category"] is List) {
+              categories = List<String>.from(json["category"]);
+            } else {
+              categories = [];
+            }
+
+            return Product(
+              id: json["_id"],
+              name: json["name"],
+              description: json["description"] ?? "",
+              price: json["price"] ?? 0,
+              quantity: json["quantity"] ?? 0,
+              category: categories,
+              productImage: json["productImage"] ?? "",
+              sold: json["sold"] ?? 0,
+              estimatedTime: json["estimatedTime"] ?? "",
+              productType: json["productType"] ?? "",
+              deliveryOption: json["deliveryOption"] ?? "",
+              userId: json["userId"] ?? "",
+              createdAt: DateTime.tryParse(json["createdAt"] ?? "") ?? DateTime.now(), // ✅ Convert String to DateTime
+              updatedAt: DateTime.tryParse(json["updatedAt"] ?? "") ?? DateTime.now(), // ✅ Convert String to DateTime
+            );
+          }).toList();
+
+
+          log("Total Products Fetched: ${productList.length}");
+          return productList;
+        } else {
+          throw Exception("Invalid API response format: Missing 'products' key");
+        }
       } else {
-        throw Exception("Failed to fetch products");
+        throw Exception("Failed to fetch products: Status Code ${response.statusCode}");
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log("Error fetching products: $e", error: e, stackTrace: stackTrace);
       throw Exception("Error fetching products: $e");
     }
   }
+
 
   ///Details page///
 

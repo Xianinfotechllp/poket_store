@@ -11,25 +11,41 @@ class FetchProductProvider with ChangeNotifier {
   bool isLoading = false;
   String errorMessage = '';
 
+  /// Loads all products from the service
   Future<void> loadProducts() async {
+    if (isLoading) return; // Prevent duplicate calls
+
+    log("Fetching all products...");
     isLoading = true;
+    errorMessage = '';
     notifyListeners();
 
     try {
-      products = await _productService.fetchProducts();
-      errorMessage = '';
-    } catch (e) {
-      errorMessage = e.toString();
+      final fetchedProducts = await _productService.fetchProducts();
+
+      if (fetchedProducts.isEmpty) {
+        errorMessage = "No products available.";
+        log(errorMessage);
+      } else {
+        products = fetchedProducts;
+        log("Products fetched successfully. Count: ${products.length}");
+      }
+    } catch (e, stackTrace) {
+      errorMessage = "Failed to load products: $e";
+      log(errorMessage, error: e, stackTrace: stackTrace);
     }
 
     isLoading = false;
     notifyListeners();
   }
 
-  //for user product
-
+  /// Loads products specific to a user
   Future<void> loadProductsForUser() async {
+    if (isLoading) return; // Prevent duplicate calls
+
+    log("Fetching products for user...");
     isLoading = true;
+    errorMessage = '';
     notifyListeners();
 
     try {
@@ -40,13 +56,19 @@ class FetchProductProvider with ChangeNotifier {
         errorMessage = "User ID not found. Please log in again.";
         log(errorMessage);
       } else {
-        products = await _productService.fetchProductsForUser(userId);
-        errorMessage = '';
-        log("Products fetched successfully for user: $userId");
+        final fetchedProducts = await _productService.fetchProductsForUser(userId);
+
+        if (fetchedProducts.isEmpty) {
+          errorMessage = "No products found for this user.";
+          log(errorMessage);
+        } else {
+          products = fetchedProducts;
+          log("Products fetched successfully for user: $userId. Count: ${products.length}");
+        }
       }
-    } catch (e) {
-      errorMessage = "Failed to load products controller: $e";
-      log(errorMessage);
+    } catch (e, stackTrace) {
+      errorMessage = "Failed to load user products: $e";
+      log(errorMessage, error: e, stackTrace: stackTrace);
     }
 
     isLoading = false;
