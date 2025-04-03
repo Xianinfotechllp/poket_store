@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
+import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/my_shop/add_product_screen.dart';
 import 'package:poketstore/view/my_shop/widget/widget.dart';
 import 'package:provider/provider.dart';
@@ -127,20 +128,141 @@ class _MyShopScreenState extends State<MyShopScreen> {
               padding: const EdgeInsets.all(15),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddProductScreen(),
-                    ),
-                  ).then((value) {
-                    if (value == true) {
-                      Provider.of<FetchProductProvider>(
-                        context,
-                        listen: false,
-                      ).loadProductsForUser();
-                    }
-                  });
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.info,
+                                size: 50,
+                                color: Colors.blueAccent,
+                              ),
+                              const SizedBox(height: 15),
+                              const Text(
+                                "Notice",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                "If you have a store, continue adding a product.\nOtherwise, create one by clicking 'Create'.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: TextButton(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                        backgroundColor: Colors.grey[300],
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text(
+                                        "Cancel",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                        backgroundColor: Colors.blueAccent,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    const AddProductScreen(),
+                                          ),
+                                        ).then((value) {
+                                          if (value == true) {
+                                            Provider.of<FetchProductProvider>(
+                                              context,
+                                              listen: false,
+                                            ).loadProductsForUser();
+                                          }
+                                        });
+                                      },
+                                      child: const Text("Continue"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => const AddShop(),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text(
+                                        "Create",
+                                        // textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
+
                 child: Container(
                   height: 50,
                   width: double.infinity,

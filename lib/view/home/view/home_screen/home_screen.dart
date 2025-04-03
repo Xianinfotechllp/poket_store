@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
+import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/home/view/product_details_screen/product_details_screen.dart';
 import 'package:poketstore/view/home/widgets/home_widgets.dart';
 import 'package:poketstore/view/notification/notification.dart';
@@ -65,7 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.add_business_outlined,
               color: Colors.blue.shade900,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddShop()),
+              );
+            },
           ),
           IconButton(
             icon: Icon(

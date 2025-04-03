@@ -28,7 +28,7 @@ Widget buildSectionTitle(String title, String action) {
 
 Widget groceriesHorizontalList(List<Map<String, dynamic>> items) {
   return SizedBox(
-    height: 80,
+    height: 50,
     child: ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: items.length,
@@ -44,7 +44,7 @@ Widget buildGroceryItem(String name, Color color) {
   return Container(
     margin: const EdgeInsets.only(right: 10),
     height: 100,
-    width: 250,
+    width: 100,
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(15),
@@ -53,18 +53,25 @@ Widget buildGroceryItem(String name, Color color) {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
-          Container(
-            height: 70,
-            width: 70,
-            decoration: BoxDecoration(
-              image: const DecorationImage(
-                image: AssetImage('assets/groceries.png'),
-              ),
-              borderRadius: BorderRadius.circular(5),
+          // Container(
+          //   height: 10,
+          //   width: 10,
+          //   decoration: BoxDecoration(
+          //     image: const DecorationImage(
+          //       image: AssetImage('assets/groceries.png'),
+          //     ),
+          //     borderRadius: BorderRadius.circular(5),
+          //   ),
+          // ),
+          const SizedBox(width: 10),
+          Text(
+            name,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 10),
-          Text(name, style: const TextStyle(color: Colors.black, fontSize: 16)),
         ],
       ),
     ),
@@ -73,7 +80,7 @@ Widget buildGroceryItem(String name, Color color) {
 
 Widget storeHorizontalList(List<Map<String, dynamic>> items) {
   return SizedBox(
-    height: 80,
+    height: 50,
     child: ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: items.length,
@@ -89,7 +96,7 @@ Widget buildStoreItem(String name, Color color) {
   return Container(
     margin: const EdgeInsets.only(right: 10),
     height: 100,
-    width: 250,
+    width: 100,
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(15),
@@ -98,18 +105,25 @@ Widget buildStoreItem(String name, Color color) {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
-          Container(
-            height: 70,
-            width: 70,
-            decoration: BoxDecoration(
-              image: const DecorationImage(
-                image: AssetImage('assets/groceries.png'),
-              ),
-              borderRadius: BorderRadius.circular(5),
+          // Container(
+          //   height: 70,
+          //   width: 70,
+          //   decoration: BoxDecoration(
+          //     image: const DecorationImage(
+          //       image: AssetImage('assets/groceries.png'),
+          //     ),
+          //     borderRadius: BorderRadius.circular(5),
+          //   ),
+          // ),
+          const SizedBox(width: 10),
+          Text(
+            name,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 10),
-          Text(name, style: const TextStyle(color: Colors.black, fontSize: 16)),
         ],
       ),
     ),
