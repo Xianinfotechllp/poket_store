@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/view/home/widgets/product_details_widget.dart';
+import 'package:poketstore/view/my_shop/my_shop_screen.dart';
 import 'package:provider/provider.dart';
 
 class MyShopProductDetails extends StatelessWidget {
@@ -232,13 +233,19 @@ class MyShopProductDetails extends StatelessWidget {
                     "price": int.tryParse(priceController.text) ?? 0,
                   };
 
-                  Provider.of<ProductProvider>(context, listen: false)
-                      .updateProduct(productId, updatedData, context)
-                      .then((success) {
-                        if (success) {
-                          Navigator.pop(context, true);
-                        }
-                      });
+                  Provider.of<ProductProvider>(
+                    context,
+                    listen: false,
+                  ).updateProduct(productId, updatedData, context).then((
+                    success,
+                  ) {
+                    if (success) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyShopScreen()),
+                      );
+                    }
+                  });
                 },
                 child: const Text("Update"),
               ),
@@ -267,7 +274,10 @@ class MyShopProductDetails extends StatelessWidget {
                     context,
                     listen: false,
                   ).deleteProduct(productId).then((_) {
-                    Navigator.pop(context, true);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyShopScreen()),
+                    );
                   });
                 },
                 child: const Text("Delete"),
