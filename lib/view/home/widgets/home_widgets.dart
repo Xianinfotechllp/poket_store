@@ -132,11 +132,11 @@ Widget buildStoreItem(String name, Color color) {
 
 Widget productGridView(List<Map<String, dynamic>> products) {
   return SizedBox(
-    height: 500, // Adjust the height as needed
+    // height: 500, // Adjust the height as needed
     child: GridView.builder(
       shrinkWrap: true,
-      // physics:
-      // NeverScrollableScrollPhysics(), // Prevents grid from scrolling independently if inside another scrollable widget
+      physics:
+      NeverScrollableScrollPhysics(), // Prevents grid from scrolling independently if inside another scrollable widget
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Two columns
         crossAxisSpacing: 10,

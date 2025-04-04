@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
@@ -165,19 +167,26 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             // Products Section with Search Applied
             productProvider.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+                : filteredProducts.isEmpty
+                ? const Center(child: Text("No Products Found")) // Show no product message
                 : productGridView(
-                  filteredProducts.map((product) {
-                    // print("product.productImage ${product.productImage}");
-                    return {
-                      "_id": product.id,
-                      "image": product.productImage,
-                      "name": product.name,
-                      "weight": product.productType,
-                      "price": "₹${product.price}",
-                    };
-                  }).toList(),
-                ),
+              filteredProducts.map((product) {
+                log("Product Image: ${product.productImage}");
+                log("Filtered Products Count: ${filteredProducts.length}");
+
+                return {
+                  "_id": product.id,
+                  "image": product.productImage.isNotEmpty
+                      ? product.productImage
+                      : "https://via.placeholder.com/150", // Fallback image
+                  "name": product.name,
+                  "weight": product.productType,
+                  "price": "₹${product.price > 0 ? product.price : 'N/A'}", // Handle invalid prices
+                };
+              }).toList(),
+            ),
+
           ],
         ),
       ),

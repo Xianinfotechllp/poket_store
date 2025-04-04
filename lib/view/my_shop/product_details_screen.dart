@@ -225,7 +225,7 @@ class MyShopProductDetails extends StatelessWidget {
                   Provider.of<ProductProvider>(
                     context,
                     listen: false,
-                  ).updateProduct(productId, updatedData).then((success) {
+                  ).updateProduct(productId, updatedData,context).then((success) {
                     if (success) {
                       Navigator.pop(context, true);
                     }

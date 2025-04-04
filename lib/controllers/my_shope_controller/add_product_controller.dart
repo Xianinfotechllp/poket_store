@@ -2,7 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:poketstore/model/my_shope_model/product_model.dart';
 import 'package:poketstore/service/my_shope_service/product_service.dart';
-import 'dart:developer'; // Import the developer library
+import 'dart:developer';
+
+import 'package:provider/provider.dart';
+
+import 'fetch_product.dart'; // Import the developer library
 
 class ProductProvider with ChangeNotifier {
   final ProductService _productService = ProductService();
@@ -80,11 +84,16 @@ class ProductProvider with ChangeNotifier {
   Future<bool> updateProduct(
     String productId,
     Map<String, dynamic> data,
+      context
   ) async {
     bool success = await _productService.updateProduct(productId, data);
     if (success) {
       // Refresh product details
       fetchProduct(productId);
+      final fetchProductProvider =
+      Provider.of<FetchProductProvider>(context, listen: false);
+
+      await fetchProductProvider.loadProductsForUser();
     }
     return success;
   }

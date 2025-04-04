@@ -102,24 +102,31 @@ class _MyShopScreenState extends State<MyShopScreen> {
                   }
 
                   // Filter products based on search query
-                  final filteredProducts =
-                      productProvider.products.where((product) {
-                        return product.name.toLowerCase().contains(
-                          _searchQuery,
-                        );
-                      }).toList();
+                  final filteredProducts = productProvider.products.where((product) {
+                    final productName = product.name?.toLowerCase() ?? ""; // ✅ Handle null values
+                    final searchQuery = _searchQuery.toLowerCase(); // ✅ Ensure case-insensitive search
+
+                    return productName.contains(searchQuery);
+                  }).toList();
 
                   return productMyShopeGridView(
                     filteredProducts.map((product) {
+                      log("Product Image: ${product.productImage ?? 'No Image'}");
+                      log("Filtered Products Count: ${filteredProducts.length}");
+
                       return {
-                        "_id": product.id,
-                        "image": product.productImage,
-                        "name": product.name,
-                        "weight": product.productType,
-                        "price": "₹${product.price}",
+                        "_id": product.id ?? "", // ✅ Ensure ID is not null
+                        "image": (product.productImage != null && product.productImage!.isNotEmpty)
+                            ? product.productImage
+                            : "https://via.placeholder.com/150", // ✅ Fallback image
+                        "name": product.name ?? "Unknown", // ✅ Handle missing names
+                        "weight": product.productType ?? "N/A", // ✅ Handle missing product types
+                        "price": "₹${(product.price != null && product.price! > 0) ? product.price : 'N/A'}", // ✅ Handle null or invalid prices
                       };
                     }).toList(),
                   );
+
+
                 },
               ),
             ),

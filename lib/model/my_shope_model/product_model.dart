@@ -10,6 +10,7 @@ class Product {
   final String estimatedTime;
   final String productType;
   final String deliveryOption;
+  final String userId; // Add userId
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -25,6 +26,7 @@ class Product {
     required this.estimatedTime,
     required this.productType,
     required this.deliveryOption,
+    required this.userId, // Include userId properly
     required this.createdAt,
     required this.updatedAt,
   });
@@ -35,18 +37,14 @@ class Product {
       name: json['name'] ?? "",
       description: json['description'] ?? "",
       price: int.tryParse(json['price'].toString()) ?? 0, // Ensure it's an int
-      quantity:
-          int.tryParse(json['quantity'].toString()) ?? 0, // Ensure it's an int
-      category:
-          (json['category'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-      productImage: json['productImage'] ?? "",
+      quantity: int.tryParse(json['quantity'].toString()) ?? 0, // Ensure it's an int
+      category: (json['category'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      productImage: json['productImage'] ?? "https://pixabay.com/photos/himeji-castle-himeji-castle-japan-9500850/",
       sold: json['sold'] ?? 0,
       estimatedTime: json['estimatedTime'] ?? "",
       productType: json['productType'] ?? "",
       deliveryOption: json['deliveryOption'] ?? "",
+      userId: json['userId'] ?? "", // Ensure userId is properly assigned
       createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? "") ?? DateTime.now(),
     );
@@ -59,14 +57,15 @@ class Product {
       'description': description,
       'price': price,
       'quantity': quantity,
-      'category': category, // List<String> stays the same
+      'category': category,
       'productImage': productImage,
       'sold': sold,
       'estimatedTime': estimatedTime,
       'productType': productType,
       'deliveryOption': deliveryOption,
-      'createdAt': createdAt.toIso8601String(), // Convert DateTime to String
-      'updatedAt': updatedAt.toIso8601String(), // Convert DateTime to String
+      'userId': userId, // Include userId in toJson
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 }

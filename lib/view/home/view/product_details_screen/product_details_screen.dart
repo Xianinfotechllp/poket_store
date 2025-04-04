@@ -352,7 +352,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         () => showAddToCartSheet(
                           context,
                           product.name,
-                          product.price.toDouble(),
+                          product.price?.toDouble() ?? 0.00,
                           1,
                           product.id,
                         ),
