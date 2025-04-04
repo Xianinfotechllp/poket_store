@@ -72,3 +72,67 @@ class Cart {
     );
   }
 }
+
+class Product {
+  final String id;
+  final String name;
+  final int price;
+  final String productImage;
+
+  Product({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.productImage,
+  });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['_id'],
+      name: json['name'],
+      price: json['price'],
+      productImage: json['productImage'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'price': price,
+      'productImage': productImage,
+    };
+  }
+}
+
+// class CartItem {
+//   final String id;
+//   final Product product;
+//   final int quantity;
+//   final int totalAmount;
+
+//   CartItem({
+//     required this.id,
+//     required this.product,
+//     required this.quantity,
+//     required this.totalAmount,
+//   });
+
+//   factory CartItem.fromJson(Map<String, dynamic> json) {
+//     return CartItem(
+//       id: json['_id'],
+//       product: Product.fromJson(json['productId']),
+//       quantity: json['quantity'],
+//       totalAmount: json['totalAmount'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       '_id': id,
+//       'productId': product.toJson(),
+//       'quantity': quantity,
+//       'totalAmount': totalAmount,
+//     };
+//   }
+// }

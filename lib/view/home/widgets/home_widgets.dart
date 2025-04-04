@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
+import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/view/home/view/product_details_screen/product_details_screen.dart';
 import 'package:poketstore/view/home/widgets/product_card.dart';
 import 'package:provider/provider.dart';
@@ -131,49 +132,39 @@ Widget buildStoreItem(String name, Color color) {
 }
 
 Widget productGridView(List<Map<String, dynamic>> products) {
-  return SizedBox(
-    // height: 500, // Adjust the height as needed
-    child: GridView.builder(
-      shrinkWrap: true,
-      physics:
-      NeverScrollableScrollPhysics(), // Prevents grid from scrolling independently if inside another scrollable widget
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Two columns
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 0.75, // Adjust for card proportions
-      ),
-      itemCount: products.length,
-      padding: const EdgeInsets.all(10),
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            String productId = products[index]["_id"].toString();
-            log("Tapped Product ID: $productId");
-            Provider.of<ProductProvider>(
-              context,
-              listen: false,
-            ).fetchProduct(productId);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => ProductDetailsScreen(
-                      productId: productId, // Pass product ID
-                    ),
-              ),
-            );
-          },
-          child: ProductCard(
-            // id: products[index]["_id"],
-            icon: Icons.shopping_cart_outlined,
-            imagePath: products[index]["image"],
-            title: products[index]["name"],
-            weight: products[index]["weight"],
-            price: products[index]["price"],
-          ),
-        );
-      },
+  return GridView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 0.75,
     ),
+    itemCount: products.length,
+    padding: const EdgeInsets.all(10),
+    itemBuilder: (context, index) {
+      final product = products[index];
+      return GestureDetector(
+        onTap: () {
+          String productId = product["_id"].toString();
+          log("Tapped Product ID: $productId");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailsScreen(productId: productId),
+            ),
+          );
+        },
+        child: ProductCard(
+          icon: Icons.shopping_cart_outlined,
+          imagePath:
+              product["image"] ?? "", // Provide default image path if null
+          title: product["name"] ?? "Product", // Provide default title if null
+          weight: product["weight"]?.toString() ?? "", // Handle null weight
+          price: product["price"] ?? 0, // Provide default price if null
+        ),
+      );
+    },
   );
 }
