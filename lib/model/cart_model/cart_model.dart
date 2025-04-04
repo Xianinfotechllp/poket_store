@@ -18,11 +18,13 @@ class CartItem {
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
+    final product = json['productId'];
+
     return CartItem(
-      productId: json['productId']['_id'],
-      name: json['productId']['name'],
-      price: json['productId']['price'],
-      productImage: json['productId']['productImage'],
+      productId: product is String ? product : product['_id'],
+      name: product is Map ? product['name'] : null,
+      price: product is Map ? product['price'] : null,
+      productImage: product is Map ? product['productImage'] : null,
       quantity: json['quantity'],
       totalAmount: json['totalAmount'],
       id: json['_id'],
@@ -32,12 +34,8 @@ class CartItem {
   Map<String, dynamic> toJson() {
     return {
       "productId": productId,
-      // "name": name,
-      // "price": price,
-      // "productImage": productImage,
       "quantity": quantity,
       "totalAmount": totalAmount,
-      // "id": id,
     };
   }
 }
@@ -60,16 +58,25 @@ class Cart {
   factory Cart.fromJson(Map<String, dynamic> json) {
     return Cart(
       userId: json['userId'],
-      items:
-          (json['items'] as List)
-              .map((item) => CartItem.fromJson(item))
-              .toList(),
+      items: (json['items'] as List)
+          .map((item) => CartItem.fromJson(item))
+          .toList(),
       id: json['_id'],
       createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "userId": userId,
+      "items": items.map((item) => item.toJson()).toList(),
+      "_id": id,
+      "createdAt": createdAt?.toIso8601String(),
+      "updatedAt": updatedAt?.toIso8601String(),
+    };
   }
 }
 
