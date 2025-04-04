@@ -19,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  String searchQuery = "";
 
   final List<String> _bannerImages = [
     'assets/slider.png',
@@ -45,12 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<FetchProductProvider>(context);
-
-    // Filter products based on search query
-    final filteredProducts =
-        productProvider.products.where((product) {
-          return product.name.toLowerCase().contains(searchQuery.toLowerCase());
-        }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -93,33 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    Future.microtask(() {
-                      if (mounted) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      }
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Search Store',
-                    border: InputBorder.none,
-                    prefixIcon: Icon(Icons.search, color: Colors.grey),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  ),
-                ),
-              ),
-            ),
             // Carousel Slider
             CarouselSlider(
               options: CarouselOptions(
@@ -165,28 +131,26 @@ class _HomeScreenState extends State<HomeScreen> {
             buildSectionTitle("Stores", "See all"),
             storeHorizontalList(_groceryItems),
             const SizedBox(height: 20),
-            // Products Section with Search Applied
+            // Products Section (No search applied)
             productProvider.isLoading
-                ? const Center(child: CircularProgressIndicator()) // Show loading indicator
-                : filteredProducts.isEmpty
-                ? const Center(child: Text("No Products Found")) // Show no product message
+                ? const Center(child: CircularProgressIndicator())
+                : productProvider.products.isEmpty
+                ? const Center(child: Text("No Products Found"))
                 : productGridView(
-              filteredProducts.map((product) {
-                log("Product Image: ${product.productImage}");
-                log("Filtered Products Count: ${filteredProducts.length}");
-
-                return {
-                  "_id": product.id,
-                  "image": product.productImage.isNotEmpty
-                      ? product.productImage
-                      : "https://via.placeholder.com/150", // Fallback image
-                  "name": product.name,
-                  "weight": product.productType,
-                  "price": "₹${product.price > 0 ? product.price : 'N/A'}", // Handle invalid prices
-                };
-              }).toList(),
-            ),
-
+                  productProvider.products.map((product) {
+                    log("Product Image: ${product.productImage}");
+                    return {
+                      "_id": product.id,
+                      "image":
+                          product.productImage.isNotEmpty
+                              ? product.productImage
+                              : "https://via.placeholder.com/150",
+                      "name": product.name,
+                      "weight": product.productType,
+                      "price": "₹${product.price > 0 ? product.price : 'N/A'}",
+                    };
+                  }).toList(),
+                ),
           ],
         ),
       ),

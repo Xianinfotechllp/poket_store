@@ -1,6 +1,7 @@
 class CartItem {
   final String? productId;
   final String? name;
+  // final Product? product;
   final int? price;
   final String? productImage;
   final int? quantity;
@@ -9,6 +10,7 @@ class CartItem {
 
   CartItem({
     this.productId,
+    // this.product,
     this.name,
     this.price,
     this.productImage,
@@ -21,6 +23,7 @@ class CartItem {
     final product = json['productId'];
 
     return CartItem(
+      // product: Product.fromJson(json['productId']),
       productId: product is String ? product : product['_id'],
       name: product is Map ? product['name'] : null,
       price: product is Map ? product['price'] : null,
@@ -58,14 +61,15 @@ class Cart {
   factory Cart.fromJson(Map<String, dynamic> json) {
     return Cart(
       userId: json['userId'],
-      items: (json['items'] as List)
-          .map((item) => CartItem.fromJson(item))
-          .toList(),
+      items:
+          (json['items'] as List)
+              .map((item) => CartItem.fromJson(item))
+              .toList(),
       id: json['_id'],
       createdAt:
-      json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt:
-      json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 
@@ -80,37 +84,28 @@ class Cart {
   }
 }
 
-class Product {
-  final String id;
-  final String name;
-  final int price;
-  final String productImage;
+// class Product {
+//   final String id;
+//   final String name;
+//   final int price;
+//   final String productImage;
 
-  Product({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.productImage,
-  });
+//   Product({
+//     required this.id,
+//     required this.name,
+//     required this.price,
+//     required this.productImage,
+//   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['_id'],
-      name: json['name'],
-      price: json['price'],
-      productImage: json['productImage'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'name': name,
-      'price': price,
-      'productImage': productImage,
-    };
-  }
-}
+//   factory Product.fromJson(Map<String, dynamic> json) {
+//     return Product(
+//       id: json['_id'],
+//       name: json['name'],
+//       price: json['price'],
+//       productImage: json['productImage'],
+//     );
+//   }
+// }
 
 // class CartItem {
 //   final String id;

@@ -56,14 +56,18 @@ class FetchProductProvider with ChangeNotifier {
         errorMessage = "User ID not found. Please log in again.";
         log(errorMessage);
       } else {
-        final fetchedProducts = await _productService.fetchProductsForUser(userId);
+        final fetchedProducts = await _productService.fetchProductsForUser(
+          userId,
+        );
 
         if (fetchedProducts.isEmpty) {
           errorMessage = "No products found for this user.";
           log(errorMessage);
         } else {
           products = fetchedProducts;
-          log("Products fetched successfully for user: $userId. Count: ${products.length}");
+          log(
+            "Products fetched successfully for user: $userId. Count: ${products.length}",
+          );
         }
       }
     } catch (e, stackTrace) {

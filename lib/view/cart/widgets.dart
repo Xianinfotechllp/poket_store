@@ -32,8 +32,12 @@ class CartItemWidget extends StatelessWidget {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  item.totalAmount.toString(),
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  "\$ ${item.totalAmount.toString()}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 10),
                 Row(

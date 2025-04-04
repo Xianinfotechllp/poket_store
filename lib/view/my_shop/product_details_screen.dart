@@ -182,9 +182,19 @@ class MyShopProductDetails extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context, String productId) {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController descriptionController = TextEditingController();
-    TextEditingController priceController = TextEditingController();
+    final product =
+        Provider.of<ProductProvider>(context, listen: false).product;
+
+    if (product == null) return;
+    TextEditingController nameController = TextEditingController(
+      text: product.name,
+    );
+    TextEditingController descriptionController = TextEditingController(
+      text: product.description,
+    );
+    TextEditingController priceController = TextEditingController(
+      text: product.price.toString(),
+    );
 
     showDialog(
       context: context,
@@ -222,14 +232,13 @@ class MyShopProductDetails extends StatelessWidget {
                     "price": int.tryParse(priceController.text) ?? 0,
                   };
 
-                  Provider.of<ProductProvider>(
-                    context,
-                    listen: false,
-                  ).updateProduct(productId, updatedData,context).then((success) {
-                    if (success) {
-                      Navigator.pop(context, true);
-                    }
-                  });
+                  Provider.of<ProductProvider>(context, listen: false)
+                      .updateProduct(productId, updatedData, context)
+                      .then((success) {
+                        if (success) {
+                          Navigator.pop(context, true);
+                        }
+                      });
                 },
                 child: const Text("Update"),
               ),

@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
@@ -15,19 +14,19 @@ class MyShopScreen extends StatefulWidget {
 }
 
 class _MyShopScreenState extends State<MyShopScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = "";
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () =>
-          Provider.of<FetchProductProvider>(
-            context,
-            listen: false,
-          ).loadProductsForUser(),
-    );
+    _loadProducts();
+  }
+
+  void _loadProducts() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FetchProductProvider>(
+        context,
+        listen: false,
+      ).loadProductsForUser();
+    });
   }
 
   @override
@@ -69,27 +68,6 @@ class _MyShopScreenState extends State<MyShopScreen> {
                 ),
               ],
             ),
-
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: "Search Products...",
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value.toLowerCase();
-                  });
-                },
-              ),
-            ),
-
             Expanded(
               child: Consumer<FetchProductProvider>(
                 builder: (context, productProvider, child) {
@@ -101,36 +79,29 @@ class _MyShopScreenState extends State<MyShopScreen> {
                     return const Center(child: Text("No products available"));
                   }
 
-                  // Filter products based on search query
-                  final filteredProducts = productProvider.products.where((product) {
-                    final productName = product.name?.toLowerCase() ?? ""; // ✅ Handle null values
-                    final searchQuery = _searchQuery.toLowerCase(); // ✅ Ensure case-insensitive search
-
-                    return productName.contains(searchQuery);
-                  }).toList();
-
                   return productMyShopeGridView(
-                    filteredProducts.map((product) {
-                      log("Product Image: ${product.productImage ?? 'No Image'}");
-                      log("Filtered Products Count: ${filteredProducts.length}");
+                    productProvider.products.map((product) {
+                      log(
+                        "Product Image: ${product.productImage ?? 'No Image'}",
+                      );
 
                       return {
-                        "_id": product.id ?? "", // ✅ Ensure ID is not null
-                        "image": (product.productImage != null && product.productImage!.isNotEmpty)
-                            ? product.productImage
-                            : "https://via.placeholder.com/150", // ✅ Fallback image
-                        "name": product.name ?? "Unknown", // ✅ Handle missing names
-                        "weight": product.productType ?? "N/A", // ✅ Handle missing product types
-                        "price": "₹${(product.price != null && product.price! > 0) ? product.price : 'N/A'}", // ✅ Handle null or invalid prices
+                        "_id": product.id ?? "",
+                        "image":
+                            (product.productImage != null &&
+                                    product.productImage!.isNotEmpty)
+                                ? product.productImage
+                                : "https://via.placeholder.com/150",
+                        "name": product.name ?? "Unknown",
+                        "weight": product.productType ?? "N/A",
+                        "price":
+                            "₹${(product.price != null && product.price! > 0) ? product.price : 'N/A'}",
                       };
                     }).toList(),
                   );
-
-
                 },
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(15),
               child: GestureDetector(
@@ -147,7 +118,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.info,
                                 size: 50,
                                 color: Colors.blueAccent,
@@ -220,10 +191,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                                           ),
                                         ).then((value) {
                                           if (value == true) {
-                                            Provider.of<FetchProductProvider>(
-                                              context,
-                                              listen: false,
-                                            ).loadProductsForUser();
+                                            _loadProducts(); // Reload products after adding
                                           }
                                         });
                                       },
@@ -254,10 +222,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                                           ),
                                         );
                                       },
-                                      child: const Text(
-                                        "Create",
-                                        // textAlign: TextAlign.center,
-                                      ),
+                                      child: const Text("Create"),
                                     ),
                                   ),
                                 ],
@@ -269,7 +234,6 @@ class _MyShopScreenState extends State<MyShopScreen> {
                     },
                   );
                 },
-
                 child: Container(
                   height: 50,
                   width: double.infinity,

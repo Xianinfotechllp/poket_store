@@ -2,8 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
-import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:poketstore/controllers/category_controller/category_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
@@ -38,13 +36,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final List<String> _typeOptions = ["Per Pack", "Per Unit", "Per KG"];
   final List<String> _deliveryOptions = ["Home Delivery", "Store Pickup"];
   final List<String> _availabilityOptions = ["Available", "Out of Stock"];
-  // final List<String> _categoryOptions = [
-  //   "Electronics",
-  //   "Clothing",
-  //   "Grocery",
-  //   "Home & Kitchen",
-  //   "Beauty",
-  // ];
 
   Future<void> _pickImage(ImageSource source) async {
     var status = await Permission.photos.request();
@@ -118,7 +109,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Product added successfully!")),
       );
-      Navigator.pop(context, true);
+      Navigator.pop(context, true); // Return true to indicate success
     } else {
       ScaffoldMessenger.of(
         context,
@@ -132,7 +123,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       listen: false,
     );
 
-    // Show category selection dialog
     List<String>? result = await showDialog(
       context: context,
       builder: (context) {
@@ -154,7 +144,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch categories when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CategoryProvider>(context, listen: false).loadCategories();
     });
@@ -166,7 +155,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(title: const Text("Add Product")),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -175,8 +163,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 Container(
                   height: 200,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    // color: Colors.black,
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/myshope.png'),
                       fit: BoxFit.cover,
@@ -227,7 +214,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       isNumber: true,
                     ),
                     _buildTextField("Description", _descriptionController),
-
                     GestureDetector(
                       onTap: _selectCategories,
                       child: AbsorbPointer(
@@ -252,7 +238,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 15),
                     _buildDropdownField(
                       "Delivery Option",
@@ -326,7 +311,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         validator:
             (value) =>
