@@ -144,11 +144,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           CartItem(
                             productId: productId,
                             quantity: tempQuantity,
-                            // price: productPrice,
+                            totalAmount: productPrice.toInt(),
                           ),
                         ]);
 
-                        debugPrint(
+                        log(
                           "Added to cart: $productName, ID: $productId, Quantity: $tempQuantity, Total Price: $totalPrice",
                         );
 

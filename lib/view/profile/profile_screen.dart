@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/add_shop/shope_list_screen.dart';
+import 'package:poketstore/view/delivery_address/delivery_address.dart';
+import 'package:poketstore/view/notification/notification.dart';
 import 'package:poketstore/view/order_screen/order_screen.dart';
 import 'package:poketstore/view/subscription/subscription.dart';
 import 'package:provider/provider.dart';
@@ -52,10 +54,10 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   // Edit Icon
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.edit, color: Colors.green),
-                  ),
+                  // IconButton(
+                  //   onPressed: () {},
+                  //   icon: const Icon(Icons.edit, color: Colors.green),
+                  // ),
                 ],
               ),
             ),
@@ -71,11 +73,12 @@ class ProfileScreen extends StatelessWidget {
               );
             }),
             buildMenuItem(Icons.person_outline, "My Details", () {}),
-            buildMenuItem(
-              Icons.location_on_outlined,
-              "Delivery Address",
-              () {},
-            ),
+            buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddressListScreen()),
+              );
+            }),
             buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
               Navigator.push(
@@ -90,7 +93,12 @@ class ProfileScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => Subscription()),
               );
             }),
-            buildMenuItem(Icons.notifications_outlined, "Notifications", () {}),
+            buildMenuItem(Icons.notifications_outlined, "Notifications", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
+            }),
             buildMenuItem(Icons.help_outline, "Help", () {}),
             buildMenuItem(Icons.info_outline, "About", () {}),
 
@@ -104,7 +112,7 @@ class ProfileScreen extends StatelessWidget {
                   loginProvider.logout(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0XFF094497),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

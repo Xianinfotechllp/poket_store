@@ -4,7 +4,7 @@ import 'package:poketstore/model/cart_model/cart_model.dart';
 
 class CartService {
   final Dio _dio = Dio();
-  final String _baseUrl = "https://shop-app-backend-main.onrender.com/api/cart";
+  final String _baseUrl = "https://shop-by-sabu-q.onrender.com/api/cart";
 
   Future<Cart> addToCart(List<CartItem> items, String token) async {
     try {
