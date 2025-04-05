@@ -150,10 +150,10 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> products) {
             String productId = products[index]["_id"].toString();
             log("Tapped Product ID: $productId");
 
-            Provider.of<ProductProvider>(
-              context,
-              listen: false,
-            ).fetchProduct(productId);
+            // Provider.of<ProductProvider>(
+            //   context,
+            //   listen: false,
+            // ).fetchProduct(productId);
 
             final result = await Navigator.push(
               context,
