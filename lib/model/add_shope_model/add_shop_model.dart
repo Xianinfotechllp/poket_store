@@ -1,5 +1,6 @@
 class ShopModel {
   final String? id;
+  final String? userId;
   final String shopName;
   final List<String> category;
   final String sellerType;
@@ -11,6 +12,7 @@ class ShopModel {
   final DateTime? updatedAt;
 
   ShopModel({
+    this.userId,
     this.id,
     required this.shopName,
     required this.category,
@@ -26,6 +28,7 @@ class ShopModel {
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
       id: json["_id"],
+      userId: json['userId'],
       shopName: json["shopName"],
       category:
           (json['category'] as List<dynamic>?)
@@ -43,6 +46,7 @@ class ShopModel {
   }
   Map<String, dynamic> toJson() {
     return {
+      'userId': userId,
       "shopName": shopName,
       "category": category,
       "sellerType": sellerType,

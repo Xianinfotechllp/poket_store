@@ -10,6 +10,8 @@ import 'package:poketstore/view/my_shop/widget/category_dialog_box.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class AddShop extends StatefulWidget {
   const AddShop({super.key});
 
@@ -29,12 +31,12 @@ class _AddShopState extends State<AddShop> {
   String? _selectedState;
   File? _headerImage;
 
-  final List<String> categories = [
-    "Grocery",
-    "Electronics",
-    "Clothing",
-    "Furniture",
-  ];
+  // final List<String> categories = [
+  //   "Grocery",
+  //   "Electronics",
+  //   "Clothing",
+  //   "Furniture",
+  // ];
   final List<String> sellerTypes = ["Producer", "Trader"];
   final List<String> states = [
     "Andhra Pradesh",
@@ -103,6 +105,15 @@ class _AddShopState extends State<AddShop> {
       return;
     }
 
+    // Get userId from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null || userId.isEmpty) {
+      _showSnackbar("User ID not found. Please login again.");
+      return;
+    }
+
     // Log the data before submitting
     log("Registering shop with details:");
     log("Shop Name: ${_shopNameController.text.trim()}");
@@ -112,6 +123,7 @@ class _AddShopState extends State<AddShop> {
     log("Place: ${_placeController.text.trim()}");
     log("Pin Code: ${_pinCodeController.text.trim()}");
     log("Header Image Path: ${_headerImage!.path}");
+    log("User ID: $userId");
 
     final shop = ShopModel(
       shopName: _shopNameController.text.trim(),
@@ -120,7 +132,8 @@ class _AddShopState extends State<AddShop> {
       state: _selectedState!,
       place: _placeController.text.trim(),
       pinCode: _pinCodeController.text.trim(),
-      headerImage: "", // Store file path
+      headerImage: "", // The image file will be passed separately
+      userId: userId,
     );
 
     final provider = Provider.of<ShopProvider>(context, listen: false);
@@ -130,7 +143,7 @@ class _AddShopState extends State<AddShop> {
       _showSnackbar(provider.errorMessage);
     } else {
       _showSnackbar("Shop registered successfully!");
-      Navigator.of(context).pop(); // Go back to the previous screen
+      Navigator.of(context).pop(true); // Go back to previous screen
     }
   }
 

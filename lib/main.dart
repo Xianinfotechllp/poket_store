@@ -14,6 +14,8 @@ import 'package:poketstore/controllers/set_location_controller.dart';
 import 'package:poketstore/view/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'controllers/shop_of_user_controller/shop_of_user_controller.dart';
+
 void main() {
   runApp(
     MultiProvider(
@@ -30,6 +32,7 @@ void main() {
         ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProvider(create: (context) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => ShopProvider()),
+        ChangeNotifierProvider(create: (_) => ShopOfUserProvider()),
       ],
       child: const MyApp(),
     ),

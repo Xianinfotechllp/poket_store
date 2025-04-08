@@ -6,7 +6,7 @@ import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
 
 class ShopService {
   final Dio _dio = Dio();
-  final String baseUrl = "https://shop-app-backend-main.onrender.com/api/shops";
+  final String baseUrl = "https://shop-by-sabu-q.onrender.com/api/shops";
 
   Future<List<ShopModel>> fetchShops() async {
     try {
@@ -38,6 +38,7 @@ class ShopService {
                   filename: "shop_image.jpg",
                 )
                 : null,
+        "userId": shop.userId,
       });
 
       Response response = await _dio.post(
