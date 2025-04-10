@@ -8,17 +8,17 @@ class ShopOfUserService {
 
   Future<List<ShopOfUser>> getShopsByUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
+    // final userId = prefs.getString('userId');
     final token = prefs.getString('token');
 
-    if (userId == null || token == null) {
+    if (token == null) {
       throw Exception("User ID or token not found");
     }
 
     try {
       final response = await _dio.get(
         "https://shop-by-sabu-q.onrender.com/api/shops/by-user",
-        queryParameters: {"userId": userId},
+        // queryParameters: {"userId": userId},
         options: Options(
           headers: {
             "Authorization": "Bearer $token",

@@ -15,6 +15,7 @@ class ProductProvider with ChangeNotifier {
   String? errorMessage;
 
   Future<void> createProduct({
+    required String shop,
     required File productImage,
     required String userId,
     required String name,
@@ -39,9 +40,11 @@ class ProductProvider with ChangeNotifier {
     log("Estimated Time: $estimatedTime");
     log("Product Type: $productType");
     log("Delivery Option: $deliveryOption");
+    log('shope:$shop');
 
     product = await _productService.createProduct(
       productImage: productImage,
+      shop: shop,
       userId: userId,
       name: name,
       description: description,
@@ -84,14 +87,16 @@ class ProductProvider with ChangeNotifier {
   Future<bool> updateProduct(
     String productId,
     Map<String, dynamic> data,
-      context
+    context,
   ) async {
     bool success = await _productService.updateProduct(productId, data);
     if (success) {
       // Refresh product details
       fetchProduct(productId);
-      final fetchProductProvider =
-      Provider.of<FetchProductProvider>(context, listen: false);
+      final fetchProductProvider = Provider.of<FetchProductProvider>(
+        context,
+        listen: false,
+      );
 
       await fetchProductProvider.loadProductsForUser();
     }

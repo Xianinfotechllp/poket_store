@@ -240,10 +240,11 @@ class MyShopProductDetails extends StatelessWidget {
                     success,
                   ) {
                     if (success) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyShopScreen()),
-                      );
+                      Navigator.pop(context);
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => MyShopScreen()),
+                      // );
                     }
                   });
                 },
@@ -274,10 +275,11 @@ class MyShopProductDetails extends StatelessWidget {
                     context,
                     listen: false,
                   ).deleteProduct(productId).then((_) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyShopScreen()),
-                    );
+                    Navigator.pop(context);
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => MyShopScreen()),
+                    // );
                   });
                 },
                 child: const Text("Delete"),

@@ -19,63 +19,11 @@ class CategorySelectionDialog extends StatefulWidget {
 
 class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
   late List<String> tempSelected;
-  final TextEditingController _categoryController = TextEditingController();
-  List<Category> updatedCategories = [];
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     tempSelected = List.from(widget.selectedCategories);
-    updatedCategories = List.from(widget.categories);
-  }
-
-  void _addCategory() async {
-    final provider = Provider.of<CategoryProvider>(context, listen: false);
-    String name = _categoryController.text.trim();
-
-    if (name.isNotEmpty) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      try {
-        await provider.addCategory(name);
-        _categoryController.clear();
-
-        // Fetch updated categories and refresh UI
-        setState(() {
-          updatedCategories = List.from(provider.categories);
-          _isLoading = false;
-        });
-
-        // Close the dialog and reopen it to refresh completely
-        Navigator.pop(context);
-        showDialog(
-          context: context,
-          builder:
-              (context) => CategorySelectionDialog(
-                categories: updatedCategories,
-                selectedCategories: tempSelected,
-              ),
-        );
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Category added successfully')));
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to add category: $e')));
-      }
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Category name cannot be empty')));
-    }
   }
 
   @override
@@ -84,11 +32,8 @@ class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
       title: Text("Select Categories"),
       content: SingleChildScrollView(
         child: Column(
-          children: [
-            if (_isLoading)
-              Center(child: CircularProgressIndicator())
-            else
-              ...updatedCategories.map((category) {
+          children:
+              widget.categories.map((category) {
                 return CheckboxListTile(
                   title: Text(category.name),
                   value: tempSelected.contains(category.name),
@@ -103,18 +48,6 @@ class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
                   },
                 );
               }).toList(),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _categoryController,
-              decoration: InputDecoration(
-                labelText: "Add New Category",
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: _addCategory,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
       actions: [

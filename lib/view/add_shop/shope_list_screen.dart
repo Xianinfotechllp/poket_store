@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:poketstore/model/shop_of_user_model/shop_of_user_model.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
+import 'package:poketstore/view/add_shop/shope_details_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/shop_of_user_controller/shop_of_user_controller.dart';
 
@@ -52,6 +53,15 @@ class _ShopListScreenState extends State<ShopListScreen> {
                   title: Text(shop.shopName),
                   subtitle: Text("${shop.place}, ${shop.state}"),
                   trailing: Text(shop.sellerType),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ShopeDetailsScreen(shopId: shop.id),
+                      ),
+                    );
+                  },
                 ),
               );
             },

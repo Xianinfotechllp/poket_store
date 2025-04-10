@@ -1,5 +1,6 @@
 class Product {
   final String id;
+  final String? shop;
   final String name;
   final String description;
   final int price;
@@ -10,13 +11,16 @@ class Product {
   final String estimatedTime;
   final String productType;
   final String deliveryOption;
+  // final int totalAmount;
   final String userId; // Add userId
   final DateTime createdAt;
   final DateTime updatedAt;
 
   Product({
+    this.shop,
     required this.id,
     required this.name,
+    // required this.totalAmount,
     required this.description,
     required this.price,
     required this.quantity,
@@ -33,13 +37,22 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
+      shop: json['shop'] ?? "",
+      // totalAmount: json['totalAmount'],
       id: json['_id'] ?? "",
       name: json['name'] ?? "",
       description: json['description'] ?? "",
       price: int.tryParse(json['price'].toString()) ?? 0, // Ensure it's an int
-      quantity: int.tryParse(json['quantity'].toString()) ?? 0, // Ensure it's an int
-      category: (json['category'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
-      productImage: json['productImage'] ?? "https://pixabay.com/photos/himeji-castle-himeji-castle-japan-9500850/",
+      quantity:
+          int.tryParse(json['quantity'].toString()) ?? 0, // Ensure it's an int
+      category:
+          (json['category'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      productImage:
+          json['productImage'] ??
+          "https://pixabay.com/photos/himeji-castle-himeji-castle-japan-9500850/",
       sold: json['sold'] ?? 0,
       estimatedTime: json['estimatedTime'] ?? "",
       productType: json['productType'] ?? "",
@@ -52,9 +65,11 @@ class Product {
 
   Map<String, dynamic> toJson() {
     return {
+      'shop': shop,
       '_id': id,
       'name': name,
       'description': description,
+      // 'totalAmount': totalAmount,
       'price': price,
       'quantity': quantity,
       'category': category,

@@ -3,11 +3,34 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
+import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
+import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
 import 'package:poketstore/view/home/view/product_details_screen/product_details_screen.dart';
+import 'package:poketstore/view/home/view/store_horizontal_scroll/product_by_shop.dart';
 import 'package:poketstore/view/home/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 Widget buildSectionTitle(String title, String action) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        if (action.isNotEmpty)
+          Text(
+            action,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+          ),
+      ],
+    ),
+  );
+}
+
+Widget buildStoreSectionTitle(String title, String action) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
     child: Row(
@@ -79,15 +102,34 @@ Widget buildGroceryItem(String name, Color color) {
   );
 }
 
-Widget storeHorizontalList(List<Map<String, dynamic>> items) {
+Widget storeHorizontalList(List<ShopModel> shops) {
   return SizedBox(
     height: 50,
     child: ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: items.length,
+      itemCount: shops.length,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       itemBuilder: (context, index) {
-        return buildStoreItem(items[index]["name"], items[index]["color"]);
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => ShopProductListScreen(
+                      shopId:
+                          shops[index].id ??
+                          "", // Ensure `id` is present in ShopData
+                      shopName: shops[index].shopName ?? "Unnamed Shop",
+                    ),
+              ),
+            );
+          },
+          child: buildStoreItem(
+            shops[index].shopName ?? "Unnamed Shop",
+            Colors.blue.shade100,
+          ),
+        );
       },
     ),
   );
@@ -97,7 +139,7 @@ Widget buildStoreItem(String name, Color color) {
   return Container(
     margin: const EdgeInsets.only(right: 10),
     height: 100,
-    width: 100,
+    width: 150,
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(15),
@@ -124,6 +166,9 @@ Widget buildStoreItem(String name, Color color) {
               fontSize: 10,
               fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

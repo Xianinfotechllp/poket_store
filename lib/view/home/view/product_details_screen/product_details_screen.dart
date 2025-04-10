@@ -109,7 +109,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       ),
                       Text(
-                        "\$${totalPrice.toStringAsFixed(2)}",
+                        "₹${totalPrice.toStringAsFixed(2)}",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           CartItem(
                             productId: productId,
                             quantity: tempQuantity,
-                            totalAmount: productPrice.toInt(),
+                            totalAmount: totalPrice.toInt(),
                           ),
                         ]);
 
@@ -363,7 +363,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         () => showAddToCartSheet(
                           context,
                           product.name,
-                          product.price?.toDouble() ?? 0.00,
+                          product.price.toDouble(),
                           1,
                           product.id,
                         ),

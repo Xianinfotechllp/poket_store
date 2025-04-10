@@ -5,13 +5,13 @@ import 'package:poketstore/model/my_shope_model/product_model.dart';
 
 class ProductService {
   final Dio _dio = Dio();
-  final String baseUrl =
-      "https://shop-app-backend-main.onrender.com/api/products";
+  final String baseUrl = "https://shop-by-sabu-q.onrender.com/api/products";
 
   /// Add Product////
 
   Future<Product?> createProduct({
     required String userId,
+    required String shop,
     required File productImage,
     required String name,
     required String description,
@@ -29,6 +29,7 @@ class ProductService {
           filename: productImage.path.split('/').last,
         ),
         "userId": userId,
+        "shop": shop,
         "name": name,
         "description": description,
         "price": price.toString(),
@@ -62,7 +63,8 @@ class ProductService {
       log("Response Data: ${response.data}");
 
       if (response.statusCode == 200 && response.data != null) {
-        if (response.data.containsKey("products") && response.data["products"] is List) {
+        if (response.data.containsKey("products") &&
+            response.data["products"] is List) {
           List<dynamic> productsJson = response.data["products"];
 
           if (productsJson.isEmpty) {
@@ -71,50 +73,59 @@ class ProductService {
           }
 
           // Map JSON to Product List
-          List<Product> productList = productsJson.map((json) {
-            log("Processing Product: ${json['name']}");
+          List<Product> productList =
+              productsJson.map((json) {
+                log("Processing Product: ${json['name']}");
 
-            // Handle incorrect category format
-            List<String> categories;
-            if (json["category"] is List) {
-              categories = List<String>.from(json["category"]);
-            } else {
-              categories = [];
-            }
+                // Handle incorrect category format
+                List<String> categories;
+                if (json["category"] is List) {
+                  categories = List<String>.from(json["category"]);
+                } else {
+                  categories = [];
+                }
 
-            return Product(
-              id: json["_id"],
-              name: json["name"],
-              description: json["description"] ?? "",
-              price: json["price"] ?? 0,
-              quantity: json["quantity"] ?? 0,
-              category: categories,
-              productImage: json["productImage"] ?? "",
-              sold: json["sold"] ?? 0,
-              estimatedTime: json["estimatedTime"] ?? "",
-              productType: json["productType"] ?? "",
-              deliveryOption: json["deliveryOption"] ?? "",
-              userId: json["userId"] ?? "",
-              createdAt: DateTime.tryParse(json["createdAt"] ?? "") ?? DateTime.now(), // ✅ Convert String to DateTime
-              updatedAt: DateTime.tryParse(json["updatedAt"] ?? "") ?? DateTime.now(), // ✅ Convert String to DateTime
-            );
-          }).toList();
-
+                return Product(
+                  // shop: json["shop"],
+                  id: json["_id"],
+                  // totalAmount: json["totalAmount"],
+                  name: json["name"],
+                  description: json["description"] ?? "",
+                  price: json["price"] ?? 0,
+                  quantity: json["quantity"] ?? 0,
+                  category: categories,
+                  productImage: json["productImage"] ?? "",
+                  sold: json["sold"] ?? 0,
+                  estimatedTime: json["estimatedTime"] ?? "",
+                  productType: json["productType"] ?? "",
+                  deliveryOption: json["deliveryOption"] ?? "",
+                  userId: json["userId"] ?? "",
+                  createdAt:
+                      DateTime.tryParse(json["createdAt"] ?? "") ??
+                      DateTime.now(), // ✅ Convert String to DateTime
+                  updatedAt:
+                      DateTime.tryParse(json["updatedAt"] ?? "") ??
+                      DateTime.now(), // ✅ Convert String to DateTime
+                );
+              }).toList();
 
           log("Total Products Fetched: ${productList.length}");
           return productList;
         } else {
-          throw Exception("Invalid API response format: Missing 'products' key");
+          throw Exception(
+            "Invalid API response format: Missing 'products' key",
+          );
         }
       } else {
-        throw Exception("Failed to fetch products: Status Code ${response.statusCode}");
+        throw Exception(
+          "Failed to fetch products: Status Code ${response.statusCode}",
+        );
       }
     } catch (e, stackTrace) {
       log("Error fetching products: $e", error: e, stackTrace: stackTrace);
       throw Exception("Error fetching products: $e");
     }
   }
-
 
   ///Details page///
 

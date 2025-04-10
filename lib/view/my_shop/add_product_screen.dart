@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:poketstore/controllers/category_controller/category_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
+import 'package:poketstore/controllers/shop_of_user_controller/shop_of_user_controller.dart';
+import 'package:poketstore/model/shop_of_user_model/shop_of_user_model.dart';
 import 'package:poketstore/view/my_shop/widget/category_dialog_box.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +34,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String? _selectedDeliveryOption;
   String? _selectedAvailability;
   List<String> _selectedCategories = [];
+  String? _selectedShopId; // To store the selected shop ID
 
   final List<String> _typeOptions = ["Per Pack", "Per Unit", "Per KG"];
   final List<String> _deliveryOptions = ["Home Delivery", "Store Pickup"];
@@ -61,16 +64,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Future<void> _submitProduct(BuildContext context) async {
     if (!_formKey.currentState!.validate() ||
         _selectedImage == null ||
-        _selectedCategories.isEmpty) {
+        _selectedCategories.isEmpty ||
+        _selectedShopId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Please fill all fields, select an image, and choose at least one category.",
+            "Please fill all fields, select an image, choose at least one category, and select a shop.",
           ),
         ),
       );
       return;
     }
+    log("Shop ID: $_selectedShopId");
     log("Product Name: ${_nameController.text.trim()}");
     log("Description: ${_descriptionController.text.trim()}");
     log("Price: ${_priceController.text.trim()}");
@@ -81,19 +86,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
     log("Delivery Option: $_selectedDeliveryOption");
     log("Image Path: ${_selectedImage!.path}");
 
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
-
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User ID not found, please login.")),
-      );
-      return;
-    }
-
     final provider = Provider.of<ProductProvider>(context, listen: false);
     await provider.createProduct(
-      userId: userId,
+      shop: _selectedShopId.toString(),
+      userId: _selectedShopId!, // Use the selected shop ID
       productImage: _selectedImage!,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
@@ -144,14 +140,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   void initState() {
     super.initState();
+    // Fetch user shops when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops();
       Provider.of<CategoryProvider>(context, listen: false).loadCategories();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProductProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
+    final shopProvider = Provider.of<ShopOfUserProvider>(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -174,7 +173,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   bottom: 100,
                   left: 130,
                   child: Text(
-                    "My Shop",
+                    "Add Product",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -198,6 +197,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Shop Dropdown connected to ShopOfUserProvider
+                    _buildShopDropdownField(
+                      "Select Shop",
+                      _selectedShopId,
+                      shopProvider.shopList.map((shop) => shop.id).toList(),
+                      (value) {
+                        setState(() => _selectedShopId = value);
+                      },
+                      Map.fromEntries(
+                        shopProvider.shopList.map(
+                          (shop) => MapEntry(shop.id, shop.shopName),
+                        ),
+                      ),
+                    ),
                     _buildTextField("Product Name", _nameController),
                     _buildDropdownField(
                       "Select Type",
@@ -261,7 +274,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                     _buildImagePicker(),
                     const SizedBox(height: 10),
-                    provider.isLoading
+                    productProvider.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : Padding(
                           padding: const EdgeInsets.all(15),
@@ -295,6 +308,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildShopDropdownField(
+    String label,
+    String? selectedValue,
+    List<String?> options,
+    ValueChanged<String?> onChanged,
+    Map<String, String> shopNameMap, // Map to display shop names
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: DropdownButtonFormField<String>(
+        decoration: const InputDecoration(border: OutlineInputBorder()),
+        value: selectedValue,
+        hint: Text("Select $label"),
+        items:
+            options
+                .where((option) => option != null) // Filter out null values
+                .map<DropdownMenuItem<String>>((String? option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(
+                      shopNameMap[option] ?? 'Unknown Shop',
+                    ), // Display shop name or fallback
+                  );
+                })
+                .toList(),
+        onChanged: onChanged,
+        validator: (value) => value == null ? "Please select $label" : null,
       ),
     );
   }

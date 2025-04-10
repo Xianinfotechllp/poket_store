@@ -29,34 +29,34 @@ class CartProvider extends ChangeNotifier {
   }
 
   bool isLoading = false;
-  Future<void> fetchCart() async {
-    isLoading = true;
-    notifyListeners();
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+  // Future<void> fetchCart() async {
+  //   isLoading = true;
+  //   notifyListeners();
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final token = prefs.getString('token');
 
-      log('Fetching cart with token: $token'); // Log the token
+  //     log('Fetching cart with token: $token'); // Log the token
 
-      if (token == null || token.isEmpty) {
-        log('No valid token found.');
-        isLoading = false;
-        notifyListeners();
-        return;
-      }
+  //     if (token == null || token.isEmpty) {
+  //       log('No valid token found.');
+  //       isLoading = false;
+  //       notifyListeners();
+  //       return;
+  //     }
 
-      cart = await _cartService.fetchCart(token);
+  //     cart = await _cartService.fetchCart(token);
 
-      log(
-        'Cart fetched successfully: ${cart?.items.length} items',
-      ); // Log cart data
-    } catch (e) {
-      log('Error fetching cart: $e');
-      cart = null; // Ensure cart is null on error
-    }
-    isLoading = false;
-    notifyListeners();
-  }
+  //     log(
+  //       'Cart fetched successfully: ${cart?.items.length} items',
+  //     ); // Log cart data
+  //   } catch (e) {
+  //     log('Error fetching cart: $e');
+  //     cart = null; // Ensure cart is null on error
+  //   }
+  //   isLoading = false;
+  //   notifyListeners();
+  // }
 
   Future<void> updateCart(List<CartItem> items) async {
     isLoading = true;
