@@ -4,6 +4,7 @@ import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controlle
 import 'package:poketstore/controllers/cart_controller/cart_controller.dart';
 import 'package:poketstore/controllers/cart_controller/fetch_cart_controller.dart';
 import 'package:poketstore/controllers/category_controller/category_controller.dart';
+import 'package:poketstore/controllers/groceries_list_controller/groceries_list_controller.dart';
 import 'package:poketstore/controllers/home_product_controller/home_product_controller.dart';
 import 'package:poketstore/controllers/location_controller/location_controller.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
@@ -50,6 +51,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => HomeProductController()),
         ChangeNotifierProvider(create: (_) => LocationController()),
         ChangeNotifierProvider(create: (_) => UserProfileController()),
+        ChangeNotifierProvider(create: (_) => GroceriesListProvider()),
       ],
       child: const MyApp(),
     ),
