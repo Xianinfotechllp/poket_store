@@ -24,6 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   bool _isLoading = true;
   String? _errorMessage;
+  TextEditingController _searchController = TextEditingController();
+  List<dynamic> _allProducts = [];
+  List<dynamic> _filteredProducts = [];
+
+  bool _showAllGroceries = false;
+  bool _showAllStores = false;
 
   final List<String> _bannerImages = [
     'assets/slider.png',
@@ -36,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     {"name": "Dairy Products", "color": Colors.blue.shade200},
     {"name": "Beverages", "color": Colors.red.shade200},
     {"name": "Snacks", "color": Colors.orange.shade200},
+    {"name": "Fruits", "color": Colors.purple.shade200},
   ];
 
   @override
@@ -43,17 +50,27 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     log("🏠 HomeScreen initialized");
     _loadInitialData();
-    Provider.of<LocationController>(context, listen: false).getLocation();
+    _searchController.addListener(_filterProducts);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterProducts);
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
     try {
       log("⏳ Fetching data in HomeScreen initState");
-      await Provider.of<HomeProductController>(
+      final productProvider = Provider.of<HomeProductController>(
         context,
         listen: false,
-      ).loadHomeProducts();
+      );
+      await productProvider.loadHomeProducts();
       await Provider.of<ShopProvider>(context, listen: false).fetchShops();
+      _allProducts = List.from(productProvider.homeProducts);
+      _filteredProducts = List.from(_allProducts);
       setState(() {
         _isLoading = false;
       });
@@ -67,6 +84,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _filterProducts() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredProducts =
+          _allProducts
+              .where(
+                (product) => (product.name ?? "").toLowerCase().contains(query),
+              )
+              .toList();
+    });
+  }
+
   void _navigateToMapScreen() {
     Navigator.push(
       context,
@@ -76,8 +105,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final productProvider = Provider.of<HomeProductController>(context);
     final shopProvider = Provider.of<ShopProvider>(context);
+    final displayedGroceries =
+        _showAllGroceries ? _groceryItems : _groceryItems.take(3).toList();
+
+    final displayedStores =
+        _showAllStores
+            ? shopProvider.shops
+            : shopProvider.shops.take(3).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -85,6 +120,24 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Image.asset("assets/name.png", width: 63, height: 57),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+              ),
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -177,17 +230,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    buildSectionTitle("Groceries", "See all"),
-                    groceriesHorizontalList(_groceryItems),
-                    buildSectionTitle("Stores", "See all"),
-                    shopProvider.shops.isEmpty
+                    buildSectionTitle(
+                      "Groceries",
+                      _showAllGroceries ? "Show less" : "See all",
+                      () {
+                        setState(() => _showAllGroceries = !_showAllGroceries);
+                      },
+                    ),
+                    groceriesHorizontalList(displayedGroceries),
+                    buildSectionTitle(
+                      "Stores",
+                      _showAllStores ? "Show less" : "See all",
+                      () {
+                        setState(() => _showAllStores = !_showAllStores);
+                      },
+                    ),
+                    displayedStores.isEmpty
                         ? const Center(child: Text("No Stores Found"))
-                        : storeHorizontalList(shopProvider.shops),
+                        : storeHorizontalList(displayedStores),
                     const SizedBox(height: 20),
-                    productProvider.homeProducts.isEmpty
+                    _filteredProducts.isEmpty
                         ? const Center(child: Text("No Products Found"))
                         : productGridView(
-                          productProvider.homeProducts.map((product) {
+                          _filteredProducts.map((product) {
                             return {
                               "_id": product.id,
                               "image":
@@ -207,7 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildSectionTitle(String title, String actionText) {
+  Widget buildSectionTitle(
+    String title,
+    String actionText,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -217,7 +286,13 @@ class _HomeScreenState extends State<HomeScreen> {
             title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          Text(actionText, style: TextStyle(color: Colors.blue.shade700)),
+          InkWell(
+            onTap: onTap,
+            child: Text(
+              actionText,
+              style: TextStyle(color: Colors.blue.shade700),
+            ),
+          ),
         ],
       ),
     );
