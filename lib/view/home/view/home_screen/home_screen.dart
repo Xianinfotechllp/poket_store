@@ -179,7 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           autoPlay: true,
                           enlargeCenterPage: true,
                           autoPlayInterval: const Duration(seconds: 3),
-                          onPageChanged: (index, reason) => setState(() => _currentIndex = index),
+                          onPageChanged: (index, reason) =>
+                              setState(() => _currentIndex = index),
                         ),
                         items: _bannerImages.map((imagePath) {
                           return ClipRRect(
@@ -215,7 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             builder: (context, locationController, _) {
                               final location = locationController.location;
                               return Text(
-                                location != null ? "${location.locality}, ${location.state} - ${location.pincode}" : "Fetching location...",
+                                location != null
+                                    ? "${location.locality}, ${location.state} - ${location.pincode}"
+                                    : "Fetching location...",
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -230,7 +233,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         "Groceries",
                         _showAllGroceries ? "Show less" : "See all",
                         () {
-                          setState(() => _showAllGroceries = !_showAllGroceries);
+                          setState(
+                              () => _showAllGroceries = !_showAllGroceries);
                         },
                       ),
                       displayedGroceries.isEmpty
@@ -243,7 +247,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           setState(() => _showAllStores = !_showAllStores);
                         },
                       ),
-                      displayedStores.isEmpty ? const Center(child: Text("No Stores Found")) : storeHorizontalList(displayedStores),
+                      displayedStores.isEmpty
+                          ? const Center(child: Text("No Stores Found"))
+                          : storeHorizontalList(displayedStores),
                       const SizedBox(height: 20),
                       _filteredProducts.isEmpty
                           ? const Center(child: Text("No Products Found"))
@@ -251,10 +257,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               _filteredProducts.map((product) {
                                 return {
                                   "_id": product.id,
-                                  "image": product.productImage.isNotEmpty ? product.productImage : "https://via.placeholder.com/150",
+                                  "image": product.productImage.isNotEmpty
+                                      ? product.productImage
+                                      : "https://via.placeholder.com/150",
                                   "name": product.name,
                                   "weight": product.productType,
-                                  "price": "₹${product.price > 0 ? product.price : 'N/A'}",
+                                  "price":
+                                      "₹${product.price > 0 ? product.price : 'N/A'}",
                                 };
                               }).toList(),
                             ),
