@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
 import 'package:poketstore/controllers/category_controller/category_controller.dart';
 import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
+import 'package:poketstore/view/location.dart';
 import 'package:poketstore/view/my_shop/widget/category_dialog_box.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
@@ -25,49 +26,69 @@ class _AddShopState extends State<AddShop> {
   final TextEditingController _placeController = TextEditingController();
   final TextEditingController _pinCodeController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _localityController = TextEditingController();
+  final List<String> sellerTypes = ["Producer", "Trader"];
+  final List<String> states = [
+    "Andhra Pradesh",
 
+    "Arunachal Pradesh",
+
+    "Assam",
+
+    "Bihar",
+
+    "Chhattisgarh",
+
+    "Goa",
+
+    "Gujarat",
+
+    "Haryana",
+
+    "Himachal Pradesh",
+
+    "Jharkhand",
+
+    "Karnataka",
+
+    "Kerala",
+
+    "Madhya Pradesh",
+
+    "Maharashtra",
+
+    "Manipur",
+
+    "Meghalaya",
+
+    "Mizoram",
+
+    "Nagaland",
+
+    "Odisha",
+
+    "Punjab",
+
+    "Rajasthan",
+
+    "Sikkim",
+
+    "Tamil Nadu",
+
+    "Telangana",
+
+    "Tripura",
+
+    "Uttar Pradesh",
+
+    "Uttarakhand",
+
+    "West Bengal",
+  ];
   List<String> _selectedCategories = [];
   String? _selectedSellerType;
   String? _selectedState;
   File? _headerImage;
-
-  // final List<String> categories = [
-  //   "Grocery",
-  //   "Electronics",
-  //   "Clothing",
-  //   "Furniture",
-  // ];
-  final List<String> sellerTypes = ["Producer", "Trader"];
-  final List<String> states = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
-  ];
 
   Future<void> _pickImage() async {
     try {
@@ -132,6 +153,7 @@ class _AddShopState extends State<AddShop> {
       state: _selectedState!,
       place: _placeController.text.trim(),
       pinCode: _pinCodeController.text.trim(),
+      // locality: _localityController.text.trim(),
       headerImage: "", // The image file will be passed separately
       userId: userId,
     );
@@ -236,10 +258,8 @@ class _AddShopState extends State<AddShop> {
                           ],
                         ),
                         const SizedBox(height: 16),
-
                         buildLabel("Shop Name"),
                         buildTextField(_shopNameController, "Enter shop name"),
-
                         buildLabel("Category"),
                         Padding(
                           padding: const EdgeInsets.symmetric(
@@ -250,7 +270,7 @@ class _AddShopState extends State<AddShop> {
                             onTap: _selectCategories,
                             child: AbsorbPointer(
                               child: TextFormField(
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: "Select Categories",
                                   border: OutlineInputBorder(),
                                 ),
@@ -269,7 +289,6 @@ class _AddShopState extends State<AddShop> {
                             ),
                           ),
                         ),
-
                         buildLabel("Seller Type"),
                         buildDropdown(
                           "Select seller type",
@@ -279,24 +298,20 @@ class _AddShopState extends State<AddShop> {
                             setState(() => _selectedSellerType = value);
                           },
                         ),
-
                         buildLabel("State"),
                         buildDropdown("Select state", _selectedState, states, (
                           value,
                         ) {
                           setState(() => _selectedState = value);
                         }),
-
                         buildLabel("Place"),
                         buildTextField(_placeController, "Enter place"),
-
                         buildLabel("Pin Code"),
                         buildTextField(
                           _pinCodeController,
                           "Enter pin code",
                           isNumeric: true,
                         ),
-
                         buildLabel("Shop Image"),
                         Center(
                           child: GestureDetector(
@@ -319,7 +334,29 @@ class _AddShopState extends State<AddShop> {
                           ),
                         ),
                         const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LocationPickerScreen(),
+                              ),
+                            );
 
+                            if (result != null &&
+                                result is Map<String, String>) {
+                              setState(() {
+                                _placeController.text = result['place'] ?? '';
+                                _pinCodeController.text =
+                                    result['pincode'] ?? '';
+                                // Ensure 'locality' in ShopModel is meant to be 'subLocality'
+                                _localityController.text =
+                                    result['locality'] ?? ''; // Use subLocality
+                              });
+                            }
+                          },
+                          child: const Text("Pick Location on Map"),
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: SizedBox(

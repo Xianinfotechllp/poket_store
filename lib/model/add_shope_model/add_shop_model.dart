@@ -7,6 +7,7 @@ class ShopModel {
   final String state;
   final String place;
   final String pinCode;
+  // final String locality;
   final String headerImage;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -14,6 +15,7 @@ class ShopModel {
   ShopModel({
     this.userId,
     this.id,
+    // required this.locality,
     required this.shopName,
     required this.category,
     required this.sellerType,
@@ -28,6 +30,7 @@ class ShopModel {
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
       id: json["_id"],
+      // locality: json["locality"],
       userId: json['userId'],
       shopName: json["shopName"],
       category:
@@ -53,6 +56,7 @@ class ShopModel {
       "state": state,
       "place": place,
       "pinCode": pinCode,
+      // "locality": locality,
       "headerImage": headerImage,
     };
   }

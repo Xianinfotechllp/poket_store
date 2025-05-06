@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:poketstore/controllers/category_controller/category_controller.dart';
-import 'package:provider/provider.dart';
 import 'package:poketstore/model/category_model/category_model.dart';
 
 class CategorySelectionDialog extends StatefulWidget {
@@ -10,6 +8,7 @@ class CategorySelectionDialog extends StatefulWidget {
   const CategorySelectionDialog({
     required this.categories,
     required this.selectedCategories,
+    super.key,
   });
 
   @override
@@ -18,22 +17,28 @@ class CategorySelectionDialog extends StatefulWidget {
 }
 
 class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
-  late List<String> tempSelected;
+  late Set<String> tempSelected;
 
   @override
   void initState() {
     super.initState();
-    tempSelected = List.from(widget.selectedCategories);
+    tempSelected = Set.from(widget.selectedCategories);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Optional: Sort categories alphabetically
+    final sortedCategories = [...widget.categories]
+      ..sort((a, b) => a.name.compareTo(b.name));
+
     return AlertDialog(
-      title: Text("Select Categories"),
-      content: SingleChildScrollView(
-        child: Column(
+      title: const Text("Select Categories"),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
           children:
-              widget.categories.map((category) {
+              sortedCategories.map((category) {
                 return CheckboxListTile(
                   title: Text(category.name),
                   value: tempSelected.contains(category.name),
@@ -52,16 +57,12 @@ class _CategorySelectionDialogState extends State<CategorySelectionDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text("Cancel"),
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
         ),
         ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, tempSelected);
-          },
-          child: Text("OK"),
+          onPressed: () => Navigator.pop(context, tempSelected.toList()),
+          child: const Text("OK"),
         ),
       ],
     );

@@ -6,6 +6,7 @@ import 'package:poketstore/view/delivery_address/delivery_address.dart';
 import 'package:poketstore/view/notification/notification.dart';
 import 'package:poketstore/view/order_screen/order_screen.dart';
 import 'package:poketstore/view/subscription/subscription.dart';
+import 'package:poketstore/view/user_profile/user_profile.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -72,7 +73,13 @@ class ProfileScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => OrdersScreen()),
               );
             }),
-            buildMenuItem(Icons.person_outline, "My Details", () {}),
+            buildMenuItem(Icons.person_outline, "My Details", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfileScreen()),
+              );
+            }),
+
             buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
               Navigator.push(
                 context,

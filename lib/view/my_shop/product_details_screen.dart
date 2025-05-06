@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/view/home/widgets/product_details_widget.dart';
-import 'package:poketstore/view/my_shop/my_shop_screen.dart';
 import 'package:provider/provider.dart';
 
 class MyShopProductDetails extends StatelessWidget {
   final String productId;
+
   const MyShopProductDetails({super.key, required this.productId});
 
   @override
@@ -23,27 +23,18 @@ class MyShopProductDetails extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.blue),
-            onPressed: () {
-              _showEditDialog(context, productId);
-              // Navigator.pushNamed(
-              //   context,
-              //   '/editProductScreen', // Change to your actual edit screen route
-              //   arguments: productId,
-              // );
-            },
+            onPressed: () => _showEditDialog(context, productId),
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              _confirmDelete(context, productId);
-            },
+            onPressed: () => _confirmDelete(context, productId),
           ),
         ],
       ),
       body: Consumer<ProductProvider>(
         builder: (context, provider, child) {
           log(
-            "ProductDetailsScreen: Provider state - isLoading: ${provider.isLoading}, product: ${provider.product}",
+            "Provider state - isLoading: ${provider.isLoading}, product: ${provider.product}",
           );
 
           if (provider.isLoading) {
@@ -55,21 +46,21 @@ class MyShopProductDetails extends StatelessWidget {
           }
 
           final product = provider.product!;
-          log("Product fetched successfully: ${product.name}, ID: $productId");
+          log("Product fetched: ${product.name}, ID: $productId");
 
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Product Image
+                // Product Image
                 Container(
                   height: 250,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: const BorderRadius.only(
-                      bottomRight: Radius.circular(20),
                       bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
                     ),
                     image: DecorationImage(
                       image: NetworkImage(product.productImage),
@@ -78,7 +69,7 @@ class MyShopProductDetails extends StatelessWidget {
                   ),
                 ),
 
-                /// Product Title & Favorite Icon
+                // Title & Favorite
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -99,7 +90,7 @@ class MyShopProductDetails extends StatelessWidget {
                   ),
                 ),
 
-                /// Weight & Price
+                // Type
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -108,7 +99,7 @@ class MyShopProductDetails extends StatelessWidget {
                   ),
                 ),
 
-                /// Quantity & Price Section
+                // Qty & Price
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -119,14 +110,11 @@ class MyShopProductDetails extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              'Qty :',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          const Text(
+                            'Qty : ',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
@@ -138,8 +126,6 @@ class MyShopProductDetails extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      // Price
                       Text(
                         '\$${product.price}',
                         style: const TextStyle(
@@ -153,7 +139,7 @@ class MyShopProductDetails extends StatelessWidget {
 
                 const Divider(thickness: 1, color: Colors.grey),
 
-                // Product Details
+                // Product Detail
                 buildExpandableSection('Product Detail'),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -165,7 +151,7 @@ class MyShopProductDetails extends StatelessWidget {
 
                 const Divider(thickness: 1, color: Colors.grey),
 
-                /// Delivery Info
+                // Delivery Info & Other Details
                 buildRowWithArrow('Estimated Delivery', product.estimatedTime),
                 const Divider(thickness: 1, color: Colors.grey),
                 buildRowWithArrow('Category', product.category.toString()),
@@ -185,15 +171,13 @@ class MyShopProductDetails extends StatelessWidget {
   void _showEditDialog(BuildContext context, String productId) {
     final product =
         Provider.of<ProductProvider>(context, listen: false).product;
-
     if (product == null) return;
-    TextEditingController nameController = TextEditingController(
-      text: product.name,
-    );
-    TextEditingController descriptionController = TextEditingController(
+
+    final nameController = TextEditingController(text: product.name);
+    final descriptionController = TextEditingController(
       text: product.description,
     );
-    TextEditingController priceController = TextEditingController(
+    final priceController = TextEditingController(
       text: product.price.toString(),
     );
 
@@ -227,26 +211,17 @@ class MyShopProductDetails extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  final Map<String, dynamic> updatedData = {
-                    "name": nameController.text,
-                    "description": descriptionController.text,
-                    "price": int.tryParse(priceController.text) ?? 0,
+                  final updatedData = {
+                    "name": nameController.text.trim(),
+                    "description": descriptionController.text.trim(),
+                    "price": int.tryParse(priceController.text.trim()) ?? 0,
                   };
 
-                  Provider.of<ProductProvider>(
-                    context,
-                    listen: false,
-                  ).updateProduct(productId, updatedData, context).then((
-                    success,
-                  ) {
-                    if (success) {
-                      Navigator.pop(context);
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => MyShopScreen()),
-                      // );
-                    }
-                  });
+                  Provider.of<ProductProvider>(context, listen: false)
+                      .updateProduct(productId, updatedData, context)
+                      .then((success) {
+                        if (success) Navigator.pop(context);
+                      });
                 },
                 child: const Text("Update"),
               ),
@@ -271,16 +246,9 @@ class MyShopProductDetails extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Provider.of<ProductProvider>(
-                    context,
-                    listen: false,
-                  ).deleteProduct(productId).then((_) {
-                    Navigator.pop(context);
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => MyShopScreen()),
-                    // );
-                  });
+                  Provider.of<ProductProvider>(context, listen: false)
+                      .deleteProduct(productId)
+                      .then((_) => Navigator.pop(context));
                 },
                 child: const Text("Delete"),
               ),

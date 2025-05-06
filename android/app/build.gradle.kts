@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.poketstore"
-    compileSdk = flutter.compileSdkVersion
+    compileSdkVersion(35)
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -24,8 +24,8 @@ android {
         applicationId = "com.example.poketstore"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdkVersion(23)
+        targetSdkVersion(35)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

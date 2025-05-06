@@ -10,6 +10,7 @@ import 'package:poketstore/model/shop_of_user_model/shop_of_user_model.dart';
 import 'package:poketstore/view/my_shop/widget/category_dialog_box.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Make sure you have the necessary imports above...
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -34,7 +35,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String? _selectedDeliveryOption;
   String? _selectedAvailability;
   List<String> _selectedCategories = [];
-  String? _selectedShopId; // To store the selected shop ID
+  String? _selectedShopId;
 
   final List<String> _typeOptions = ["Per Pack", "Per Unit", "Per KG"];
   final List<String> _deliveryOptions = ["Home Delivery", "Store Pickup"];
@@ -48,7 +49,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     if (status.isGranted) {
       final pickedFile = await ImagePicker().pickImage(source: source);
-
       if (pickedFile != null) {
         setState(() {
           _selectedImage = File(pickedFile.path);
@@ -75,21 +75,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
       );
       return;
     }
-    log("Shop ID: $_selectedShopId");
-    log("Product Name: ${_nameController.text.trim()}");
-    log("Description: ${_descriptionController.text.trim()}");
-    log("Price: ${_priceController.text.trim()}");
-    log("Quantity: ${_quantityController.text.trim()}");
-    log("Categories: $_selectedCategories");
-    log("Estimated Time: ${_estimatedTimeController.text.trim()}");
-    log("Product Type: $_selectedType");
-    log("Delivery Option: $_selectedDeliveryOption");
-    log("Image Path: ${_selectedImage!.path}");
 
     final provider = Provider.of<ProductProvider>(context, listen: false);
     await provider.createProduct(
       shop: _selectedShopId.toString(),
-      userId: _selectedShopId!, // Use the selected shop ID
+      userId: _selectedShopId!,
       productImage: _selectedImage!,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
@@ -105,7 +95,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Product added successfully!")),
       );
-      Navigator.pop(context, true); // Return true to indicate success
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(
         context,
@@ -118,7 +108,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       context,
       listen: false,
     );
-
     List<String>? result = await showDialog(
       context: context,
       builder: (context) {
@@ -140,7 +129,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch user shops when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops();
       Provider.of<CategoryProvider>(context, listen: false).loadCategories();
@@ -197,7 +185,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Shop Dropdown connected to ShopOfUserProvider
                     _buildShopDropdownField(
                       "Select Shop",
                       _selectedShopId,
@@ -216,9 +203,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       "Select Type",
                       _selectedType,
                       _typeOptions,
-                      (value) {
-                        setState(() => _selectedType = value);
-                      },
+                      (value) => setState(() => _selectedType = value),
                     ),
                     _buildTextField("Price", _priceController, isNumber: true),
                     _buildTextField(
@@ -256,9 +241,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       "Delivery Option",
                       _selectedDeliveryOption,
                       _deliveryOptions,
-                      (value) {
-                        setState(() => _selectedDeliveryOption = value);
-                      },
+                      (value) =>
+                          setState(() => _selectedDeliveryOption = value),
                     ),
                     _buildTextField(
                       "Estimated Delivery Time (Days)",
@@ -268,9 +252,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       "Availability Status",
                       _selectedAvailability,
                       _availabilityOptions,
-                      (value) {
-                        setState(() => _selectedAvailability = value);
-                      },
+                      (value) => setState(() => _selectedAvailability = value),
                     ),
                     _buildImagePicker(),
                     const SizedBox(height: 10),
@@ -279,9 +261,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         : Padding(
                           padding: const EdgeInsets.all(15),
                           child: GestureDetector(
-                            onTap: () {
-                              _submitProduct(context);
-                            },
+                            onTap: () => _submitProduct(context),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: const Color.fromARGB(255, 7, 3, 201),
@@ -312,37 +292,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  Widget _buildShopDropdownField(
-    String label,
-    String? selectedValue,
-    List<String?> options,
-    ValueChanged<String?> onChanged,
-    Map<String, String> shopNameMap, // Map to display shop names
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: DropdownButtonFormField<String>(
-        decoration: const InputDecoration(border: OutlineInputBorder()),
-        value: selectedValue,
-        hint: Text("Select $label"),
-        items:
-            options
-                .where((option) => option != null) // Filter out null values
-                .map<DropdownMenuItem<String>>((String? option) {
-                  return DropdownMenuItem<String>(
-                    value: option,
-                    child: Text(
-                      shopNameMap[option] ?? 'Unknown Shop',
-                    ), // Display shop name or fallback
-                  );
-                })
-                .toList(),
-        onChanged: onChanged,
-        validator: (value) => value == null ? "Please select $label" : null,
-      ),
-    );
-  }
-
   Widget _buildTextField(
     String label,
     TextEditingController controller, {
@@ -359,7 +308,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
         validator:
             (value) =>
-                value == null || value.isEmpty ? "$label is required" : null,
+                value == null || value.isEmpty ? 'Please enter $label' : null,
       ),
     );
   }
@@ -377,11 +326,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
         value: selectedValue,
         hint: Text("Select $label"),
         items:
+            options.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(value: value, child: Text(value));
+            }).toList(),
+        onChanged: onChanged,
+        validator: (value) => value == null ? "Please select $label" : null,
+      ),
+    );
+  }
+
+  Widget _buildShopDropdownField(
+    String label,
+    String? selectedValue,
+    List<String?> options,
+    ValueChanged<String?> onChanged,
+    Map<String, String> shopNameMap,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: DropdownButtonFormField<String>(
+        decoration: const InputDecoration(border: OutlineInputBorder()),
+        value: selectedValue,
+        hint: Text("Select $label"),
+        items:
             options
-                .map(
-                  (option) =>
-                      DropdownMenuItem(value: option, child: Text(option)),
-                )
+                .where((option) => option != null)
+                .map<DropdownMenuItem<String>>((String? option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(shopNameMap[option] ?? 'Unknown Shop'),
+                  );
+                })
                 .toList(),
         onChanged: onChanged,
         validator: (value) => value == null ? "Please select $label" : null,
@@ -390,47 +365,33 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Widget _buildImagePicker() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Product Image"),
-          const SizedBox(height: 10),
-          _selectedImage != null
-              ? Image.file(
-                _selectedImage!,
-                height: 150,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              )
-              : Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Center(child: Text("No Image Selected")),
-              ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () => _pickImage(ImageSource.camera),
-                icon: const Icon(Icons.camera_alt),
-                label: const Text("Camera"),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _pickImage(ImageSource.gallery),
-                icon: const Icon(Icons.image),
-                label: const Text("Gallery"),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        _selectedImage != null
+            ? Image.file(
+              _selectedImage!,
+              height: 150,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
+            : const SizedBox(),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () => _pickImage(ImageSource.camera),
+              icon: const Icon(Icons.camera_alt),
+              label: const Text("Camera"),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => _pickImage(ImageSource.gallery),
+              icon: const Icon(Icons.photo_library),
+              label: const Text("Gallery"),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -17,107 +17,94 @@ class MyShopeItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey.shade100,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 4,
+            offset: const Offset(2, 2),
+          ),
+        ],
+      ),
       child: Stack(
         children: [
           Positioned(
             right: 0,
             top: 0,
             child: IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.close, color: Colors.grey),
+              onPressed: () {
+                // Implement remove/delete action
+              },
+              icon: const Icon(Icons.close, color: Colors.grey),
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              // Navigate to details screen
+            },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // CachedNetworkImage(
-                //   imageUrl:
-                //       item["productImage"] ??
-                //       "https://via.placeholder.com/150", // Default placeholder
-                //   width: 70,
-                //   height: 80,
-                //   fit: BoxFit.cover,
-                //   placeholder:
-                //       (context, url) =>
-                //           const CircularProgressIndicator(), // Loading indicator
-                //   errorWidget:
-                //       (context, url, error) => Image.asset(
-                //         'assets/default_image.png', // Local fallback image
-                //         width: 70,
-                //         height: 80,
-                //         fit: BoxFit.cover,
-                //       ),
-                // ),
-                SizedBox(width: 10),
+                CachedNetworkImage(
+                  imageUrl:
+                      item["productImage"] ?? "https://via.placeholder.com/150",
+                  width: 70,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  placeholder:
+                      (context, url) => const CircularProgressIndicator(),
+                  errorWidget:
+                      (context, url, error) => Image.asset(
+                        'assets/default_image.png',
+                        width: 70,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item["name"],
-                        style: TextStyle(
+                        item["name"] ?? 'Unnamed Product',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       Text(
-                        ' Rs :${item["price"].toString()}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        'Rs: ${item["price"] ?? "0"}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       Text(
-                        ' qty :${item["quantity"].toString()}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        'Qty: ${item["quantity"] ?? "0"}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
-                      SizedBox(height: 10),
-                      // Row(
-                      //   children: [
-                      //     // item["quantity"],
-                      //     // Container(
-                      //     //   decoration: BoxDecoration(
-                      //     //     borderRadius: BorderRadius.circular(30),
-                      //     //     border: Border.all(color: Colors.grey.shade300),
-                      //     //   ),
-                      //     //   child: Row(
-                      //     //     children: [
-                      //     //       IconButton(
-                      //     //         onPressed: () {},
-                      //     //         icon: Icon(Icons.remove, color: Colors.grey),
-                      //     //       ),
-                      //     //       Text(
-                      //     //         item["quantity"].toString(),
-                      //     //         style: TextStyle(
-                      //     //           fontSize: 16,
-                      //     //           fontWeight: FontWeight.bold,
-                      //     //         ),
-                      //     //       ),
-                      //     //       IconButton(
-                      //     //         onPressed: () {},
-                      //     //         icon: Icon(Icons.add, color: Colors.green),
-                      //     //       ),
-                      //     //     ],
-                      //     //   ),
-                      //     // ),
-                      //     Spacer(),
-                      //     IconButton(
-                      //       onPressed: () {},
-                      //       icon: Icon(Icons.movie_edit, color: Colors.green),
-                      //     ),
-                      //     // Text(
-                      //     //   '\$${item["price"].toStringAsFixed(2)}',
-                      //     //   style: TextStyle(
-                      //     //     fontSize: 16,
-                      //     //     fontWeight: FontWeight.bold,
-                      //     //   ),
-                      //     // ),
-                      //   ],
-                      // ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              // Implement edit logic
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.green),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -134,33 +121,32 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
   return GridView.builder(
     padding: const EdgeInsets.all(10),
     shrinkWrap: true,
-    // physics:
-    //     const NeverScrollableScrollPhysics(), // To prevent nested scrolling
+    physics: const NeverScrollableScrollPhysics(),
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 0.75, // Adjust as needed for your design
+      childAspectRatio: 0.7,
     ),
     itemCount: productsWithShopName.length,
     itemBuilder: (context, index) {
       final product = productsWithShopName[index];
       return GestureDetector(
         onTap: () async {
-          String productId = product["_id"].toString();
+          final productId = product["_id"].toString();
           log("Tapped Product ID: $productId");
+
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => MyShopProductDetails(productId: productId),
             ),
           );
+
+          // Handle refresh logic if needed
           // if (result == true) {
-          //   log("Refreshing My Shop Screen...");
-          //   Provider.of<MyShopListUserProvider>(
-          //     context,
-          //     listen: false,
-          //   ).fetchUserShopList(_userId!);
+          //   Provider.of<MyShopListUserProvider>(context, listen: false)
+          //       .fetchUserShopList(userId); // userId should be accessible
           // }
         },
         child: Card(
@@ -169,33 +155,26 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        product["image"],
-                        height: 100, // Adjust as needed
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const SizedBox(
-                            height: 100,
-                            width: double.infinity,
-                            child: Icon(Icons.broken_image),
-                          );
-                        },
-                      ),
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      product["image"] ?? "",
+                      fit: BoxFit.cover,
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              const Center(child: Icon(Icons.broken_image)),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  product["name"],
+                  product["name"] ?? "No Name",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -205,23 +184,23 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  product["weight"],
+                  product["weight"] ?? "",
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  product["price"],
+                  "₹ ${product["price"] ?? "0"}",
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.blueAccent,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const Spacer(), // Push shop name to the bottom
+                const Spacer(),
                 Text(
-                  "Shop: ${product["shopName"]}",
+                  "Shop: ${product["shopName"] ?? ""}",
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
