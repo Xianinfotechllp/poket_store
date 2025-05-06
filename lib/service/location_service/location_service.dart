@@ -27,6 +27,7 @@ class LocationService {
           "state": location.state,
           "place": location.place,
           "locality": location.locality,
+          "pincode" : location.pincode,
         },
       );
       return response.statusCode == 200;

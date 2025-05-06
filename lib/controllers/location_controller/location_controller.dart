@@ -72,8 +72,8 @@ class LocationController with ChangeNotifier {
       Placemark place = placemarks.first;
       final newLocation = LocationModel(
         state: place.administrativeArea ?? '',
-        place: place.subAdministrativeArea ?? '',
-        locality: place.locality ?? '',
+        place: place.locality ?? '',
+        locality: place.subLocality ?? '',
         pincode: place.postalCode ?? '',
       );
 
