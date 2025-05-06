@@ -50,33 +50,33 @@ class CartScreen extends StatelessWidget {
                         },
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: GestureDetector(
-                        onTap: () => _showCheckoutPopup(context),
-                        child: Container(
-                          height: 50,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 7, 3, 201),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(
-                                'Go to Checkout',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(15),
+                    //   child: GestureDetector(
+                    //     onTap: () => _showCheckoutPopup(context),
+                    //     child: Container(
+                    //       height: 50,
+                    //       width: double.infinity,
+                    //       decoration: BoxDecoration(
+                    //         color: const Color.fromARGB(255, 7, 3, 201),
+                    //         borderRadius: BorderRadius.circular(10),
+                    //       ),
+                    //       child: const Row(
+                    //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //         children: [
+                    //           Text(
+                    //             'Go to Checkout',
+                    //             style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: 18,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 );
               },
