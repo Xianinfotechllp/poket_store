@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
+import 'package:poketstore/controllers/groceries_list_controller/groceries_list_controller.dart';
 import 'package:poketstore/controllers/home_product_controller/home_product_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
@@ -37,13 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
     'assets/slider.png',
   ];
 
-  final List<Map<String, dynamic>> _groceryItems = [
-    {"name": "Vegetables", "color": Colors.green.shade200},
-    {"name": "Dairy Products", "color": Colors.blue.shade200},
-    {"name": "Beverages", "color": Colors.red.shade200},
-    {"name": "Snacks", "color": Colors.orange.shade200},
-    {"name": "Fruits", "color": Colors.purple.shade200},
-  ];
+  // final List<Map<String, dynamic>> _groceryItems = [
+  //   {"name": "Vegetables", "color": Colors.green.shade200},
+  //   {"name": "Dairy Products", "color": Colors.blue.shade200},
+  //   {"name": "Beverages", "color": Colors.red.shade200},
+  //   {"name": "Snacks", "color": Colors.orange.shade200},
+  //   {"name": "Fruits", "color": Colors.purple.shade200},
+  // ];
 
   @override
   void initState() {
@@ -73,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _filteredProducts = List.from(_allProducts);
 
       Provider.of<LocationController>(context, listen: false).getLocation();
+      Provider.of<GroceriesListProvider>(context, listen: false).loadGroceriesList();
       setState(() {
         _isLoading = false;
       });
@@ -107,7 +109,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final shopProvider = Provider.of<ShopProvider>(context);
-    final displayedGroceries = _showAllGroceries ? _groceryItems : _groceryItems.take(3).toList();
+    final groceryProvider = Provider.of<GroceriesListProvider>(context);
+    final displayedGroceries = _showAllGroceries
+        ? groceryProvider.groceriesList.keyWithCategory
+        : Map<String, List<String>>.fromEntries(
+            groceryProvider.groceriesList.keyWithCategory.entries.take(3),
+          );
 
     final displayedStores = _showAllStores ? shopProvider.shops : shopProvider.shops.take(3).toList();
 
@@ -226,7 +233,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           setState(() => _showAllGroceries = !_showAllGroceries);
                         },
                       ),
-                      groceriesHorizontalList(displayedGroceries),
+                      displayedGroceries.isEmpty
+                          ? const Center(child: Text("No Groceries Found"))
+                          : groceriesHorizontalList(displayedGroceries, context),
                       buildSectionTitle(
                         "Stores",
                         _showAllStores ? "Show less" : "See all",

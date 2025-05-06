@@ -1,10 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:poketstore/controllers/groceries_list_controller/groceries_list_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
 import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
+import 'package:poketstore/view/home/view/grocery_sub_header/grocery_sub_header.dart';
 import 'package:poketstore/view/home/view/product_details_screen/product_details_screen.dart';
 import 'package:poketstore/view/home/view/store_horizontal_scroll/product_by_shop.dart';
 import 'package:poketstore/view/home/widgets/product_card.dart';
@@ -50,7 +52,7 @@ Widget buildStoreSectionTitle(String title, String action) {
   );
 }
 
-Widget groceriesHorizontalList(List<Map<String, dynamic>> items) {
+Widget groceriesHorizontalList(Map<String, List<String>> items, BuildContext context) {
   return SizedBox(
     height: 50,
     child: ListView.builder(
@@ -58,7 +60,21 @@ Widget groceriesHorizontalList(List<Map<String, dynamic>> items) {
       itemCount: items.length,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       itemBuilder: (context, index) {
-        return buildGroceryItem(items[index]["name"], items[index]["color"]);
+        return InkWell(
+          onTap: () {
+            //
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SubGroceryCategoryScreen(
+                  header: items.entries.elementAt(index).key,
+                  subCategories: items.entries.elementAt(index).value,
+                ),
+              ),
+            );
+          },
+          child: buildGroceryItem(items.entries.elementAt(index).key, Colors.lightBlueAccent.shade100),
+        );
       },
     ),
   );
@@ -68,7 +84,7 @@ Widget buildGroceryItem(String name, Color color) {
   return Container(
     margin: const EdgeInsets.only(right: 10),
     height: 100,
-    width: 100,
+    // width: 100,
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(15),
@@ -115,13 +131,10 @@ Widget storeHorizontalList(List<ShopModel> shops) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder:
-                    (context) => ShopProductListScreen(
-                      shopId:
-                          shops[index].id ??
-                          "", // Ensure `id` is present in ShopData
-                      shopName: shops[index].shopName ?? "Unnamed Shop",
-                    ),
+                builder: (context) => ShopProductListScreen(
+                  shopId: shops[index].id ?? "", // Ensure `id` is present in ShopData
+                  shopName: shops[index].shopName ?? "Unnamed Shop",
+                ),
               ),
             );
           },
@@ -203,8 +216,7 @@ Widget productGridView(List<Map<String, dynamic>> products) {
         },
         child: ProductCard(
           icon: Icons.shopping_cart_outlined,
-          imagePath:
-              product["image"] ?? "", // Provide default image path if null
+          imagePath: product["image"] ?? "", // Provide default image path if null
           title: product["name"] ?? "Product", // Provide default title if null
           weight: product["weight"]?.toString() ?? "", // Handle null weight
           price: product["price"] ?? 0, // Provide default price if null
