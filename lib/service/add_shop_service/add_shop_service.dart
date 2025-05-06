@@ -31,13 +31,13 @@ class ShopService {
         "state": shop.state,
         "place": shop.place,
         "pinCode": shop.pinCode,
-        "headerImage":
-            imageFile != null
-                ? await MultipartFile.fromFile(
-                  imageFile.path,
-                  filename: "shop_image.jpg",
-                )
-                : null,
+        "locality": shop.locality,
+        "headerImage": imageFile != null
+            ? await MultipartFile.fromFile(
+                imageFile.path,
+                filename: "shop_image.jpg",
+              )
+            : null,
         "userId": shop.userId,
       });
 
