@@ -1,31 +1,11 @@
-class Category {
-  final String id;
-  final String name;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+class CategoryModel {
+  final List<String> categories;
 
-  Category({
-    required this.id,
-    required this.name,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  CategoryModel({required this.categories});
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json["_id"],
-      name: json["name"],
-      createdAt: DateTime.parse(json["createdAt"]),
-      updatedAt: DateTime.parse(json["updatedAt"]),
+  factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    return CategoryModel(
+      categories: List<String>.from(json['categories']),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "_id": id,
-      "name": name,
-      "createdAt": createdAt.toIso8601String(),
-      "updatedAt": updatedAt.toIso8601String(),
-    };
   }
 }
