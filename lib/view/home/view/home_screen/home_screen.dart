@@ -71,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
       await Provider.of<ShopProvider>(context, listen: false).fetchShops();
       _allProducts = List.from(productProvider.homeProducts);
       _filteredProducts = List.from(_allProducts);
+
+      Provider.of<LocationController>(context, listen: false).getLocation();
       setState(() {
         _isLoading = false;
       });
@@ -87,12 +89,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void _filterProducts() {
     String query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredProducts =
-          _allProducts
-              .where(
-                (product) => (product.name ?? "").toLowerCase().contains(query),
-              )
-              .toList();
+      _filteredProducts = _allProducts
+          .where(
+            (product) => (product.name ?? "").toLowerCase().contains(query),
+          )
+          .toList();
     });
   }
 
@@ -106,13 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final shopProvider = Provider.of<ShopProvider>(context);
-    final displayedGroceries =
-        _showAllGroceries ? _groceryItems : _groceryItems.take(3).toList();
+    final displayedGroceries = _showAllGroceries ? _groceryItems : _groceryItems.take(3).toList();
 
-    final displayedStores =
-        _showAllStores
-            ? shopProvider.shops
-            : shopProvider.shops.take(3).toList();
+    final displayedStores = _showAllStores ? shopProvider.shops : shopProvider.shops.take(3).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -144,131 +141,117 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.add_business_outlined,
               color: Colors.blue.shade900,
             ),
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AddShop()),
-                ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddShop()),
+            ),
           ),
           IconButton(
             icon: Icon(
               Icons.notifications_none_sharp,
               color: Colors.blue.shade900,
             ),
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => NotificationScreen()),
-                ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => NotificationScreen()),
+            ),
           ),
         ],
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _errorMessage != null
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
               ? Center(child: Text(_errorMessage!))
               : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        height: 100,
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        autoPlayInterval: const Duration(seconds: 3),
-                        onPageChanged:
-                            (index, reason) =>
-                                setState(() => _currentIndex = index),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          height: 100,
+                          autoPlay: true,
+                          enlargeCenterPage: true,
+                          autoPlayInterval: const Duration(seconds: 3),
+                          onPageChanged: (index, reason) => setState(() => _currentIndex = index),
+                        ),
+                        items: _bannerImages.map((imagePath) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              imagePath,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        }).toList(),
                       ),
-                      items:
-                          _bannerImages.map((imagePath) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.asset(
-                                imagePath,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: AnimatedSmoothIndicator(
-                        activeIndex: _currentIndex,
-                        count: _bannerImages.length,
-                        effect: const ExpandingDotsEffect(
-                          activeDotColor: Colors.blue,
-                          dotHeight: 8,
-                          dotWidth: 8,
+                      const SizedBox(height: 10),
+                      Center(
+                        child: AnimatedSmoothIndicator(
+                          activeIndex: _currentIndex,
+                          count: _bannerImages.length,
+                          effect: const ExpandingDotsEffect(
+                            activeDotColor: Colors.blue,
+                            dotHeight: 8,
+                            dotWidth: 8,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: InkWell(
-                        onTap: _navigateToMapScreen,
-                        child: Consumer<LocationController>(
-                          builder: (context, locationController, _) {
-                            final location = locationController.location;
-                            return Text(
-                              location != null
-                                  ? "${location.locality}, ${location.state} - ${location.pincode}"
-                                  : "Fetching location...",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.deepOrange,
-                              ),
-                            );
-                          },
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: InkWell(
+                          onTap: _navigateToMapScreen,
+                          child: Consumer<LocationController>(
+                            builder: (context, locationController, _) {
+                              final location = locationController.location;
+                              return Text(
+                                location != null ? "${location.locality}, ${location.state} - ${location.pincode}" : "Fetching location...",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.deepOrange,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    buildSectionTitle(
-                      "Groceries",
-                      _showAllGroceries ? "Show less" : "See all",
-                      () {
-                        setState(() => _showAllGroceries = !_showAllGroceries);
-                      },
-                    ),
-                    groceriesHorizontalList(displayedGroceries),
-                    buildSectionTitle(
-                      "Stores",
-                      _showAllStores ? "Show less" : "See all",
-                      () {
-                        setState(() => _showAllStores = !_showAllStores);
-                      },
-                    ),
-                    displayedStores.isEmpty
-                        ? const Center(child: Text("No Stores Found"))
-                        : storeHorizontalList(displayedStores),
-                    const SizedBox(height: 20),
-                    _filteredProducts.isEmpty
-                        ? const Center(child: Text("No Products Found"))
-                        : productGridView(
-                          _filteredProducts.map((product) {
-                            return {
-                              "_id": product.id,
-                              "image":
-                                  product.productImage.isNotEmpty
-                                      ? product.productImage
-                                      : "https://via.placeholder.com/150",
-                              "name": product.name,
-                              "weight": product.productType,
-                              "price":
-                                  "₹${product.price > 0 ? product.price : 'N/A'}",
-                            };
-                          }).toList(),
-                        ),
-                  ],
+                      buildSectionTitle(
+                        "Groceries",
+                        _showAllGroceries ? "Show less" : "See all",
+                        () {
+                          setState(() => _showAllGroceries = !_showAllGroceries);
+                        },
+                      ),
+                      groceriesHorizontalList(displayedGroceries),
+                      buildSectionTitle(
+                        "Stores",
+                        _showAllStores ? "Show less" : "See all",
+                        () {
+                          setState(() => _showAllStores = !_showAllStores);
+                        },
+                      ),
+                      displayedStores.isEmpty ? const Center(child: Text("No Stores Found")) : storeHorizontalList(displayedStores),
+                      const SizedBox(height: 20),
+                      _filteredProducts.isEmpty
+                          ? const Center(child: Text("No Products Found"))
+                          : productGridView(
+                              _filteredProducts.map((product) {
+                                return {
+                                  "_id": product.id,
+                                  "image": product.productImage.isNotEmpty ? product.productImage : "https://via.placeholder.com/150",
+                                  "name": product.name,
+                                  "weight": product.productType,
+                                  "price": "₹${product.price > 0 ? product.price : 'N/A'}",
+                                };
+                              }).toList(),
+                            ),
+                    ],
+                  ),
                 ),
-              ),
     );
   }
 
