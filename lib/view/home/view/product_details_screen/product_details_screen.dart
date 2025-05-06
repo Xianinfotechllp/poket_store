@@ -359,14 +359,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    onPressed:
-                        () => showAddToCartSheet(
-                          context,
-                          product.name,
-                          product.price.toDouble(),
-                          1,
-                          product.id,
-                        ),
+                    onPressed: () => showAddToCartSheet(
+                      context,
+                      product.name,
+                      product.price.toDouble(),
+                      1,
+                      product.id,
+                    ),
                     child: const Center(
                       child: Text(
                         'Add To Cart',

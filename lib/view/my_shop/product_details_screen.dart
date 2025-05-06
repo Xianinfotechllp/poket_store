@@ -4,10 +4,23 @@ import 'package:poketstore/controllers/my_shope_controller/add_product_controlle
 import 'package:poketstore/view/home/widgets/product_details_widget.dart';
 import 'package:provider/provider.dart';
 
-class MyShopProductDetails extends StatelessWidget {
+class MyShopProductDetails extends StatefulWidget {
   final String productId;
 
   const MyShopProductDetails({super.key, required this.productId});
+
+  @override
+  State<MyShopProductDetails> createState() => _MyShopProductDetailsState();
+}
+
+class _MyShopProductDetailsState extends State<MyShopProductDetails> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductProvider>(context, listen: false).fetchProduct(widget.productId);
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +36,11 @@ class MyShopProductDetails extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.blue),
-            onPressed: () => _showEditDialog(context, productId),
+            onPressed: () => _showEditDialog(context, widget.productId),
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () => _confirmDelete(context, productId),
+            onPressed: () => _confirmDelete(context, widget.productId),
           ),
         ],
       ),
@@ -46,7 +59,7 @@ class MyShopProductDetails extends StatelessWidget {
           }
 
           final product = provider.product!;
-          log("Product fetched: ${product.name}, ID: $productId");
+          log("Product fetched: ${product.name}, ID: ${widget.productId}");
 
           return SingleChildScrollView(
             child: Column(
@@ -169,8 +182,7 @@ class MyShopProductDetails extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context, String productId) {
-    final product =
-        Provider.of<ProductProvider>(context, listen: false).product;
+    final product = Provider.of<ProductProvider>(context, listen: false).product;
     if (product == null) return;
 
     final nameController = TextEditingController(text: product.name);
@@ -183,77 +195,71 @@ class MyShopProductDetails extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text("Edit Product"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: "Product Name"),
-                ),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: "Description"),
-                ),
-                TextField(
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: "Price"),
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text("Edit Product"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: "Product Name"),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final updatedData = {
-                    "name": nameController.text.trim(),
-                    "description": descriptionController.text.trim(),
-                    "price": int.tryParse(priceController.text.trim()) ?? 0,
-                  };
-
-                  Provider.of<ProductProvider>(context, listen: false)
-                      .updateProduct(productId, updatedData, context)
-                      .then((success) {
-                        if (success) Navigator.pop(context);
-                      });
-                },
-                child: const Text("Update"),
-              ),
-            ],
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: "Description"),
+            ),
+            TextField(
+              controller: priceController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Price"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
+          ElevatedButton(
+            onPressed: () {
+              final updatedData = {
+                "name": nameController.text.trim(),
+                "description": descriptionController.text.trim(),
+                "price": int.tryParse(priceController.text.trim()) ?? 0,
+              };
+
+              Provider.of<ProductProvider>(context, listen: false).updateProduct(productId, updatedData, context).then((success) {
+                if (success) Navigator.pop(context);
+              });
+            },
+            child: const Text("Update"),
+          ),
+        ],
+      ),
     );
   }
 
   void _confirmDelete(BuildContext context, String productId) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text("Delete Product"),
-            content: const Text(
-              "Are you sure you want to delete this product?",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Provider.of<ProductProvider>(context, listen: false)
-                      .deleteProduct(productId)
-                      .then((_) => Navigator.pop(context));
-                },
-                child: const Text("Delete"),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Product"),
+        content: const Text(
+          "Are you sure you want to delete this product?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Provider.of<ProductProvider>(context, listen: false).deleteProduct(productId).then((_) => Navigator.pop(context));
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
     );
   }
 }
