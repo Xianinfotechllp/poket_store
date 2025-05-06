@@ -7,7 +7,7 @@ class ShopModel {
   final String state;
   final String place;
   final String pinCode;
-  // final String locality;
+  final String locality;
   final String headerImage;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -15,7 +15,7 @@ class ShopModel {
   ShopModel({
     this.userId,
     this.id,
-    // required this.locality,
+    required this.locality,
     required this.shopName,
     required this.category,
     required this.sellerType,
@@ -30,21 +30,21 @@ class ShopModel {
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
       id: json["_id"],
-      // locality: json["locality"],
-      userId: json['userId'],
-      shopName: json["shopName"],
-      category:
+      locality: json["locality"] ?? "",
+      userId: json['userId'] ??"",
+      shopName: json["shopName"] ??"",
+      category:json['category'] == null ? [] :
           (json['category'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
-      sellerType: json["sellerType"],
-      state: json["state"],
-      place: json["place"],
-      pinCode: json["pinCode"],
-      headerImage: json["headerImage"],
-      createdAt: DateTime.parse(json["createdAt"]),
-      updatedAt: DateTime.parse(json["updatedAt"]),
+      sellerType: json["sellerType"] ??"",
+      state: json["state"] ??"",
+      place: json["place"] ??"",
+      pinCode: json["pinCode"] ??"",
+      headerImage: json["headerImage"] ??"",
+      createdAt: DateTime.parse(json["createdAt"] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json["updatedAt"]?? DateTime.now().toIso8601String()),
     );
   }
   Map<String, dynamic> toJson() {
@@ -56,7 +56,7 @@ class ShopModel {
       "state": state,
       "place": place,
       "pinCode": pinCode,
-      // "locality": locality,
+      "locality": locality,
       "headerImage": headerImage,
     };
   }

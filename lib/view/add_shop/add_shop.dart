@@ -30,59 +30,32 @@ class _AddShopState extends State<AddShop> {
   final List<String> sellerTypes = ["Producer", "Trader"];
   final List<String> states = [
     "Andhra Pradesh",
-
     "Arunachal Pradesh",
-
     "Assam",
-
     "Bihar",
-
     "Chhattisgarh",
-
     "Goa",
-
     "Gujarat",
-
     "Haryana",
-
     "Himachal Pradesh",
-
     "Jharkhand",
-
     "Karnataka",
-
     "Kerala",
-
     "Madhya Pradesh",
-
     "Maharashtra",
-
     "Manipur",
-
     "Meghalaya",
-
     "Mizoram",
-
     "Nagaland",
-
     "Odisha",
-
     "Punjab",
-
     "Rajasthan",
-
     "Sikkim",
-
     "Tamil Nadu",
-
     "Telangana",
-
     "Tripura",
-
     "Uttar Pradesh",
-
     "Uttarakhand",
-
     "West Bengal",
   ];
   List<String> _selectedCategories = [];
@@ -113,9 +86,7 @@ class _AddShopState extends State<AddShop> {
   }
 
   void _registerShop() async {
-    if (!_formKey.currentState!.validate() ||
-        _headerImage == null ||
-        _selectedCategories.isEmpty) {
+    if (!_formKey.currentState!.validate() || _headerImage == null || _selectedCategories.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -143,6 +114,7 @@ class _AddShopState extends State<AddShop> {
     log("State: $_selectedState");
     log("Place: ${_placeController.text.trim()}");
     log("Pin Code: ${_pinCodeController.text.trim()}");
+    log("Locality: ${_localityController.text.trim()}");
     log("Header Image Path: ${_headerImage!.path}");
     log("User ID: $userId");
 
@@ -153,7 +125,7 @@ class _AddShopState extends State<AddShop> {
       state: _selectedState!,
       place: _placeController.text.trim(),
       pinCode: _pinCodeController.text.trim(),
-      // locality: _localityController.text.trim(),
+      locality: _localityController.text.trim(),
       headerImage: "", // The image file will be passed separately
       userId: userId,
     );
@@ -165,6 +137,7 @@ class _AddShopState extends State<AddShop> {
       _showSnackbar(provider.errorMessage);
     } else {
       _showSnackbar("Shop registered successfully!");
+      Navigator.of(context).pop(true); // Go back to previous screen
       Navigator.of(context).pop(true); // Go back to previous screen
     }
   }
@@ -275,16 +248,9 @@ class _AddShopState extends State<AddShop> {
                                   border: OutlineInputBorder(),
                                 ),
                                 controller: TextEditingController(
-                                  text:
-                                      _selectedCategories.isNotEmpty
-                                          ? _selectedCategories.join(", ")
-                                          : null,
+                                  text: _selectedCategories.isNotEmpty ? _selectedCategories.join(", ") : null,
                                 ),
-                                validator:
-                                    (value) =>
-                                        _selectedCategories.isEmpty
-                                            ? "Please select at least one category"
-                                            : null,
+                                validator: (value) => _selectedCategories.isEmpty ? "Please select at least one category" : null,
                               ),
                             ),
                           ),
@@ -306,6 +272,8 @@ class _AddShopState extends State<AddShop> {
                         }),
                         buildLabel("Place"),
                         buildTextField(_placeController, "Enter place"),
+                        buildLabel("Locality"),
+                        buildTextField(_localityController, "Enter Locality"),
                         buildLabel("Pin Code"),
                         buildTextField(
                           _pinCodeController,
@@ -316,21 +284,20 @@ class _AddShopState extends State<AddShop> {
                         Center(
                           child: GestureDetector(
                             onTap: _pickImage,
-                            child:
-                                _headerImage != null
-                                    ? Image.file(
-                                      _headerImage!,
-                                      height: 150,
-                                      fit: BoxFit.cover,
-                                    )
-                                    : Container(
-                                      height: 150,
-                                      width: double.infinity,
-                                      color: Colors.grey[300],
-                                      child: const Center(
-                                        child: Text("Upload Shop Image"),
-                                      ),
+                            child: _headerImage != null
+                                ? Image.file(
+                                    _headerImage!,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    height: 150,
+                                    width: double.infinity,
+                                    color: Colors.grey[300],
+                                    child: const Center(
+                                      child: Text("Upload Shop Image"),
                                     ),
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -343,15 +310,12 @@ class _AddShopState extends State<AddShop> {
                               ),
                             );
 
-                            if (result != null &&
-                                result is Map<String, String>) {
+                            if (result != null && result is Map<String, String>) {
                               setState(() {
                                 _placeController.text = result['place'] ?? '';
-                                _pinCodeController.text =
-                                    result['pincode'] ?? '';
+                                _pinCodeController.text = result['pincode'] ?? '';
                                 // Ensure 'locality' in ShopModel is meant to be 'subLocality'
-                                _localityController.text =
-                                    result['locality'] ?? ''; // Use subLocality
+                                _localityController.text = result['subLocality'] ?? ''; // Use subLocality
                               });
                             }
                           },
@@ -362,26 +326,24 @@ class _AddShopState extends State<AddShop> {
                           child: SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed:
-                                  provider.isLoading ? null : _registerShop,
+                              onPressed: provider.isLoading ? null : _registerShop,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0XFF094497),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 14,
                                 ),
                               ),
-                              child:
-                                  provider.isLoading
-                                      ? const CircularProgressIndicator(
+                              child: provider.isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                  : const Text(
+                                      "Register",
+                                      style: TextStyle(
                                         color: Colors.white,
-                                      )
-                                      : const Text(
-                                        "Register",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                        ),
+                                        fontSize: 18,
                                       ),
+                                    ),
                             ),
                           ),
                         ),
@@ -443,13 +405,11 @@ Widget buildDropdown(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
       hint: Text(hint),
-      items:
-          items
-              .map(
-                (item) =>
-                    DropdownMenuItem<String>(value: item, child: Text(item)),
-              )
-              .toList(),
+      items: items
+          .map(
+            (item) => DropdownMenuItem<String>(value: item, child: Text(item)),
+          )
+          .toList(),
       onChanged: onChanged,
       validator: (value) => value == null ? "Please select an option" : null,
     ),
