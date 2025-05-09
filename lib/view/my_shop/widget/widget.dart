@@ -55,15 +55,14 @@ class MyShopeItemWidget extends StatelessWidget {
                   width: 70,
                   height: 80,
                   fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => const CircularProgressIndicator(),
-                  errorWidget:
-                      (context, url, error) => Image.asset(
-                        'assets/default_image.png',
-                        width: 70,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/default_image.png',
+                    width: 70,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -126,7 +125,7 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
       crossAxisCount: 2,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 0.7,
+      childAspectRatio: 0.6,
     ),
     itemCount: productsWithShopName.length,
     itemBuilder: (context, index) {
@@ -166,9 +165,8 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
                     child: Image.network(
                       product["image"] ?? "",
                       fit: BoxFit.cover,
-                      errorBuilder:
-                          (context, error, stackTrace) =>
-                              const Center(child: Icon(Icons.broken_image)),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(child: Icon(Icons.broken_image)),
                     ),
                   ),
                 ),

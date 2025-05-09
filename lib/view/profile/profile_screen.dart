@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
+import 'package:poketstore/controllers/user_profile_controller/user_profile_controller.dart';
+
 import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/add_shop/shope_list_screen.dart';
 import 'package:poketstore/view/delivery_address/delivery_address.dart';
@@ -7,14 +10,16 @@ import 'package:poketstore/view/notification/notification.dart';
 import 'package:poketstore/view/order_screen/order_screen.dart';
 import 'package:poketstore/view/subscription/subscription.dart';
 import 'package:poketstore/view/user_profile/user_profile.dart';
-import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final loginProvider = context.watch<LoginProvider>();
+    final userProfileController = context.watch<UserProfileController>();
+    final profile = userProfileController.userProfile;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -27,38 +32,32 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  // Profile Image
                   const CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage(
-                      'assets/person.png',
-                    ), // Replace with actual image URL
+                    backgroundImage: AssetImage('assets/person.png'),
                   ),
                   const SizedBox(width: 12),
-                  // User Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'James Anderson',
-                          style: TextStyle(
+                        Text(
+                          profile?.name ?? 'Guest User',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
-                          'Example@gmail.com',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        Text(
+                          profile?.state ?? "",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  // Edit Icon
-                  // IconButton(
-                  //   onPressed: () {},
-                  //   icon: const Icon(Icons.edit, color: Colors.green),
-                  // ),
                 ],
               ),
             ),
@@ -68,43 +67,38 @@ class ProfileScreen extends StatelessWidget {
 
             // Menu List
             buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => OrdersScreen()),
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => OrdersScreen()));
             }),
             buildMenuItem(Icons.person_outline, "My Details", () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserProfileScreen()),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const UserProfileScreen()));
             }),
-
             buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddressListScreen()),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const DeliveryScreen()));
             }),
             buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ShopListScreen()),
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ShopListScreen()));
             }),
-            buildMenuItem(Icons.card_giftcard_outlined, "Promo Cord", () {}),
+            buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
             buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Subscription()),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Subscription()));
             }),
             buildMenuItem(Icons.notifications_outlined, "Notifications", () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationScreen()),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NotificationScreen()));
             }),
             buildMenuItem(Icons.help_outline, "Help", () {}),
             buildMenuItem(Icons.info_outline, "About", () {}),
@@ -145,13 +139,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Function to create each menu item
+  // Reusable menu item builder
   Widget buildMenuItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
       title: Text(title, style: const TextStyle(fontSize: 16)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap, // Add navigation here
+      onTap: onTap,
     );
   }
 }

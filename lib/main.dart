@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
+import 'package:poketstore/controllers/address_controller/address_controller.dart';
 import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart';
 import 'package:poketstore/controllers/cart_controller/cart_controller.dart';
 import 'package:poketstore/controllers/cart_controller/fetch_cart_controller.dart';
@@ -52,6 +53,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LocationController()),
         ChangeNotifierProvider(create: (_) => UserProfileController()),
         ChangeNotifierProvider(create: (_) => GroceriesListProvider()),
+        ChangeNotifierProvider(create: (_) => AddressController()),
       ],
       child: const MyApp(),
     ),
