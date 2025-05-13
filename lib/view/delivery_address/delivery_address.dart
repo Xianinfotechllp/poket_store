@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/address_controller/address_controller.dart';
 import 'package:provider/provider.dart';
@@ -115,7 +117,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                     IconButton(
                       icon: const Icon(Icons.edit),
                       onPressed: () {
-                        print("Editing address with ID: ${address.id}");
+                        log("Editing address with ID: ${address.id}");
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -124,8 +126,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                           ),
                         ).then((result) {
                           if (result != null && result is AddressModel) {
-                            print(
-                                "Address updated for ID: ${address.id}, New Data: ${result.toJson()}");
+                            log("Address updated for ID: ${address.id}, New Data: ${result.toJson()}");
                             Provider.of<AddressController>(context,
                                     listen: false)
                                 .updateAddress(address.id!, result);
@@ -136,8 +137,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {
-                        print(
-                            "Attempting to delete address with ID: ${address.id}");
+                        log("Attempting to delete address with ID: ${address.id}");
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -151,8 +151,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  print(
-                                      "Confirmed deletion for ID: ${address.id}");
+                                  log("Confirmed deletion for ID: ${address.id}");
                                   Navigator.pop(context);
                                   WidgetsBinding.instance
                                       .addPostFrameCallback((_) {

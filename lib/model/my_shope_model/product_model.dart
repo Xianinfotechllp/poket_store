@@ -36,6 +36,14 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    // Parse the category string back into a list
+    List<String> parsedCategory = [];
+    if (json['category'] != null && json['category'] is String) {
+      parsedCategory = (json['category'] as String).split(',');
+    } else if (json['category'] != null && json['category'] is List) {
+      parsedCategory = List<String>.from(json['category']);
+    }
+
     return Product(
       shop: json['shop'] ?? "",
       // totalAmount: json['totalAmount'],
@@ -45,13 +53,8 @@ class Product {
       price: int.tryParse(json['price'].toString()) ?? 0, // Ensure it's an int
       quantity:
           int.tryParse(json['quantity'].toString()) ?? 0, // Ensure it's an int
-      category:
-          (json['category'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-      productImage:
-          json['productImage'] ??
+      category: parsedCategory,
+      productImage: json['productImage'] ??
           "https://pixabay.com/photos/himeji-castle-himeji-castle-japan-9500850/",
       sold: json['sold'] ?? 0,
       estimatedTime: json['estimatedTime'] ?? "",
@@ -64,6 +67,8 @@ class Product {
   }
 
   Map<String, dynamic> toJson() {
+    // Convert the category list to a comma-separated string for sending to the server
+    // String categoryString = category.join(',');
     return {
       'shop': shop,
       '_id': id,
@@ -72,7 +77,7 @@ class Product {
       // 'totalAmount': totalAmount,
       'price': price,
       'quantity': quantity,
-      'category': category,
+      'category': category, // Use the string here
       'productImage': productImage,
       'sold': sold,
       'estimatedTime': estimatedTime,

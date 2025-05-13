@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poketstore/controllers/my_shope_controller/my_shop_list_user_controller.dart';
@@ -17,7 +18,7 @@ class MyShopScreen extends StatefulWidget {
 class _MyShopScreenState extends State<MyShopScreen> {
   String? _userId;
   bool _isLoading = true;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _allProductsWithShopName = [];
   List<Map<String, dynamic>> _filteredProducts = [];
 
@@ -59,24 +60,21 @@ class _MyShopScreenState extends State<MyShopScreen> {
     setState(() => _isLoading = false);
   }
 
-  void _processShopData(List<dynamic> shopList) {
+  void _processShopData(List<ShopData> shopList) {
     _allProductsWithShopName.clear();
     for (var shop in shopList) {
-      if (shop.products != null) {
-        for (var product in shop.products!) {
-          _allProductsWithShopName.add({
-            "_id": product.id ?? "",
-            "image":
-                (product.productImage?.isNotEmpty ?? false)
-                    ? product.productImage
-                    : "https://via.placeholder.com/150",
-            "name": product.name ?? "Unknown",
-            "weight": product.productType ?? "N/A",
-            "price":
-                "₹${product.price != null && product.price! > 0 ? product.price : 'N/A'}",
-            "shopName": shop.shopName ?? "Unnamed Shop",
-          });
-        }
+      for (var product in shop.products) {
+        _allProductsWithShopName.add({
+          "_id": product.id,
+          "image": (product.productImage?.isNotEmpty ?? false)
+              ? product.productImage
+              : "https://via.placeholder.com/150",
+          "name": product.name,
+          "weight": product.productType ?? "N/A",
+          "price":
+              "₹${(product.price != null && product.price! > 0) ? product.price : 'N/A'}",
+          "shopName": shop.shopName,
+        });
       }
     }
     _filteredProducts = List.from(_allProductsWithShopName);
@@ -85,11 +83,10 @@ class _MyShopScreenState extends State<MyShopScreen> {
   void _filterProducts() {
     String query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredProducts =
-          _allProductsWithShopName.where((product) {
-            return (product["name"] as String).toLowerCase().contains(query) ||
-                (product["shopName"] as String).toLowerCase().contains(query);
-          }).toList();
+      _filteredProducts = _allProductsWithShopName.where((product) {
+        return (product["name"] as String).toLowerCase().contains(query) ||
+            (product["shopName"] as String).toLowerCase().contains(query);
+      }).toList();
     });
   }
 
@@ -119,78 +116,74 @@ class _MyShopScreenState extends State<MyShopScreen> {
             ),
           ),
         ),
-        body:
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                  children: [
-                    Expanded(
-                      child: Consumer<MyShopListUserProvider>(
-                        builder: (context, provider, child) {
-                          if (_userId == null) {
-                            return const Center(
-                              child: Text(
-                                "Please log in to view your shops and products.",
-                              ),
-                            );
-                          }
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  Expanded(
+                    child: Consumer<MyShopListUserProvider>(
+                      builder: (context, provider, child) {
+                        if (_userId == null) {
+                          return const Center(
+                            child: Text(
+                                "Please log in to view your shops and products."),
+                          );
+                        }
 
-                          if (provider.isLoading &&
-                              _allProductsWithShopName.isEmpty) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (provider.error != null) {
-                            return Center(child: Text(provider.error!));
-                          } else if (_filteredProducts.isEmpty &&
-                              _searchController.text.isNotEmpty) {
-                            return const Center(
+                        if (provider.isLoading &&
+                            _allProductsWithShopName.isEmpty) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (provider.error != null) {
+                          log("Error loading product data: ${provider.error!}");
+                          return const Center(
                               child: Text(
-                                "No products or shops found matching your search.",
-                              ),
-                            );
-                          } else if (_allProductsWithShopName.isEmpty) {
-                            return const Center(
+                                  "Something went wrong. Please try again later."));
+                        } else if (_filteredProducts.isEmpty &&
+                            _searchController.text.isNotEmpty) {
+                          return const Center(
                               child: Text(
-                                "No products added yet. Click '+' to add.",
-                              ),
-                            );
-                          }
+                                  "No products or shops found matching your search."));
+                        } else if (_allProductsWithShopName.isEmpty) {
+                          return const Center(
+                              child: Text(
+                                  "No products added yet. Click '+' to add."));
+                        }
 
-                          return productMyShopeGridView(_filteredProducts);
-                        },
-                      ),
+                        return productMyShopeGridView(_filteredProducts);
+                      },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: GestureDetector(
-                        onTap: () => _showAddDialog(context),
-                        child: Container(
-                          height: 50,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 7, 3, 201),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Add Product',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: GestureDetector(
+                      onTap: () => _showAddDialog(context),
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 7, 3, 201),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Add Product',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Icon(Icons.add, color: Colors.white),
-                            ],
-                          ),
+                            ),
+                            Icon(Icons.add, color: Colors.white),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -200,9 +193,8 @@ class _MyShopScreenState extends State<MyShopScreen> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -210,10 +202,9 @@ class _MyShopScreenState extends State<MyShopScreen> {
               children: [
                 const Icon(Icons.info, size: 50, color: Colors.blueAccent),
                 const SizedBox(height: 15),
-                const Text(
-                  "Notice",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
+                const Text("Notice",
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 const Text(
                   "If you have a store, continue adding a product.\nOtherwise, create one by clicking 'Create'.",
@@ -228,14 +219,11 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.grey[300],
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () => Navigator.pop(context),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(color: Colors.black),
-                        ),
+                        child: const Text("Cancel",
+                            style: TextStyle(color: Colors.black)),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -245,16 +233,14 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.blueAccent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const AddProductScreen(),
-                            ),
+                                builder: (_) => const AddProductScreen()),
                           ).then((value) {
                             if (value == true) _loadUserShops();
                           });
@@ -269,8 +255,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
                           Navigator.pop(context);

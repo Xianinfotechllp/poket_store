@@ -22,7 +22,7 @@ class ProductProvider with ChangeNotifier {
     required String description,
     required int price,
     required int quantity,
-    required List<String> category,
+    required String category, // Changed to String
     required String estimatedTime,
     required String productType,
     required String deliveryOption,
@@ -36,7 +36,7 @@ class ProductProvider with ChangeNotifier {
     log("Description: $description");
     log("Price: $price");
     log("Quantity: $quantity");
-    log("Category: $category");
+    log("Category: $category"); // Log the string
     log("Estimated Time: $estimatedTime");
     log("Product Type: $productType");
     log("Delivery Option: $deliveryOption");
@@ -50,7 +50,7 @@ class ProductProvider with ChangeNotifier {
       description: description,
       price: price,
       quantity: quantity,
-      category: category,
+      category: category, // Pass the string
       estimatedTime: estimatedTime,
       productType: productType,
       deliveryOption: deliveryOption,

@@ -4,10 +4,10 @@ import 'package:poketstore/service/my_shope_service/my_shop_list_user_service.da
 
 class MyShopListUserProvider extends ChangeNotifier {
   final MyShopListUserService _service = MyShopListUserService();
-  List<ShopData> shopList =
-      []; // Removed underscore to make it directly accessible
-  bool isLoading = false; // Removed underscore to make it directly accessible
-  String? error; // Removed underscore to make it directly accessible
+
+  List<ShopData> shopList = [];
+  bool isLoading = false;
+  String? error;
 
   Future<void> fetchUserShopList(String userId) async {
     isLoading = true;
@@ -22,6 +22,7 @@ class MyShopListUserProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString();
       isLoading = false;
+      shopList = [];
       notifyListeners();
     }
   }

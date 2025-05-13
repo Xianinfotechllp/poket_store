@@ -19,7 +19,7 @@ class BottomBarScreen extends StatelessWidget {
       HomeScreen(),
       MyShopScreen(),
       CartScreen(),
-      FavouriteScreen(),
+      // FavouriteScreen(),
       ProfileScreen(),
     ];
 
@@ -47,7 +47,7 @@ class BottomBarScreen extends StatelessWidget {
               GButton(icon: Icons.home, text: 'Home'),
               GButton(icon: Icons.business_sharp, text: 'My Shop'),
               GButton(icon: Icons.shopping_cart_outlined, text: 'Cart'),
-              GButton(icon: Icons.favorite_border, text: 'Favourite'),
+              // GButton(icon: Icons.favorite_border, text: 'Favourite'),
               GButton(icon: Icons.person_3_outlined, text: 'Account'),
             ],
           ),

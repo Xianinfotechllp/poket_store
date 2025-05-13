@@ -75,6 +75,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
 
     final provider = Provider.of<ProductProvider>(context, listen: false);
+    // Join the category list into a comma-separated string
+    String categoryString = _selectedCategories.join(',');
+
     await provider.createProduct(
       shop: _selectedShopId.toString(),
       userId: _selectedShopId!,
@@ -83,7 +86,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       description: _descriptionController.text.trim(),
       price: int.parse(_priceController.text.trim()),
       quantity: int.parse(_quantityController.text.trim()),
-      category: _selectedCategories,
+      category: categoryString, // Pass the comma-separated string
       estimatedTime: _estimatedTimeController.text.trim(),
       productType: _selectedType!,
       deliveryOption: _selectedDeliveryOption!,
@@ -175,20 +178,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         ),
                       ),
                     ),
-                    _buildTextField("Product Name", _nameController),
+                    _buildTextField("Product Name", _nameController,
+                        hintText: "Enter product name"),
                     _buildDropdownField(
                       "Select Type",
                       _selectedType,
                       _typeOptions,
                       (value) => setState(() => _selectedType = value),
                     ),
-                    _buildTextField("Price", _priceController, isNumber: true),
+                    _buildTextField("Price", _priceController,
+                        isNumber: true, hintText: "Enter price"),
                     _buildTextField(
                       "Stock Quantity",
                       _quantityController,
                       isNumber: true,
+                      hintText: "Enter quantity",
                     ),
-                    _buildTextField("Description", _descriptionController),
+                    _buildTextField("Description", _descriptionController,
+                        hintText: "Enter description"),
                     categoryController.isLoading
                         ? const CircularProgressIndicator()
                         : _buildCategoryDropdownField(
@@ -213,6 +220,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     _buildTextField(
                       "Estimated Delivery Time (Days)",
                       _estimatedTimeController,
+                      hintText: "eg: 3-4 business days",
                     ),
                     _buildDropdownField(
                       "Availability Status",
@@ -262,6 +270,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String label,
     TextEditingController controller, {
     bool isNumber = false,
+    String? hintText, // Added hintText parameter
     String? Function(String?)? validator,
   }) {
     return Padding(
@@ -271,6 +280,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           labelText: label,
+          hintText: hintText, // Use hintText here
           border: const OutlineInputBorder(),
         ),
         validator: validator ??
@@ -354,15 +364,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
           }).toList(),
           onChanged: (String? newValue) {
             if (newValue != null) {
+              List<String> updatedList =
+                  List<String>.from(selectedValues); // Create a copy
+              if (updatedList.contains(newValue)) {
+                updatedList.remove(newValue); // Remove if already selected
+              } else {
+                updatedList.add(newValue); // Add if not selected
+              }
+              onChanged(updatedList); // Call onChanged with the updated list
+
               setState(() {
-                _selectedCategories = [..._selectedCategories, newValue];
+                _selectedCategories = updatedList;
               });
-              // Clear the dropdown selection after adding
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 (context.findRenderObject() as RenderBox).markNeedsPaint();
               });
             }
-            onChanged(_selectedCategories);
           },
           validator: (value) {
             if (_selectedCategories.isEmpty) {

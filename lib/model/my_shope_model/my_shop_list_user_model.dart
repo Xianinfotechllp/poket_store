@@ -9,13 +9,12 @@ class MyShopListUserResponse {
       message: json['message'],
       data:
           (json['data'] as List?)?.map((e) => ShopData.fromJson(e)).toList() ??
-          [],
+              [],
     );
   }
 }
 
 class ShopData {
-  // final String id;
   final String shopName;
   final List<Product> products;
 
@@ -23,10 +22,8 @@ class ShopData {
 
   factory ShopData.fromJson(Map<String, dynamic> json) {
     return ShopData(
-      // id: json['_id'],
       shopName: json['shopName'],
-      products:
-          (json['products'] as List?)
+      products: (json['products'] as List?)
               ?.map((e) => Product.fromJson(e))
               .toList() ??
           [],
@@ -49,8 +46,7 @@ class Product {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? v;
-  final String? description; // Added description
-  final String? estimatedTime; // Added estimatedTime
+  final String? description;
 
   Product({
     required this.id,
@@ -68,14 +64,13 @@ class Product {
     this.updatedAt,
     this.v,
     this.description,
-    this.estimatedTime,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['_id'],
-      shop: json['shop'],
-      name: json['name'],
+      id: json['_id'] ?? '',
+      shop: json['shop'] ?? '',
+      name: json['name'] ?? '',
       price: json['price'],
       quantity: json['quantity'],
       category: (json['category'] as List?)?.map((e) => e.toString()).toList(),
@@ -85,12 +80,11 @@ class Product {
       deliveryOption: json['deliveryOption'],
       userId: json['userId'],
       createdAt:
-          json['createdAt'] == null ? null : DateTime.parse(json['createdAt']),
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt:
-          json['updatedAt'] == null ? null : DateTime.parse(json['updatedAt']),
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       v: json['__v'],
       description: json['description'],
-      estimatedTime: json['estimatedTime'],
     );
   }
 }

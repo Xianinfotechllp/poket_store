@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poketstore/view/about_app/about_app.dart';
+import 'package:poketstore/view/help/help.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
 import 'package:poketstore/controllers/user_profile_controller/user_profile_controller.dart';
@@ -66,10 +68,10 @@ class ProfileScreen extends StatelessWidget {
             const Divider(),
 
             // Menu List
-            buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => OrdersScreen()));
-            }),
+            // buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
+            //   Navigator.push(context,
+            //       MaterialPageRoute(builder: (context) => OrdersScreen()));
+            // }),
             buildMenuItem(Icons.person_outline, "My Details", () {
               Navigator.push(
                   context,
@@ -82,26 +84,34 @@ class ProfileScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => const DeliveryScreen()));
             }),
-            buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
+            // buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ShopListScreen()));
             }),
-            buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
-            buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
+            // buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
+            // buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const Subscription()));
+            // }),
+            // buildMenuItem(Icons.notifications_outlined, "Notifications", () {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const NotificationScreen()));
+            // }),
+            buildMenuItem(Icons.help_outline, "Help", () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const HelpScreen()));
+            }),
+            buildMenuItem(Icons.info_outline, "About", () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const Subscription()));
+                      builder: (context) => const AboutAppScreen()));
             }),
-            buildMenuItem(Icons.notifications_outlined, "Notifications", () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NotificationScreen()));
-            }),
-            buildMenuItem(Icons.help_outline, "Help", () {}),
-            buildMenuItem(Icons.info_outline, "About", () {}),
 
             const SizedBox(height: 20),
 

@@ -5,7 +5,8 @@ import 'package:poketstore/model/my_shope_model/product_model.dart';
 
 class ProductService {
   final Dio _dio = Dio();
-  final String baseUrl = "https://shop-by-sabu-q.onrender.com/api/products";
+  final String baseUrl =
+      "https://shop-app-backend-gsx6.onrender.com/api/products";
 
   /// Add Product////
 
@@ -17,7 +18,7 @@ class ProductService {
     required String description,
     required int price,
     required int quantity,
-    required List<String> category,
+    required String category, // Changed to String
     required String estimatedTime,
     required String productType,
     required String deliveryOption,
@@ -34,7 +35,7 @@ class ProductService {
         "description": description,
         "price": price.toString(),
         "quantity": quantity.toString(),
-        "category": category,
+        "category": category, // Pass the string here
         "estimatedTime": estimatedTime,
         "productType": productType,
         "deliveryOption": deliveryOption,
@@ -73,41 +74,38 @@ class ProductService {
           }
 
           // Map JSON to Product List
-          List<Product> productList =
-              productsJson.map((json) {
-                log("Processing Product: ${json['name']}");
+          List<Product> productList = productsJson.map((json) {
+            log("Processing Product: ${json['name']}");
 
-                // Handle incorrect category format
-                List<String> categories;
-                if (json["category"] is List) {
-                  categories = List<String>.from(json["category"]);
-                } else {
-                  categories = [];
-                }
+            // Handle incorrect category format
+            List<String> categories;
+            if (json["category"] is List) {
+              categories = List<String>.from(json["category"]);
+            } else {
+              categories = [];
+            }
 
-                return Product(
-                  // shop: json["shop"],
-                  id: json["_id"],
-                  // totalAmount: json["totalAmount"],
-                  name: json["name"],
-                  description: json["description"] ?? "",
-                  price: json["price"] ?? 0,
-                  quantity: json["quantity"] ?? 0,
-                  category: categories,
-                  productImage: json["productImage"] ?? "",
-                  sold: json["sold"] ?? 0,
-                  estimatedTime: json["estimatedTime"] ?? "",
-                  productType: json["productType"] ?? "",
-                  deliveryOption: json["deliveryOption"] ?? "",
-                  userId: json["userId"] ?? "",
-                  createdAt:
-                      DateTime.tryParse(json["createdAt"] ?? "") ??
-                      DateTime.now(), // ✅ Convert String to DateTime
-                  updatedAt:
-                      DateTime.tryParse(json["updatedAt"] ?? "") ??
-                      DateTime.now(), // ✅ Convert String to DateTime
-                );
-              }).toList();
+            return Product(
+              // shop: json["shop"],
+              id: json["_id"],
+              // totalAmount: json["totalAmount"],
+              name: json["name"],
+              description: json["description"] ?? "",
+              price: json["price"] ?? 0,
+              quantity: json["quantity"] ?? 0,
+              category: categories,
+              productImage: json["productImage"] ?? "",
+              sold: json["sold"] ?? 0,
+              estimatedTime: json["estimatedTime"] ?? "",
+              productType: json["productType"] ?? "",
+              deliveryOption: json["deliveryOption"] ?? "",
+              userId: json["userId"] ?? "",
+              createdAt: DateTime.tryParse(json["createdAt"] ?? "") ??
+                  DateTime.now(), // ✅ Convert String to DateTime
+              updatedAt: DateTime.tryParse(json["updatedAt"] ?? "") ??
+                  DateTime.now(), // ✅ Convert String to DateTime
+            );
+          }).toList();
 
           log("Total Products Fetched: ${productList.length}");
           return productList;

@@ -74,7 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _filteredProducts = List.from(_allProducts);
 
       Provider.of<LocationController>(context, listen: false).getLocation();
-      Provider.of<GroceriesListProvider>(context, listen: false).loadGroceriesList();
+      Provider.of<GroceriesListProvider>(context, listen: false)
+          .loadGroceriesList();
       setState(() {
         _isLoading = false;
       });
@@ -116,7 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
             groceryProvider.groceriesList.keyWithCategory.entries.take(3),
           );
 
-    final displayedStores = _showAllStores ? shopProvider.shops : shopProvider.shops.take(3).toList();
+    final displayedStores = _showAllStores
+        ? shopProvider.shops
+        : shopProvider.shops.take(3).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -229,17 +232,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      buildSectionTitle(
-                        "Groceries",
-                        _showAllGroceries ? "Show less" : "See all",
-                        () {
-                          setState(
-                              () => _showAllGroceries = !_showAllGroceries);
-                        },
-                      ),
-                      displayedGroceries.isEmpty
-                          ? const Center(child: Text("No Groceries Found"))
-                          : groceriesHorizontalList(displayedGroceries, context),
+                      // buildSectionTitle(
+                      //   "Groceries",
+                      //   _showAllGroceries ? "Show less" : "See all",
+                      //   () {
+                      //     setState(
+                      //         () => _showAllGroceries = !_showAllGroceries);
+                      //   },
+                      // ),
+                      // displayedGroceries.isEmpty
+                      //     ? const Center(child: Text("No Groceries Found"))
+                      //     : groceriesHorizontalList(displayedGroceries, context),
                       buildSectionTitle(
                         "Stores",
                         _showAllStores ? "Show less" : "See all",
