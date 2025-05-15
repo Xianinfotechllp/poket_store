@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:poketstore/controllers/bottombar_controller.dart';
+import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/view/cart/cart_screen.dart';
 import 'package:poketstore/view/favourite/favourite_screen.dart';
