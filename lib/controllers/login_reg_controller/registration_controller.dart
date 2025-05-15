@@ -12,6 +12,8 @@ class RegistrationProvider extends ChangeNotifier {
   final TextEditingController placeController = TextEditingController();
   final TextEditingController pincodeController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController localityController =
+      TextEditingController(); // Added locality controller
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -21,11 +23,26 @@ class RegistrationProvider extends ChangeNotifier {
 
   final RegistrationService _registrationService = RegistrationService();
 
+  // Validation function for password confirmation
+  String? validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please confirm your password";
+    }
+    if (value != passwordController.text) {
+      return "Passwords do not match";
+    }
+    return null;
+  }
+
   Future<void> register(BuildContext context) async {
-    if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) {
+      log("Form validation failed");
+      return;
+    }
 
     _isLoading = true;
     notifyListeners();
+    log("Registering user...");
 
     try {
       final Map<String, dynamic> userData = {
@@ -34,14 +51,15 @@ class RegistrationProvider extends ChangeNotifier {
         "state": stateController.text.trim(),
         "place": placeController.text.trim(),
         "pincode": pincodeController.text.trim(),
+        "locality":
+            localityController.text.trim(), // Include locality in user data
         "password": passwordController.text.trim(),
       };
 
-      final RegistrationModel registeredUser = await _registrationService
-          .registerUser(userData);
+      final RegistrationModel registeredUser =
+          await _registrationService.registerUser(userData);
 
-      // Log the full response
-      // log("Registration Successful: ${registeredUser.()}");
+      log("Registration successful: ${registeredUser.toJson()}"); // Log the user data
 
       await _saveUserData(registeredUser);
 
@@ -49,31 +67,34 @@ class RegistrationProvider extends ChangeNotifier {
       notifyListeners();
 
       // Show success snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Registration successful! Welcome, ${registeredUser.name}.",
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Registration successful! Welcome, ${registeredUser.name}.",
+            ),
+            backgroundColor: Colors.green,
           ),
-          backgroundColor: Colors.green,
-        ),
-      );
+        );
 
-      // Navigate to the home screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BottomBarScreen()),
-      );
+        // Navigate to the home screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomBarScreen()),
+        );
+      }
     } catch (e) {
       _isLoading = false;
       notifyListeners();
       log("Registration Error: $e");
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Registration failed. Please try again."),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Registration failed. Please try again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -86,5 +107,19 @@ class RegistrationProvider extends ChangeNotifier {
     await prefs.setString('state', user.state);
     await prefs.setString('place', user.place);
     await prefs.setString('pincode', user.pincode);
+    await prefs.setString('locality', user.locality); // Save locality
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    mobileController.dispose();
+    stateController.dispose();
+    placeController.dispose();
+    pincodeController.dispose();
+    passwordController.dispose();
+    localityController.dispose(); // Dispose locality controller
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 }

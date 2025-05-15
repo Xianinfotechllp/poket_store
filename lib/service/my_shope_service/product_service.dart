@@ -1,0 +1,200 @@
+import 'dart:developer';
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:poketstore/model/my_shope_model/product_model.dart';
+
+class ProductService {
+  final Dio _dio = Dio();
+  final String baseUrl =
+      "https://shop-app-backend-gsx6.onrender.com/api/products";
+
+  /// Add Product////
+
+  Future<Product?> createProduct({
+    required String userId,
+    required String shop,
+    required File productImage,
+    required String name,
+    required String description,
+    required int price,
+    required int quantity,
+    required String category, // Changed to String
+    required String estimatedTime,
+    required String productType,
+    required String deliveryOption,
+  }) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "productImage": await MultipartFile.fromFile(
+          productImage.path,
+          filename: productImage.path.split('/').last,
+        ),
+        "userId": userId,
+        "shop": shop,
+        "name": name,
+        "description": description,
+        "price": price.toString(),
+        "quantity": quantity.toString(),
+        "category": category, // Pass the string here
+        "estimatedTime": estimatedTime,
+        "productType": productType,
+        "deliveryOption": deliveryOption,
+      });
+
+      Response response = await _dio.post(baseUrl, data: formData);
+      log("Create product response: ${response.data}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return Product.fromJson(response.data['product']);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      log("Error creating product: $e");
+      return null;
+    }
+  }
+
+  /// Fetch Product ///
+
+  Future<List<Product>> fetchProducts() async {
+    try {
+      final response = await _dio.get(baseUrl);
+
+      log("Response Status Code: ${response.statusCode}");
+      log("Response Data: ${response.data}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data.containsKey("products") &&
+            response.data["products"] is List) {
+          List<dynamic> productsJson = response.data["products"];
+
+          if (productsJson.isEmpty) {
+            log("No products found.");
+            return [];
+          }
+
+          // Map JSON to Product List
+          List<Product> productList = productsJson.map((json) {
+            log("Processing Product: ${json['name']}");
+
+            // Handle incorrect category format
+            List<String> categories;
+            if (json["category"] is List) {
+              categories = List<String>.from(json["category"]);
+            } else {
+              categories = [];
+            }
+
+            return Product(
+              // shop: json["shop"],
+              id: json["_id"],
+              // totalAmount: json["totalAmount"],
+              name: json["name"],
+              description: json["description"] ?? "",
+              price: json["price"] ?? 0,
+              quantity: json["quantity"] ?? 0,
+              category: categories,
+              productImage: json["productImage"] ?? "",
+              sold: json["sold"] ?? 0,
+              estimatedTime: json["estimatedTime"] ?? "",
+              productType: json["productType"] ?? "",
+              deliveryOption: json["deliveryOption"] ?? "",
+              userId: json["userId"] ?? "",
+              createdAt: DateTime.tryParse(json["createdAt"] ?? "") ??
+                  DateTime.now(), // ✅ Convert String to DateTime
+              updatedAt: DateTime.tryParse(json["updatedAt"] ?? "") ??
+                  DateTime.now(), // ✅ Convert String to DateTime
+            );
+          }).toList();
+
+          log("Total Products Fetched: ${productList.length}");
+          return productList;
+        } else {
+          throw Exception(
+            "Invalid API response format: Missing 'products' key",
+          );
+        }
+      } else {
+        throw Exception(
+          "Failed to fetch products: Status Code ${response.statusCode}",
+        );
+      }
+    } catch (e, stackTrace) {
+      log("Error fetching products: $e", error: e, stackTrace: stackTrace);
+      throw Exception("Error fetching products: $e");
+    }
+  }
+
+  ///Details page///
+
+  Future<Product> fetchProduct(String productId) async {
+    try {
+      final response = await _dio.get("$baseUrl/getone/$productId");
+
+      log(
+        "fetchProduct response: ${response.data}",
+      ); // Log the entire response data
+
+      if (response.statusCode == 200) {
+        return Product.fromJson(response.data["product"]);
+      } else {
+        log(
+          "fetchProduct failed with status code: ${response.statusCode}",
+        ); // Log the status code
+        throw Exception("Failed to fetch product");
+      }
+    } catch (e) {
+      log("fetchProduct error: $e"); // Log the error
+      throw Exception("Error: $e");
+    }
+  }
+
+  ///for user product//
+
+  Future<List<Product>> fetchProductsForUser(String userId) async {
+    try {
+      final response = await _dio.get(
+        "https://shop-app-backend-main.onrender.com/api/products/user/$userId",
+      );
+      log("Response Data: ${response.data}"); // Log the full response
+      log("Status Code: ${response.statusCode}"); // Log status code
+      if (response.statusCode == 200) {
+        List<dynamic> productsJson = response.data["products"];
+        return productsJson.map((json) => Product.fromJson(json)).toList();
+      } else {
+        throw Exception("Failed to fetch products");
+      }
+    } catch (e) {
+      throw Exception("Error fetching products: $e");
+    }
+  }
+
+  Future<bool> updateProduct(
+    String productId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _dio.put("$baseUrl/update/$productId", data: data);
+      if (response.statusCode == 200) {
+        log("Product updated successfully: ${response.data}");
+        return true;
+      }
+    } catch (e) {
+      log("Error updating product: $e");
+    }
+    return false;
+  }
+
+  Future<bool> deleteProduct(String productId) async {
+    try {
+      final response = await _dio.delete("$baseUrl/$productId");
+      if (response.statusCode == 200) {
+        log("Product deleted successfully");
+        return true;
+      }
+    } catch (e) {
+      log("Error deleting product: $e");
+    }
+    return false;
+  }
+}

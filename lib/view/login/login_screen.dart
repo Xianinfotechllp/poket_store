@@ -50,11 +50,9 @@ class LoginScreen extends StatelessWidget {
                       labelText: "Mobile Number",
                       border: OutlineInputBorder(),
                     ),
-                    validator:
-                        (value) =>
-                            value == null || value.trim().isEmpty
-                                ? 'Mobile number is required'
-                                : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Mobile number is required'
+                        : null,
                   ),
                 ),
                 Padding(
@@ -78,8 +76,6 @@ class LoginScreen extends StatelessWidget {
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Password is required';
-                      } else if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
                       }
                       return null;
                     },
@@ -119,21 +115,20 @@ class LoginScreen extends StatelessWidget {
                       height: 50,
                       width: double.infinity,
                       child: Center(
-                        child:
-                            loginProvider.isLoading
-                                ? const CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                )
-                                : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        child: loginProvider.isLoading
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
                                 ),
+                              )
+                            : const Text(
+                                'Login',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                   ),

@@ -1,121 +1,279 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poketstore/controllers/my_shope_controller/my_shop_list_user_controller.dart';
+import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/my_shop/add_product_screen.dart';
-import 'package:poketstore/view/my_shop/widget.dart';
+import 'package:poketstore/view/my_shop/widget/widget.dart';
 
-class MyShopScreen extends StatelessWidget {
+class MyShopScreen extends StatefulWidget {
   const MyShopScreen({super.key});
 
-  final List<Map<String, dynamic>> cartItems = const [
-    {
-      "name": "Bell Pepper Red",
-      "image": "assets/product1.png",
-      "quantity": 1,
-      "price": 4.99,
-    },
-    {
-      "name": "Green Apple",
-      "image": "assets/product1.png",
-      "quantity": 2,
-      "price": 3.49,
-    },
-    {
-      "name": "Bell Pepper Red",
-      "image": "assets/product1.png",
-      "quantity": 1,
-      "price": 4.99,
-    },
-    {
-      "name": "Bell Pepper Red",
-      "image": "assets/product1.png",
-      "quantity": 1,
-      "price": 4.99,
-    },
-  ];
+  @override
+  State<MyShopScreen> createState() => _MyShopScreenState();
+}
+
+class _MyShopScreenState extends State<MyShopScreen> {
+  String? _userId;
+  bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _allProductsWithShopName = [];
+  List<Map<String, dynamic>> _filteredProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserIdAndShops();
+    _searchController.addListener(_filterProducts);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterProducts);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadUserIdAndShops() async {
+    final prefs = await SharedPreferences.getInstance();
+    _userId = prefs.getString('userId');
+    if (_userId != null) {
+      await _loadUserShops();
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadUserShops() async {
+    if (_userId != null) {
+      final provider = Provider.of<MyShopListUserProvider>(
+        context,
+        listen: false,
+      );
+      await provider.fetchUserShopList(_userId!);
+      if (provider.shopList.isNotEmpty) {
+        _processShopData(provider.shopList);
+      }
+    }
+    setState(() => _isLoading = false);
+  }
+
+  void _processShopData(List<ShopData> shopList) {
+    _allProductsWithShopName.clear();
+    for (var shop in shopList) {
+      for (var product in shop.products) {
+        _allProductsWithShopName.add({
+          "_id": product.id,
+          "image": (product.productImage?.isNotEmpty ?? false)
+              ? product.productImage
+              : "https://via.placeholder.com/150",
+          "name": product.name,
+          "weight": product.productType ?? "N/A",
+          "price":
+              "₹${(product.price != null && product.price! > 0) ? product.price : 'N/A'}",
+          "shopName": shop.shopName,
+        });
+      }
+    }
+    _filteredProducts = List.from(_allProductsWithShopName);
+  }
+
+  void _filterProducts() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredProducts = _allProductsWithShopName.where((product) {
+        return (product["name"] as String).toLowerCase().contains(query) ||
+            (product["shopName"] as String).toLowerCase().contains(query);
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    // color: Colors.black,
-                    image: DecorationImage(
-                      image: AssetImage('assets/myshope.png'),
-                      fit: BoxFit.cover,
-                    ),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text("My Shop"),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(60.0),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search products or shop names...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
                 ),
-                Positioned(
-                  bottom: 100,
-                  left: 130,
-                  child: Text(
-                    "My Shop",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 4,
-                          color: Colors.black.withOpacity(0.5),
-                          offset: const Offset(2, 2),
-                        ),
-                      ],
+              ),
+            ),
+          ),
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  Expanded(
+                    child: Consumer<MyShopListUserProvider>(
+                      builder: (context, provider, child) {
+                        if (_userId == null) {
+                          return const Center(
+                            child: Text(
+                                "Please log in to view your shops and products."),
+                          );
+                        }
+
+                        if (provider.isLoading &&
+                            _allProductsWithShopName.isEmpty) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (provider.error != null) {
+                          log("Error loading product data: ${provider.error!}");
+                          return const Center(
+                              child: Text(
+                                  "Something went wrong. Please try again later."));
+                        } else if (_filteredProducts.isEmpty &&
+                            _searchController.text.isNotEmpty) {
+                          return const Center(
+                              child: Text(
+                                  "No products or shops found matching your search."));
+                        } else if (_allProductsWithShopName.isEmpty) {
+                          return const Center(
+                              child: Text(
+                                  "No products added yet. Click '+' to add."));
+                        }
+
+                        return productMyShopeGridView(_filteredProducts);
+                      },
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: GestureDetector(
+                      onTap: () => _showAddDialog(context),
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 7, 3, 201),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Add Product',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Icon(Icons.add, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  void _showAddDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.info, size: 50, color: Colors.blueAccent),
+                const SizedBox(height: 15),
+                const Text("Notice",
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Text(
+                  "If you have a store, continue adding a product.\nOtherwise, create one by clicking 'Create'.",
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: Colors.grey[300],
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel",
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const AddProductScreen()),
+                          ).then((value) {
+                            if (value == true) _loadUserShops();
+                          });
+                        },
+                        child: const Text("Continue"),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AddShop()),
+                          );
+                        },
+                        child: const Text("Create"),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  return MyShopeItemWidget(item: cartItems[index]);
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddProductScreen()),
-                  );
-                },
-                child: Container(
-                  height: 50,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 7, 3, 201),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Add Product',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Icon(Icons.add, color: Colors.white),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
