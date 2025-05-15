@@ -120,7 +120,7 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
   return GridView.builder(
     padding: const EdgeInsets.all(10),
     shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
+    // physics: const NeverScrollableScrollPhysics(),
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,
       crossAxisSpacing: 10,

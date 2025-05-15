@@ -114,26 +114,26 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                 ),
                 Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        log("Editing address with ID: ${address.id}");
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AddAddressPage(address: address),
-                          ),
-                        ).then((result) {
-                          if (result != null && result is AddressModel) {
-                            log("Address updated for ID: ${address.id}, New Data: ${result.toJson()}");
-                            Provider.of<AddressController>(context,
-                                    listen: false)
-                                .updateAddress(address.id!, result);
-                          }
-                        });
-                      },
-                    ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.edit),
+                    //   onPressed: () {
+                    //     log("Editing address with ID: ${address.id}");
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) =>
+                    //             AddAddressPage(address: address),
+                    //       ),
+                    //     ).then((result) {
+                    //       if (result != null && result is AddressModel) {
+                    //         log("Address updated for ID: ${address.id}, New Data: ${result.toJson()}");
+                    //         Provider.of<AddressController>(context,
+                    //                 listen: false)
+                    //             .updateAddress(address.id!, result);
+                    //       }
+                    //     });
+                    //   },
+                    // ),
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {

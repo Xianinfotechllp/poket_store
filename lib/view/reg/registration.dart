@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +42,6 @@ class RegistrationScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),
-
                       _buildTextField(
                         "Full Name",
                         Icons.person,
@@ -66,6 +64,11 @@ class RegistrationScreen extends StatelessWidget {
                         provider.placeController,
                       ),
                       _buildTextField(
+                        "Locality",
+                        Icons.location_city,
+                        provider.localityController,
+                      ),
+                      _buildTextField(
                         "Pin Code",
                         Icons.pin_outlined,
                         provider.pincodeController,
@@ -77,7 +80,20 @@ class RegistrationScreen extends StatelessWidget {
                         provider.passwordController,
                         isPassword: true,
                       ),
-
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: TextFormField(
+                          controller: provider.confirmPasswordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: "Confirm Password",
+                            prefixIcon: Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          validator: provider.validateConfirmPassword,
+                        ),
+                      ),
                       const SizedBox(height: 15),
                       SizedBox(
                         width: double.infinity,
@@ -89,26 +105,23 @@ class RegistrationScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed:
-                              provider.isLoading
-                                  ? null
-                                  : () => provider.register(context),
-                          child:
-                              provider.isLoading
-                                  ? const CircularProgressIndicator(
+                          onPressed: provider.isLoading
+                              ? null
+                              : () => provider.register(context),
+                          child: provider.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  'Register',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                     color: Colors.white,
-                                  )
-                                  : const Text(
-                                    'Register',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
                                   ),
+                                ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

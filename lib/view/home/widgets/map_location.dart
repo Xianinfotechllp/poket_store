@@ -16,7 +16,7 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
   LatLng? _selectedLatLng;
   String _selectedAddress = "Selecting location...";
   Marker?
-  _selectedLocationMarker; // To display a marker on the selected location
+      _selectedLocationMarker; // To display a marker on the selected location
 
   @override
   void initState() {
@@ -137,7 +137,7 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
                   state: state?.trim() ?? '',
                   pincode: pincode?.trim() ?? '',
                 );
-                locationController.updateLocationFromGPS(newLocation);
+                locationController.updateLocationFromGPS();
                 Navigator.pop(context);
               } else {
                 // Optionally show a message to the user to select a location
@@ -156,10 +156,9 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
             ),
             myLocationEnabled: true,
             onTap: _onMapTapped, // Listen for map taps
-            markers:
-                _selectedLocationMarker != null
-                    ? {_selectedLocationMarker!}
-                    : {}, // Display the marker
+            markers: _selectedLocationMarker != null
+                ? {_selectedLocationMarker!}
+                : {}, // Display the marker
           ),
           Positioned(
             bottom: 20,

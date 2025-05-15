@@ -6,10 +6,11 @@ class MyShopListUserResponse {
 
   factory MyShopListUserResponse.fromJson(Map<String, dynamic> json) {
     return MyShopListUserResponse(
-      message: json['message'],
-      data:
-          (json['data'] as List?)?.map((e) => ShopData.fromJson(e)).toList() ??
-              [],
+      message: json['message'] ?? '',
+      data: (json['data'] as List<dynamic>?)
+              ?.map((e) => ShopData.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 }
@@ -22,8 +23,8 @@ class ShopData {
 
   factory ShopData.fromJson(Map<String, dynamic> json) {
     return ShopData(
-      shopName: json['shopName'],
-      products: (json['products'] as List?)
+      shopName: json['shopName'] ?? '',
+      products: (json['products'] as List<dynamic>?)
               ?.map((e) => Product.fromJson(e))
               .toList() ??
           [],
@@ -35,35 +36,42 @@ class Product {
   final String id;
   final String shop;
   final String name;
+  final String? description;
   final int? price;
   final int? quantity;
-  final List<String>? category;
   final String? productImage;
   final int? sold;
+  final String? estimatedTime;
   final String? productType;
   final String? deliveryOption;
   final String? userId;
+  final String? adminId;
+  final bool favorite;
+  final String?
+      category; // Changed from List<String>? to String? as per the JSON
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? v;
-  final String? description;
 
   Product({
     required this.id,
     required this.shop,
     required this.name,
+    this.description,
     this.price,
     this.quantity,
-    this.category,
     this.productImage,
     this.sold,
+    this.estimatedTime,
     this.productType,
     this.deliveryOption,
     this.userId,
+    this.adminId,
+    required this.favorite,
+    this.category,
     this.createdAt,
     this.updatedAt,
     this.v,
-    this.description,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -71,20 +79,25 @@ class Product {
       id: json['_id'] ?? '',
       shop: json['shop'] ?? '',
       name: json['name'] ?? '',
+      description: json['description'],
       price: json['price'],
       quantity: json['quantity'],
-      category: (json['category'] as List?)?.map((e) => e.toString()).toList(),
       productImage: json['productImage'],
       sold: json['sold'],
+      estimatedTime: json['estimatedTime'],
       productType: json['productType'],
       deliveryOption: json['deliveryOption'],
       userId: json['userId'],
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      adminId: json['adminId'],
+      favorite: json['favorite'] ?? false,
+      category: json['category']?.toString(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
       v: json['__v'],
-      description: json['description'],
     );
   }
 }

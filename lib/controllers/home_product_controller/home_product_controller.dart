@@ -1,9 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poketstore/model/home_product_model/home_product_model.dart';
 import 'package:poketstore/service/home_product_service/home_product_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeProductController with ChangeNotifier {
   List<HomeProduct> _homeProducts = [];
@@ -21,8 +21,18 @@ class HomeProductController with ChangeNotifier {
 
     log("HomeProductController: Fetching products for userId: $userId");
     try {
-      _homeProducts = await _service.fetchHomeProducts(userId);
-      log("HomeProductController: Fetched ${_homeProducts.length} products.");
+      final List<ShopWithProducts> shopsWithProducts =
+          await _service.fetchHomeProducts(userId);
+      if (shopsWithProducts.isNotEmpty) {
+        _homeProducts = shopsWithProducts.fold<List<HomeProduct>>(
+            [],
+            (previousList, shop) =>
+                previousList..addAll(shop.products)); // Flatten the list
+      } else {
+        _homeProducts = [];
+      }
+
+      log("HomeProductController: Fetched ${_homeProducts.length} products."); //check the length
       for (var product in _homeProducts) {
         log(
           "HomeProductController: Product - ID: ${product.id}, Name: ${product.name}, Image: ${product.productImage}, Price: ${product.price}, Type: ${product.productType}",

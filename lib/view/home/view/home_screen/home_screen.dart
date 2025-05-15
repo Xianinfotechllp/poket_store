@@ -5,6 +5,7 @@ import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.d
 import 'package:poketstore/controllers/groceries_list_controller/groceries_list_controller.dart';
 import 'package:poketstore/controllers/home_product_controller/home_product_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
+import 'package:poketstore/model/location_model/location_model.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/home/view/product_details_screen/product_details_screen.dart';
 import 'package:poketstore/view/home/widgets/home_widgets.dart';
@@ -12,6 +13,7 @@ import 'package:poketstore/view/home/widgets/map_location.dart';
 import 'package:poketstore/view/notification/notification.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/location_controller/location_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,12 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   bool _isLoading = true;
   String? _errorMessage;
-  TextEditingController _searchController = TextEditingController();
   List<dynamic> _allProducts = [];
-  List<dynamic> _filteredProducts = [];
-
+  String? _userId; // Store the user ID
   bool _showAllGroceries = false;
   bool _showAllStores = false;
+  LocationModel? _currentLocation;
 
   final List<String> _bannerImages = [
     'assets/slider.png',
@@ -38,47 +39,42 @@ class _HomeScreenState extends State<HomeScreen> {
     'assets/slider.png',
   ];
 
-  // final List<Map<String, dynamic>> _groceryItems = [
-  //   {"name": "Vegetables", "color": Colors.green.shade200},
-  //   {"name": "Dairy Products", "color": Colors.blue.shade200},
-  //   {"name": "Beverages", "color": Colors.red.shade200},
-  //   {"name": "Snacks", "color": Colors.orange.shade200},
-  //   {"name": "Fruits", "color": Colors.purple.shade200},
-  // ];
-
   @override
   void initState() {
     super.initState();
     log("🏠 HomeScreen initialized");
     _loadInitialData();
-    _searchController.addListener(_filterProducts);
-  }
-
-  @override
-  void dispose() {
-    _searchController.removeListener(_filterProducts);
-    _searchController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
     try {
       log("⏳ Fetching data in HomeScreen initState");
-      final productProvider = Provider.of<HomeProductController>(
-        context,
-        listen: false,
-      );
+      final productProvider =
+          Provider.of<HomeProductController>(context, listen: false);
+      final locationProvider =
+          Provider.of<LocationController>(context, listen: false);
+
+      //get user id.
+      final prefs = await SharedPreferences.getInstance();
+      _userId = prefs.getString('userId');
+
       await productProvider.loadHomeProducts();
       await Provider.of<ShopProvider>(context, listen: false).fetchShops();
-      _allProducts = List.from(productProvider.homeProducts);
-      _filteredProducts = List.from(_allProducts);
+      if (_userId != null) {
+        await locationProvider.getLocation(_userId!); // Fetch location
+      } else {
+        log("user Id is null");
+      }
 
-      Provider.of<LocationController>(context, listen: false).getLocation();
+      _allProducts = productProvider.homeProducts;
+
       Provider.of<GroceriesListProvider>(context, listen: false)
           .loadGroceriesList();
-      setState(() {
-        _isLoading = false;
-      });
+
+      //moved to the listen of the location provider.
+      //  setState(() {
+      //   _isLoading = false;
+      // });
       log("✅ Data fetching completed");
     } catch (error) {
       setState(() {
@@ -89,28 +85,40 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _filterProducts() {
-    String query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredProducts = _allProducts
-          .where(
-            (product) => (product.name ?? "").toLowerCase().contains(query),
-          )
-          .toList();
-    });
-  }
+  void _navigateToMapScreen() async {
+    //moved the location update here.
+    final locationProvider =
+        Provider.of<LocationController>(context, listen: false);
+    await locationProvider.updateLocationFromGPS(); // Await the update
 
-  void _navigateToMapScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MapLocationScreen()),
-    );
+    if (mounted) {
+      //check if the widget is still in the tree.
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MapLocationScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final shopProvider = Provider.of<ShopProvider>(context);
     final groceryProvider = Provider.of<GroceriesListProvider>(context);
+    final locationProvider = Provider.of<LocationController>(context);
+    final productProvider = Provider.of<HomeProductController>(context);
+
+    //listen to the location.
+    _currentLocation = locationProvider.location;
+
+    if (locationProvider.isLoading) {
+      _isLoading = true;
+    } else {
+      _isLoading = false;
+    }
+
+    _allProducts =
+        productProvider.homeProducts; // Access products from provider
+
     final displayedGroceries = _showAllGroceries
         ? groceryProvider.groceriesList.keyWithCategory
         : Map<String, List<String>>.fromEntries(
@@ -127,24 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Image.asset("assets/name.png", width: 63, height: 57),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search products...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200],
-              ),
-            ),
-          ),
-        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -215,34 +205,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: InkWell(
                           onTap: _navigateToMapScreen,
-                          child: Consumer<LocationController>(
-                            builder: (context, locationController, _) {
-                              final location = locationController.location;
-                              return Text(
-                                location != null
-                                    ? "${location.locality}, ${location.state} - ${location.pincode}"
-                                    : "Fetching location...",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.deepOrange,
-                                ),
-                              );
-                            },
+                          child:
+                              //listen to the provider here.
+                              Text(
+                            _currentLocation != null
+                                ? "${_currentLocation?.locality}, ${_currentLocation?.state} - ${_currentLocation?.pincode}"
+                                : "Fetching location...",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.deepOrange,
+                            ),
                           ),
                         ),
                       ),
-                      // buildSectionTitle(
-                      //   "Groceries",
-                      //   _showAllGroceries ? "Show less" : "See all",
-                      //   () {
-                      //     setState(
-                      //         () => _showAllGroceries = !_showAllGroceries);
-                      //   },
-                      // ),
-                      // displayedGroceries.isEmpty
-                      //     ? const Center(child: Text("No Groceries Found"))
-                      //     : groceriesHorizontalList(displayedGroceries, context),
                       buildSectionTitle(
                         "Stores",
                         _showAllStores ? "Show less" : "See all",
@@ -254,22 +230,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? const Center(child: Text("No Stores Found"))
                           : storeHorizontalList(displayedStores),
                       const SizedBox(height: 20),
-                      _filteredProducts.isEmpty
+                      buildSectionTitle(
+                        "Products", // Changed title
+                        "",
+                        () {},
+                      ),
+                      _allProducts.isEmpty
                           ? const Center(child: Text("No Products Found"))
-                          : productGridView(
-                              _filteredProducts.map((product) {
-                                return {
-                                  "_id": product.id,
-                                  "image": product.productImage.isNotEmpty
-                                      ? product.productImage
-                                      : "https://via.placeholder.com/150",
-                                  "name": product.name,
-                                  "weight": product.productType,
-                                  "price":
-                                      "₹${product.price > 0 ? product.price : 'N/A'}",
-                                };
-                              }).toList(),
-                            ),
+                          : productGridView(_allProducts.map((product) {
+                              return {
+                                "_id": product.id,
+                                "image": product.productImage.isNotEmpty
+                                    ? product.productImage[0]
+                                    : "https://via.placeholder.com/150",
+                                "name": product.name,
+                                "weight": product.productType,
+                                "price":
+                                    "₹${product.price > 0 ? product.price : 'N/A'}",
+                              };
+                            }).toList()),
                     ],
                   ),
                 ),

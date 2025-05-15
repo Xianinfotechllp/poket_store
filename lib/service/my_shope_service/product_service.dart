@@ -129,7 +129,7 @@ class ProductService {
 
   Future<Product> fetchProduct(String productId) async {
     try {
-      final response = await _dio.get("$baseUrl/$productId");
+      final response = await _dio.get("$baseUrl/getone/$productId");
 
       log(
         "fetchProduct response: ${response.data}",
