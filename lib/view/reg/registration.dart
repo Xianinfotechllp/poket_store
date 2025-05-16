@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:provider/provider.dart';
@@ -59,12 +60,12 @@ class RegistrationScreen extends StatelessWidget {
                         provider.stateController,
                       ),
                       _buildTextField(
-                        "Place",
+                        "District",
                         Icons.place_outlined,
                         provider.placeController,
                       ),
                       _buildTextField(
-                        "Locality",
+                        "Place",
                         Icons.location_city,
                         provider.localityController,
                       ),
@@ -107,7 +108,11 @@ class RegistrationScreen extends StatelessWidget {
                           ),
                           onPressed: provider.isLoading
                               ? null
-                              : () => provider.register(context),
+                              : () {
+                                  // Log the data before sending
+                                  log('Registering with data: {name: ${provider.nameController.text}, mobile: ${provider.mobileController.text}, state: ${provider.stateController.text}, place: ${provider.placeController.text}, locality: ${provider.localityController.text}, pincode: ${provider.pincodeController.text}, password: ${provider.passwordController.text}}');
+                                  provider.register(context);
+                                },
                           child: provider.isLoading
                               ? const CircularProgressIndicator(
                                   color: Colors.white,

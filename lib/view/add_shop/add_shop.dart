@@ -241,11 +241,11 @@ class _AddShopState extends State<AddShop> {
                             ) {
                               setState(() => _selectedState = value);
                             }),
-                            buildLabel("Place"),
-                            buildTextField(_placeController, "Enter place"),
-                            buildLabel("Locality"),
+                            buildLabel("District"),
                             buildTextField(
-                                _localityController, "Enter Locality"),
+                                _localityController, "Enter District"),
+                            buildLabel("Place"),
+                            buildTextField(_placeController, "Enter Place"),
                             buildLabel("Pin Code"),
                             buildTextField(
                               _pinCodeController,

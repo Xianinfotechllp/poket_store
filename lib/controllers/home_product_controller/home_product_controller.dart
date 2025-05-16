@@ -6,45 +6,51 @@ import 'package:poketstore/service/home_product_service/home_product_service.dar
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeProductController with ChangeNotifier {
-  List<HomeProduct> _homeProducts = [];
-  List<HomeProduct> get homeProducts => _homeProducts;
-  final HomeProductService _service = HomeProductService();
+  List<LocationProduct> products = [];
+  //List<LocationProduct> get products => _products;  Removed Getter
 
-  Future<void> loadHomeProducts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
+  final LocationProductService _service = LocationProductService();
+  bool isLoading = false;
+  //bool get isLoading => _isLoading;  Removed Getter
 
-    if (userId == null) {
-      log("HomeProductController: User ID not found in SharedPreferences.");
-      return;
-    }
+  String? errorMessage;
+  //String? get errorMessage => _errorMessage;  Removed Getter
 
-    log("HomeProductController: Fetching products for userId: $userId");
+  // Load products based on User ID
+  Future<void> loadProducts() async {
+    isLoading = true;
+    errorMessage = null; //Reset Error
+    notifyListeners();
+
     try {
-      final List<ShopWithProducts> shopsWithProducts =
-          await _service.fetchHomeProducts(userId);
-      if (shopsWithProducts.isNotEmpty) {
-        _homeProducts = shopsWithProducts.fold<List<HomeProduct>>(
-            [],
-            (previousList, shop) =>
-                previousList..addAll(shop.products)); // Flatten the list
-      } else {
-        _homeProducts = [];
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+
+      if (userId == null) {
+        errorMessage = "User ID not found.";
+        isLoading = false;
+        notifyListeners();
+        log('LocationProductProvider: User ID is null');
+        return;
       }
 
-      log("HomeProductController: Fetched ${_homeProducts.length} products."); //check the length
-      for (var product in _homeProducts) {
-        log(
-          "HomeProductController: Product - ID: ${product.id}, Name: ${product.name}, Image: ${product.productImage}, Price: ${product.price}, Type: ${product.productType}",
-        );
-      }
+      products = await _service.fetchProductsByUserId(userId);
+      isLoading = false;
       notifyListeners();
-      log("HomeProductController: Notified listeners after fetching products.");
-    } catch (e) {
-      log("HomeProductController: Error fetching products: $e");
-      // Optionally set an error state and notify listeners if you want to display an error message in the UI.
-      // _errorMessage = "Failed to load products: $e";
-      // notifyListeners();
+      log('LocationProductProvider: Loaded ${products.length} products for user: $userId');
+    } catch (error) {
+      errorMessage = "Failed to load products: $error";
+      isLoading = false;
+      notifyListeners();
+      log('LocationProductProvider: Error - $error');
     }
+  }
+
+  //Method to clear the products.
+  void clearProducts() {
+    products.clear();
+    isLoading = false;
+    errorMessage = null;
+    notifyListeners();
   }
 }

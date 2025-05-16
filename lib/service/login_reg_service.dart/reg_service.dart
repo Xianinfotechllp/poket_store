@@ -10,18 +10,29 @@ class RegistrationService {
 
   Future<RegistrationModel> registerUser(Map<String, dynamic> data) async {
     try {
+      log("RegistrationService registerUser data: ${jsonEncode(data)}"); // Log the data being sent
+
       Response response = await _dio.post(
         _registerUrl,
         data: jsonEncode(data),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      log("Registration Response: ${response.data}");
+      log("Registration Response: ${response.data}"); // Log the entire response
 
-      return RegistrationModel.fromJson(response.data);
+      // Check if response.data is a Map before accessing it.
+      if (response.data is Map<String, dynamic>) {
+        return RegistrationModel.fromJson(response.data);
+      } else {
+        // Handle the case where response.data is not a Map.  Maybe it is a String?
+        log("Error: response.data is not a Map.  It is of type ${response.data.runtimeType.toString()} and value ${response.data.toString()}");
+        throw Exception(
+            "Unexpected response format: ${response.data.toString()}");
+      }
     } catch (e) {
       log("Registration Error: $e");
-      throw Exception("Registration failed");
+      throw Exception(
+          "Registration failed: $e"); //Include the error e in the new Exception
     }
   }
 }

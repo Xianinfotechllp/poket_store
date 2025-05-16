@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/location_controller/location_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:poketstore/model/home_product_model/home_product_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,11 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   bool _isLoading = true;
   String? _errorMessage;
-  List<dynamic> _allProducts = [];
-  String? _userId; // Store the user ID
+  List<LocationProduct> _allProducts = [];
+  List<LocationProduct> _filteredProducts = [];
+  String? _userId;
   bool _showAllGroceries = false;
   bool _showAllStores = false;
   LocationModel? _currentLocation;
+  final TextEditingController _searchController = TextEditingController();
 
   final List<String> _bannerImages = [
     'assets/slider.png',
@@ -44,38 +47,42 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     log("🏠 HomeScreen initialized");
     _loadInitialData();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
     try {
       log("⏳ Fetching data in HomeScreen initState");
-      final productProvider =
-          Provider.of<HomeProductController>(context, listen: false);
       final locationProvider =
           Provider.of<LocationController>(context, listen: false);
+      final locationProductProvider =
+          Provider.of<HomeProductController>(context, listen: false);
 
-      //get user id.
       final prefs = await SharedPreferences.getInstance();
       _userId = prefs.getString('userId');
 
-      await productProvider.loadHomeProducts();
+      await locationProductProvider.loadProducts();
       await Provider.of<ShopProvider>(context, listen: false).fetchShops();
       if (_userId != null) {
-        await locationProvider.getLocation(_userId!); // Fetch location
-      } else {
-        log("user Id is null");
+        await locationProvider.getLocation(_userId!);
       }
 
-      _allProducts = productProvider.homeProducts;
-
+      _allProducts = locationProductProvider.products;
+      _filteredProducts = _allProducts;
       Provider.of<GroceriesListProvider>(context, listen: false)
           .loadGroceriesList();
 
-      //moved to the listen of the location provider.
-      //  setState(() {
-      //   _isLoading = false;
-      // });
       log("✅ Data fetching completed");
+      setState(() {
+        _isLoading = locationProductProvider.isLoading;
+        _errorMessage = locationProductProvider.errorMessage;
+      });
     } catch (error) {
       setState(() {
         _isLoading = false;
@@ -85,14 +92,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredProducts = _allProducts.where((product) {
+        return product.name.toLowerCase().contains(query);
+      }).toList();
+    });
+  }
+
   void _navigateToMapScreen() async {
-    //moved the location update here.
     final locationProvider =
         Provider.of<LocationController>(context, listen: false);
-    await locationProvider.updateLocationFromGPS(); // Await the update
-
+    await locationProvider.updateLocationFromGPS();
     if (mounted) {
-      //check if the widget is still in the tree.
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MapLocationScreen()),
@@ -105,19 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final shopProvider = Provider.of<ShopProvider>(context);
     final groceryProvider = Provider.of<GroceriesListProvider>(context);
     final locationProvider = Provider.of<LocationController>(context);
-    final productProvider = Provider.of<HomeProductController>(context);
+    final locationProductProvider = Provider.of<HomeProductController>(context);
 
-    //listen to the location.
     _currentLocation = locationProvider.location;
-
-    if (locationProvider.isLoading) {
-      _isLoading = true;
-    } else {
-      _isLoading = false;
-    }
-
-    _allProducts =
-        productProvider.homeProducts; // Access products from provider
+    _isLoading = locationProductProvider.isLoading;
+    _errorMessage = locationProductProvider.errorMessage;
+    _allProducts = locationProductProvider.products;
 
     final displayedGroceries = _showAllGroceries
         ? groceryProvider.groceriesList.keyWithCategory
@@ -137,24 +143,16 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Image.asset("assets/name.png", width: 63, height: 57),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.add_business_outlined,
-              color: Colors.blue.shade900,
-            ),
+            icon:
+                Icon(Icons.add_business_outlined, color: Colors.blue.shade900),
             onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AddShop()),
-            ),
+                context, MaterialPageRoute(builder: (_) => const AddShop())),
           ),
           IconButton(
-            icon: Icon(
-              Icons.notifications_none_sharp,
-              color: Colors.blue.shade900,
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => NotificationScreen()),
-            ),
+            icon: Icon(Icons.notifications_none_sharp,
+                color: Colors.blue.shade900),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => NotificationScreen())),
           ),
         ],
       ),
@@ -200,14 +198,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
+                            horizontal: 16, vertical: 8),
                         child: InkWell(
                           onTap: _navigateToMapScreen,
-                          child:
-                              //listen to the provider here.
-                              Text(
+                          child: Text(
                             _currentLocation != null
                                 ? "${_currentLocation?.locality}, ${_currentLocation?.state} - ${_currentLocation?.pincode}"
                                 : "Fetching location...",
@@ -220,28 +214,36 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       buildSectionTitle(
-                        "Stores",
-                        _showAllStores ? "Show less" : "See all",
-                        () {
-                          setState(() => _showAllStores = !_showAllStores);
-                        },
-                      ),
+                          "Stores", _showAllStores ? "Show less" : "See all",
+                          () {
+                        setState(() => _showAllStores = !_showAllStores);
+                      }),
                       displayedStores.isEmpty
                           ? const Center(child: Text("No Stores Found"))
                           : storeHorizontalList(displayedStores),
                       const SizedBox(height: 20),
-                      buildSectionTitle(
-                        "Products", // Changed title
-                        "",
-                        () {},
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: "Search products...",
+                            prefixIcon: const Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
                       ),
-                      _allProducts.isEmpty
+                      const SizedBox(height: 10),
+                      buildSectionTitle("Products", "", () {}),
+                      _filteredProducts.isEmpty
                           ? const Center(child: Text("No Products Found"))
-                          : productGridView(_allProducts.map((product) {
+                          : productGridView(_filteredProducts.map((product) {
                               return {
                                 "_id": product.id,
                                 "image": product.productImage.isNotEmpty
-                                    ? product.productImage[0]
+                                    ? product.productImage
                                     : "https://via.placeholder.com/150",
                                 "name": product.name,
                                 "weight": product.productType,
@@ -256,25 +258,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildSectionTitle(
-    String title,
-    String actionText,
-    VoidCallback onTap,
-  ) {
+      String title, String actionText, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           InkWell(
             onTap: onTap,
-            child: Text(
-              actionText,
-              style: TextStyle(color: Colors.blue.shade700),
-            ),
+            child:
+                Text(actionText, style: TextStyle(color: Colors.blue.shade700)),
           ),
         ],
       ),
