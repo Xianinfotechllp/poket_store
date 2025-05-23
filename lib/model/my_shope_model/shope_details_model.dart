@@ -4,7 +4,7 @@ class ShopeDetailsModel {
   final List<String> category;
   final String sellerType;
   final String state;
-  final String place;
+  final String? place;
   final String pinCode;
   final String headerImage;
 
@@ -14,7 +14,7 @@ class ShopeDetailsModel {
     required this.category,
     required this.sellerType,
     required this.state,
-    required this.place,
+    this.place,
     required this.pinCode,
     required this.headerImage,
   });
@@ -26,7 +26,7 @@ class ShopeDetailsModel {
       category: List<String>.from(json['category'] ?? []),
       sellerType: json['sellerType'] ?? '',
       state: json['state'] ?? '',
-      place: json['place'] ?? '',
+      // place: json['place'] ?? '',
       pinCode: json['pinCode'] ?? '',
       headerImage: json['headerImage'] ?? '',
     );

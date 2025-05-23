@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
+import 'package:poketstore/model/my_shope_model/shope_details_model.dart';
 
 class ShopService {
   final Dio _dio = Dio();
@@ -58,19 +59,77 @@ class ShopService {
     }
   }
 
-  Future<void> updateShop(String id, Map<String, dynamic> data) async {
-    final url = 'https://shop-app-backend-gsx6.onrender.com/api/shops/$id';
+  Future<void> updateShop(
+      String id, ShopeDetailsModel shopDetails, String? token) async {
+    final url = '$baseUrl/$id';
 
     try {
-      final response = await _dio.put(url, data: data);
+      FormData formData = FormData.fromMap({
+        "shopName": shopDetails.shopName,
+        "category":
+            shopDetails.category.isNotEmpty ? shopDetails.category.first : null,
+        "sellerType": shopDetails.sellerType,
+        "state": shopDetails.state,
+        "place": shopDetails.place,
+        "pinCode": shopDetails.pinCode,
+        // "locality": shopDetails.locality,
+        // "userId": shopDetails.userId, // Include userId if your backend expects it for updates
+        // if (shopDetails.active != null) "active": shopDetails.active,
+        // if (shopDetails.pendingOrders != null) "pendingOrders": shopDetails.pendingOrders,
+        // if (shopDetails.totalOrders != null) "totalOrders": shopDetails.totalOrders,
+        // if (shopDetails.totalSales != null) "totalSales": shopDetails.totalSales,
+        // Only include 'headerImage' if a new image file is provided.
+        // if (newImageFile != null)
+        //   "headerImage": await MultipartFile.fromFile(
+        //     newImageFile.path,
+        //     filename: "shop_image.jpg",
+        //   ),
+      });
+
+      Map<String, dynamic> headers = {"Content-Type": "multipart/form-data"};
+      if (token != null) {
+        headers["Authorization"] = "Bearer $token";
+      }
+
+      final response = await _dio.put(
+        url,
+        data: formData,
+        options: Options(headers: headers),
+      );
+
       if (response.statusCode == 200) {
         log("Shop updated successfully");
       } else {
-        throw Exception('Failed to update shop: ${response.statusMessage}');
+        throw Exception(
+            'Failed to update shop: ${response.statusMessage ?? response.data}');
       }
+    } on DioException catch (e) {
+      log("Update error (DioException): ${e.response?.data ?? e.message}");
+      throw Exception(
+          "Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
     } catch (e) {
       log("Update error: $e");
-      rethrow;
+      throw Exception("Error: $e");
+    }
+  }
+
+  Future<void> deleteShop(String id) async {
+    final url = '$baseUrl/$id';
+    try {
+      final response = await _dio.delete(url);
+      if (response.statusCode == 200) {
+        log("Shop deleted successfully: $id");
+      } else {
+        throw Exception(
+            'Failed to delete shop: ${response.statusMessage ?? response.data}');
+      }
+    } on DioException catch (e) {
+      log("Delete error (DioException): ${e.response?.data ?? e.message}");
+      throw Exception(
+          "Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
+    } catch (e) {
+      log("Delete error: $e");
+      throw Exception("Error: $e");
     }
   }
 }
