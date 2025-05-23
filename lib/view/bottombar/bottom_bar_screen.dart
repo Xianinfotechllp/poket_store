@@ -31,6 +31,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
       onWillPop: () async {
         // If the current tab is not the home tab, navigate to the home tab.
         if (bottomBarProvider.selectedIndex != 0) {
+
           bottomBarProvider.changeTab(0); // Use the provider to change the tab
           return false; // Prevent the default back button behavior (exiting the app).
         }

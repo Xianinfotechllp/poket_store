@@ -13,6 +13,8 @@ import 'package:poketstore/view/location.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../controllers/home_product_controller/home_product_controller.dart';
+
 class AddShop extends StatefulWidget {
   // Now accepts ShopeDetailsModel for editing
   final ShopeDetailsModel? shopToEdit;
@@ -187,9 +189,13 @@ class _AddShopState extends State<AddShop> {
     if (provider.errorMessage.isNotEmpty) {
       _showSnackbar(provider.errorMessage);
     } else {
+
       _showSnackbar(isEditing
           ? "Shop updated successfully!"
           : "Shop registered successfully!");
+      Provider.of<HomeProductController>(context,listen: false).loadProducts();
+      Provider.of<ShopProvider>(context, listen: false).fetchShops();
+
       Navigator.of(context)
           .pop(true); // Pop back to previous screen (details screen)
     }

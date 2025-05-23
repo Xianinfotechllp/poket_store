@@ -50,9 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+
+    _loadInitialData();
     log("🏠 HomeScreen initialized");
     _searchController.addListener(_onSearchChanged);
-    _loadInitialData();
+
   }
 
   @override
@@ -136,15 +139,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     final shopProvider = Provider.of<ShopProvider>(context);
     final groceryProvider = Provider.of<GroceriesListProvider>(context);
     final locationMapProvider = Provider.of<LocationMapController>(context);
 
     _allProducts = _homeProductController.products;
 
-    List<ShopModel> shopsWithProducts = shopProvider.shops.where((shop) {
-      return _allProducts.any((product) => product.shop.id == shop.id);
-    }).toList();
+    // List<ShopModel> shopsWithProducts = shopProvider.shops.where((shop) {
+    //   log("${shop.toJson()}");
+    //   return _allProducts.any((product) => product.shop.id == shop.id);
+    // }).toList();
+
+
+    List<ShopModel> shopsWithProducts = shopProvider.shops;
 
     final displayedGroceries = _showAllGroceries
         ? groceryProvider.groceriesList.keyWithCategory
