@@ -29,9 +29,9 @@ class _ShopListScreenState extends State<ShopListScreen> {
             return Center(child: CircularProgressIndicator());
           }
 
-          if (shopProvider.errorMessage.isNotEmpty) {
-            return Center(child: Text(shopProvider.errorMessage));
-          }
+          // if (shopProvider.errorMessage.isNotEmpty) {
+          //   return Center(child: Text(shopProvider.errorMessage));
+          // }
 
           if (shopProvider.shopList.isEmpty) {
             return Center(child: Text("No shops available."));
@@ -57,8 +57,8 @@ class _ShopListScreenState extends State<ShopListScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => ShopeDetailsScreen(shopId: shop.id),
+                        builder: (context) =>
+                            ShopeDetailsScreen(shopId: shop.id),
                       ),
                     );
                   },

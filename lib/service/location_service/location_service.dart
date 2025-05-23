@@ -1,43 +1,41 @@
 import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:poketstore/model/location_model/location_model.dart';
 
-class LocationService {
-  final Dio _dio = Dio();
-  final String baseUrl = 'https://shop-app-backend-gsx6.onrender.com/api/user';
+class LocationMapService {
+  final Dio dio = Dio();
 
-  Future<LocationModel?> fetchLocation(String userId) async {
+  Future<LocationMapModel?> fetchUserLocation(String userId) async {
     try {
-      final response = await _dio.get('$baseUrl/location/$userId');
-      if (response.statusCode == 200 && response.data['success']) {
-        log('Location fetched successfully: ${response.data}');
-        return LocationModel.fromJson(response.data['location']);
-      } else {
-        log('Failed to fetch location. Status code: ${response.statusCode}, Response: ${response.data}');
-        return null; // Explicitly return null for consistency
+      final response = await dio.get(
+        'https://shop-app-backend-gsx6.onrender.com/api/user/location/$userId',
+      );
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return LocationMapModel.fromJson(response.data);
       }
     } catch (e) {
       log('Error fetching location: $e');
-      return null; // Explicitly return null on error
     }
+    return null;
   }
 
-  Future<bool> updateLocation(String userId, LocationModel location) async {
+  Future<LocationMapModel?> updateLocation(
+      String userId, LocationMapModel location) async {
     try {
-      final response = await _dio.put(
-        '$baseUrl/updatelocation/$userId',
+      final response = await dio.put(
+        'https://shop-app-backend-gsx6.onrender.com/api/user/updatelocation/$userId',
         data: location.toJson(),
       );
-      if (response.statusCode == 200) {
-        log('Location updated successfully: ${response.data}');
-        return true;
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return LocationMapModel.fromJson(response.data['location']);
       } else {
-        log('Failed to update location. Status code: ${response.statusCode}, Response: ${response.data}');
-        return false;
+        return null;
       }
     } catch (e) {
-      log('Error updating location: $e');
-      return false;
+      log("Error updating location: $e");
+      return null;
     }
   }
 }

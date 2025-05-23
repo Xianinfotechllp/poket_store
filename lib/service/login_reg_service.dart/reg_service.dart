@@ -6,7 +6,7 @@ import 'package:poketstore/model/login_reg_model/reg_model.dart';
 class RegistrationService {
   final Dio _dio = Dio();
   final String _registerUrl =
-      "https://shop-app-backend-main.onrender.com/auth/user/register";
+      "https://shop-app-backend-gsx6.onrender.com/auth/user/register";
 
   Future<RegistrationModel> registerUser(Map<String, dynamic> data) async {
     try {
@@ -24,8 +24,8 @@ class RegistrationService {
       if (response.data is Map<String, dynamic>) {
         return RegistrationModel.fromJson(response.data);
       } else {
-        // Handle the case where response.data is not a Map.  Maybe it is a String?
-        log("Error: response.data is not a Map.  It is of type ${response.data.runtimeType.toString()} and value ${response.data.toString()}");
+        // Handle the case where response.data is not a Map.  Maybe it is a String?
+        log("Error: response.data is not a Map.  It is of type ${response.data.runtimeType.toString()} and value ${response.data.toString()}");
         throw Exception(
             "Unexpected response format: ${response.data.toString()}");
       }

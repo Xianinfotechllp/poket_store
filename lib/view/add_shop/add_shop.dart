@@ -12,7 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddShop extends StatefulWidget {
-  const AddShop({super.key});
+  final ShopModel? shopToEdit;
+  const AddShop({super.key, this.shopToEdit});
 
   @override
   State<AddShop> createState() => _AddShopState();
@@ -61,11 +62,34 @@ class _AddShopState extends State<AddShop> {
   String? _selectedState;
   String? _selectedCategory; // To hold the selected category from the dropdown
   File? _headerImage;
+  bool get _isEditing => widget.shopToEdit != null;
+  String? _existingImageUrl;
 
   @override
   void initState() {
     super.initState();
     Provider.of<CategoryController>(context, listen: false).loadCategories();
+    _populateFields();
+  }
+
+  void _populateFields() {
+    if (_isEditing) {
+      final shop = widget.shopToEdit!;
+      _shopNameController.text = shop.shopName;
+      // _placeController.text = shop.place ?? ''; // Handle nullable place
+      _pinCodeController.text = shop.pinCode;
+      // _localityController.text = shop.locality ?? ''; // Handle nullable locality
+      _selectedSellerType = shop.sellerType;
+      _selectedState = shop.state;
+
+      // Assuming 'category' is a List<String> and you want the first one for the dropdown
+      if (shop.category.isNotEmpty) {
+        _selectedCategory = shop.category.first;
+      }
+      _existingImageUrl = shop.headerImage; // Store existing image URL
+
+      log("✏️ Populating fields for shop: ${shop.shopName}");
+    }
   }
 
   Future<void> _pickImage() async {
@@ -90,21 +114,25 @@ class _AddShopState extends State<AddShop> {
     }
   }
 
-  void _registerShop() async {
-    if (!_formKey.currentState!.validate() ||
-        _headerImage == null ||
-        _selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Please fill all fields, select an image, and choose at least one category.",
-          ),
-        ),
-      );
+  void _submitShop() async {
+    if (!_formKey.currentState!.validate()) {
+      _showSnackbar("Please fill all required fields.");
       return;
     }
 
-    // Get userId from SharedPreferences
+    // Validate image presence only for add mode, or if no new image selected in edit mode
+    if (!_isEditing && _headerImage == null) {
+      _showSnackbar("Please select a shop image.");
+      return;
+    }
+    // In edit mode, if no new image is selected AND no existing image, then it's an error.
+    if (_isEditing &&
+        _headerImage == null &&
+        (_existingImageUrl == null || _existingImageUrl!.isEmpty)) {
+      _showSnackbar("Please select or retain a shop image.");
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId');
 
@@ -113,42 +141,50 @@ class _AddShopState extends State<AddShop> {
       return;
     }
 
-    // The category is now a single selected value
-    final List<String> categoriesList = [_selectedCategory!];
+    final List<String> categoriesList =
+        _selectedCategory != null ? [_selectedCategory!] : <String>[];
 
-    // Log the data before submitting
-    log("Registering shop with details:");
-    log("Shop Name: ${_shopNameController.text.trim()}");
-    log("Categories: $categoriesList");
-    log("Seller Type: $_selectedSellerType");
-    log("State: $_selectedState");
-    log("Place: ${_placeController.text.trim()}");
-    log("Pin Code: ${_pinCodeController.text.trim()}");
-    log("Locality: ${_localityController.text.trim()}");
-    log("Header Image Path: ${_headerImage!.path}");
-    log("User ID: $userId");
-
-    final shop = ShopModel(
+    final shopData = ShopModel(
+      id: _isEditing ? widget.shopToEdit!.id : null, // Pass ID for update
       shopName: _shopNameController.text.trim(),
       category: categoriesList,
       sellerType: _selectedSellerType!,
       state: _selectedState!,
-      place: _placeController.text.trim(),
+      // place: _placeController.text.trim(),
       pinCode: _pinCodeController.text.trim(),
-      locality: _localityController.text.trim(),
-      headerImage: "", // The image file will be passed separately
-      userId: userId,
+      // locality: _localityController.text.trim(),
+      headerImage: _existingImageUrl ?? "", // Use existing URL if no new image
+      userId: userId, // Assuming userId is the salesmanId
+      // Default values for new shop, will be overwritten by backend on update
+      // active: true,
+      // pendingOrders: 0,
+      // totalOrders: 0,
+      // totalSales: 0,
     );
 
     final provider = Provider.of<ShopProvider>(context, listen: false);
-    await provider.addShop(shop, _headerImage);
 
-    if (provider.errorMessage.isNotEmpty) {
-      _showSnackbar(provider.errorMessage);
+    if (_isEditing) {
+      log("🔄 Attempting to update shop: ${shopData.shopName}");
+      // Pass the image file (if new) to the updateShop method
+      await provider.updateShopDetails(
+        shopData,
+      );
+      if (provider.errorMessage.isNotEmpty) {
+        _showSnackbar("Update failed: ${provider.errorMessage}");
+      } else {
+        _showSnackbar("Shop updated successfully!");
+        Navigator.of(context).pop(true); // Pop back to details screen
+      }
     } else {
-      _showSnackbar("Shop registered successfully!");
-      Navigator.of(context).pop(true); // Go back to previous screen
-      Navigator.of(context).pop(true); // Go back to previous screen
+      log("➕ Attempting to add new shop: ${shopData.shopName}");
+      await provider.addShop(shopData, _headerImage);
+      if (provider.errorMessage.isNotEmpty) {
+        _showSnackbar("Registration failed: ${provider.errorMessage}");
+      } else {
+        _showSnackbar("Shop registered successfully!");
+        Navigator.of(context).pop(true); // Pop back after adding
+      }
     }
   }
 
@@ -163,104 +199,100 @@ class _AddShopState extends State<AddShop> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          title:
+              Text(_isEditing ? "Edit Shop" : "Add New Shop"), // Dynamic title
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
         body: Consumer<ShopProvider>(
           builder: (context, shopProvider, child) {
             return Consumer<CategoryController>(
               builder: (context, categoryController, _) {
-                return Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                Container(
-                                  height: 200,
-                                  width: double.infinity,
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage('assets/image.png'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 80,
-                                  left: 80,
-                                  child: Text(
-                                    "Register Your Shop",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 4,
-                                          color: Colors.black.withOpacity(0.5),
-                                          offset: const Offset(2, 2),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            buildLabel("Shop Name"),
-                            buildTextField(
-                                _shopNameController, "Enter shop name"),
-                            buildLabel("Category"),
-                            categoryController.isLoading
-                                ? const CircularProgressIndicator()
-                                : buildDropdown<String>(
-                                    "Select Category",
-                                    _selectedCategory,
-                                    categoryController.categoryList,
-                                    (String? newValue) {
-                                      setState(() {
-                                        _selectedCategory = newValue;
-                                      });
-                                    },
-                                  ),
-                            buildLabel("Seller Type"),
-                            buildDropdown(
-                              "Select seller type",
-                              _selectedSellerType,
-                              sellerTypes,
-                              (value) {
-                                setState(() => _selectedSellerType = value);
-                              },
-                            ),
-                            buildLabel("State"),
-                            buildDropdown(
-                                "Select state", _selectedState, states, (
-                              value,
-                            ) {
-                              setState(() => _selectedState = value);
-                            }),
-                            buildLabel("District"),
-                            buildTextField(
-                                _localityController, "Enter District"),
-                            buildLabel("Place"),
-                            buildTextField(_placeController, "Enter Place"),
-                            buildLabel("Pin Code"),
-                            buildTextField(
-                              _pinCodeController,
-                              "Enter pin code",
-                              isNumeric: true,
-                            ),
-                            buildLabel("Shop Image"),
-                            Center(
-                              child: GestureDetector(
-                                onTap: _pickImage,
-                                child: _headerImage != null
-                                    ? Image.file(
-                                        _headerImage!,
+                return SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Remove the fixed header image for flexibility,
+                        // keeping it dynamic for potential image selection.
+                        const SizedBox(height: 16),
+                        buildLabel("Shop Name"),
+                        buildTextField(_shopNameController, "Enter shop name"),
+                        buildLabel("Category"),
+                        categoryController.isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : buildDropdown<String>(
+                                "Select Category",
+                                _selectedCategory,
+                                categoryController.categoryList,
+                                (String? newValue) {
+                                  setState(() {
+                                    _selectedCategory = newValue;
+                                  });
+                                },
+                              ),
+                        buildLabel("Seller Type"),
+                        buildDropdown(
+                          "Select seller type",
+                          _selectedSellerType,
+                          sellerTypes,
+                          (value) {
+                            setState(() => _selectedSellerType = value);
+                          },
+                        ),
+                        buildLabel("State"),
+                        buildDropdown("Select state", _selectedState, states, (
+                          value,
+                        ) {
+                          setState(() => _selectedState = value);
+                        }),
+                        buildLabel("District"),
+                        buildTextField(_localityController, "Enter District"),
+                        buildLabel("Place"),
+                        buildTextField(_placeController, "Enter Place"),
+                        buildLabel("Pin Code"),
+                        buildTextField(
+                          _pinCodeController,
+                          "Enter pin code",
+                          isNumeric: true,
+                        ),
+                        buildLabel("Shop Image"),
+                        Center(
+                          child: GestureDetector(
+                            onTap: _pickImage,
+                            child: _headerImage != null
+                                ? Image.file(
+                                    _headerImage!,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  )
+                                : (_existingImageUrl != null &&
+                                        _existingImageUrl!.isNotEmpty)
+                                    ? Image.network(
+                                        _existingImageUrl!,
                                         height: 150,
                                         fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                          height: 150,
+                                          width: double.infinity,
+                                          color: Colors.grey[300],
+                                          child: const Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.image_not_supported,
+                                                    size: 40),
+                                                Text(
+                                                    "Image failed to load. Tap to upload new."),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       )
                                     : Container(
                                         height: 150,
@@ -270,67 +302,78 @@ class _AddShopState extends State<AddShop> {
                                           child: Text("Upload Shop Image"),
                                         ),
                                       ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LocationPickerScreen(),
+                                ),
+                              );
+
+                              if (result != null &&
+                                  result is Map<String, String>) {
+                                setState(() {
+                                  _placeController.text = result['place'] ?? '';
+                                  _pinCodeController.text =
+                                      result['pincode'] ?? '';
+                                  _localityController.text =
+                                      result['subLocality'] ?? '';
+                                  _selectedState = result['state'] ??
+                                      _selectedState; // Update state from map
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade700,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        LocationPickerScreen(),
-                                  ),
-                                );
-
-                                if (result != null &&
-                                    result is Map<String, String>) {
-                                  setState(() {
-                                    _placeController.text =
-                                        result['place'] ?? '';
-                                    _pinCodeController.text =
-                                        result['pincode'] ?? '';
-                                    _localityController.text =
-                                        result['subLocality'] ??
-                                            ''; // Use subLocality
-                                  });
-                                }
-                              },
-                              child: const Text("Pick Location on Map"),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: shopProvider.isLoading
-                                      ? null
-                                      : _registerShop,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0XFF094497),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                  ),
-                                  child: shopProvider.isLoading
-                                      ? const CircularProgressIndicator(
-                                          color: Colors.white,
-                                        )
-                                      : const Text(
-                                          "Register",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                          ),
-                                        ),
+                            child: const Text("Pick Location on Map"),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: shopProvider.isLoading
+                                  ? null
+                                  : _submitShop, // Call the common submit method
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0XFF094497),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
                                 ),
                               ),
+                              child: shopProvider.isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                  : Text(
+                                      _isEditing
+                                          ? "Update Shop"
+                                          : "Register Shop",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             );

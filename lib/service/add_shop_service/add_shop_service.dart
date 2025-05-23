@@ -6,7 +6,7 @@ import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
 
 class ShopService {
   final Dio _dio = Dio();
-  final String baseUrl = "https://shop-by-sabu-q.onrender.com/api/shops";
+  final String baseUrl = "https://shop-app-backend-gsx6.onrender.com/api/shops";
 
   Future<List<ShopModel>> fetchShops() async {
     try {
@@ -29,9 +29,9 @@ class ShopService {
         "category": shop.category,
         "sellerType": shop.sellerType,
         "state": shop.state,
-        "place": shop.place,
+        // "place": shop.place,
         "pinCode": shop.pinCode,
-        "locality": shop.locality,
+        // "locality": shop.locality,
         "headerImage": imageFile != null
             ? await MultipartFile.fromFile(
                 imageFile.path,
@@ -55,6 +55,22 @@ class ShopService {
     } catch (e) {
       log("Error adding shop: $e");
       throw Exception("Error: $e");
+    }
+  }
+
+  Future<void> updateShop(String id, Map<String, dynamic> data) async {
+    final url = 'https://shop-app-backend-gsx6.onrender.com/api/shops/$id';
+
+    try {
+      final response = await _dio.put(url, data: data);
+      if (response.statusCode == 200) {
+        log("Shop updated successfully");
+      } else {
+        throw Exception('Failed to update shop: ${response.statusMessage}');
+      }
+    } catch (e) {
+      log("Update error: $e");
+      rethrow;
     }
   }
 }

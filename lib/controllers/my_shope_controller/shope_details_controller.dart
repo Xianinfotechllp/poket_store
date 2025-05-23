@@ -21,4 +21,8 @@ class ShopeDetailsProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> refreshDetails(String shopId) async {
+    await loadShopeDetails(shopId);
+  }
 }

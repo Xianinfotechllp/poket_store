@@ -1,8 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:poketstore/controllers/cart_controller/cart_controller.dart';
+import 'package:poketstore/controllers/favorite_controller/favorite_controller.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
-import 'package:poketstore/model/cart_model/cart_model.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -15,164 +14,6 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  int quantity = 1; // Default quantity
-
-  void showAddToCartSheet(
-    BuildContext context,
-    String productName,
-    double productPrice,
-    int initialQuantity,
-    String productId, // Pass Product ID
-  ) {
-    int tempQuantity = initialQuantity;
-    double totalPrice = productPrice * tempQuantity;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// Product Name
-                  Text(
-                    productName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  /// Quantity Selector & Price
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Quantity:",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: () {
-                              if (tempQuantity > 1) {
-                                setSheetState(() {
-                                  tempQuantity--;
-                                  totalPrice = productPrice * tempQuantity;
-                                });
-                              }
-                            },
-                          ),
-                          Text(
-                            tempQuantity.toString(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () {
-                              setSheetState(() {
-                                tempQuantity++;
-                                totalPrice = productPrice * tempQuantity;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  /// Total Price
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Total Price:",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "₹${totalPrice.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// Add to Cart Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 7, 3, 201),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      onPressed: () {
-                        /// Get the CartProvider instance
-                        final cartProvider = Provider.of<CartProvider>(
-                          context,
-                          listen: false,
-                        );
-
-                        /// Add item to cart
-                        cartProvider.addCart([
-                          CartItem(
-                            productId: productId,
-                            quantity: tempQuantity,
-                            totalAmount: totalPrice.toInt(),
-                          ),
-                        ]);
-
-                        log(
-                          "Added to cart: $productName, ID: $productId, Quantity: $tempQuantity, Total Price: $totalPrice",
-                        );
-
-                        Navigator.pop(context); // Close the bottom sheet
-                      },
-                      child: const Text(
-                        'Add To Cart',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -198,10 +39,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ),
       body: Consumer<ProductProvider>(
         builder: (context, provider, child) {
-          log(
-            "ProductDetailsScreen: Provider state - isLoading: ${provider.isLoading}, product: ${provider.product}",
-          );
-
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -211,15 +48,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           }
 
           final product = provider.product!;
-          log(
-            "Product fetched successfully: ${product.name}, ID: ${widget.productId}",
-          );
+          log("Product fetched: ${product.name}, ID: ${widget.productId}");
 
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Product Image
+                // Product Image
                 Container(
                   height: 250,
                   width: double.infinity,
@@ -236,7 +71,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ),
 
-                /// Product Title & Favorite Icon
+                // Product Title & Favorite Icon
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -252,12 +87,24 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Icon(Icons.favorite_border, color: Colors.grey),
+                      IconButton(
+                        icon: const Icon(Icons.favorite_border,
+                            color: Colors.grey),
+                        onPressed: () {
+                          // Add your favourite logic here
+                          log("Added to favourite: ${product.name}");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    '${product.name} added to Favourites')),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
 
-                /// Weight & Price
+                // Weight & Price
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -266,7 +113,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ),
 
-                /// Quantity & Price Section
+                // Quantity & Price Section
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -275,7 +122,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Quantity
                       Row(
                         children: [
                           const Padding(
@@ -297,8 +143,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           ),
                         ],
                       ),
-
-                      // Price
                       Text(
                         '\$${product.price}',
                         style: const TextStyle(
@@ -312,7 +156,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
                 const Divider(thickness: 1, color: Colors.grey),
 
-                /// Product Details
+                // Product Description
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -323,32 +167,26 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
                 const Divider(thickness: 1, color: Colors.grey),
 
-                /// Delivery Info
+                // Delivery Info
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildRowWithArrow(
-                        'Estimated Delivery',
-                        product.estimatedTime,
-                      ),
+                          'Estimated Delivery', product.estimatedTime),
                       _buildRowWithArrow(
-                        'Category',
-                        product.category.toString(),
-                      ),
+                          'Category', product.category.toString()),
                       _buildRowWithArrow('Product Type', product.productType),
                       _buildRowWithArrow(
-                        'Delivery Option',
-                        product.deliveryOption,
-                      ),
+                          'Delivery Option', product.deliveryOption),
                     ],
                   ),
                 ),
 
                 const Divider(thickness: 1, color: Colors.grey),
 
-                /// Add to Cart Button
+                // Add to Favourite Button
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: ElevatedButton(
@@ -359,16 +197,33 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    onPressed: () => showAddToCartSheet(
-                      context,
-                      product.name,
-                      product.price.toDouble(),
-                      1,
-                      product.id,
-                    ),
+                    onPressed: () async {
+                      final favProvider =
+                          Provider.of<FavoriteProvider>(context, listen: false);
+
+                      log("Clicked Add to Favourite for Product ID: ${product.id}"); // Log product ID
+
+                      await favProvider.addToFavorite(
+                          product.id); // Ensure product.id is correct
+
+                      if (favProvider.isSuccess) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content:
+                                Text('${product.name} added to Favourites'),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Already added to Favourites'),
+                          ),
+                        );
+                      }
+                    },
                     child: const Center(
                       child: Text(
-                        'Add To Cart',
+                        'Add To Favourite',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -392,10 +247,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
         ],
       ),

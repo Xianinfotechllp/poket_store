@@ -34,7 +34,7 @@ class RegistrationProvider extends ChangeNotifier {
     return null;
   }
 
-  Future<void> register(BuildContext context) async {
+  register(BuildContext context) async {
     if (!formKey.currentState!.validate()) {
       log("Form validation failed");
       return;
@@ -49,10 +49,10 @@ class RegistrationProvider extends ChangeNotifier {
         "name": nameController.text.trim(),
         "mobileNumber": mobileController.text.trim(),
         "state": stateController.text.trim(),
-        "place": placeController.text.trim(),
+        // "place": placeController.text.trim(),
         "pincode": pincodeController.text.trim(),
-        "locality":
-            localityController.text.trim(), // Include locality in user data
+        // "locality": localityController.text
+        //     .trim(), // Include locality in user data.  IMPORTANT
         "password": passwordController.text.trim(),
       };
 
@@ -121,5 +121,17 @@ class RegistrationProvider extends ChangeNotifier {
     localityController.dispose(); // Dispose locality controller
     confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  // Function to clear all text fields
+  void clearTextFields() {
+    nameController.clear();
+    mobileController.clear();
+    stateController.clear();
+    placeController.clear();
+    localityController.clear();
+    pincodeController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
   }
 }

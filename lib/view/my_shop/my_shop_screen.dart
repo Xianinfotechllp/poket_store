@@ -138,7 +138,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           log("Error loading product data: ${provider.error!}");
                           return const Center(
                               child: Text(
-                                  "Something went wrong. Please try again later."));
+                                  "No Products Available , Add Your Products."));
                         } else if (_filteredProducts.isEmpty &&
                             _searchController.text.isNotEmpty) {
                           return const Center(

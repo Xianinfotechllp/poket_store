@@ -12,6 +12,7 @@ import 'package:poketstore/view/notification/notification.dart';
 import 'package:poketstore/view/order_screen/order_screen.dart';
 import 'package:poketstore/view/subscription/subscription.dart';
 import 'package:poketstore/view/user_profile/user_profile.dart';
+import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart'; // Import BottomBarProvider
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -21,6 +22,9 @@ class ProfileScreen extends StatelessWidget {
     final loginProvider = context.watch<LoginProvider>();
     final userProfileController = context.watch<UserProfileController>();
     final profile = userProfileController.userProfile;
+    final bottomBarProvider = Provider.of<BottomBarProvider>(context,
+        listen:
+            false); // Get BottomBarProvider instance.  Use listen: false, as we don't want to rebuild this widget when the bottom bar changes.
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -69,8 +73,8 @@ class ProfileScreen extends StatelessWidget {
 
             // Menu List
             // buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
-            //   Navigator.push(context,
-            //       MaterialPageRoute(builder: (context) => OrdersScreen()));
+            //   Navigator.push(context,
+            //       MaterialPageRoute(builder: (context) => OrdersScreen()));
             // }),
             buildMenuItem(Icons.person_outline, "My Details", () {
               Navigator.push(
@@ -91,16 +95,16 @@ class ProfileScreen extends StatelessWidget {
             }),
             // buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
             // buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => const Subscription()));
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const Subscription()));
             // }),
             // buildMenuItem(Icons.notifications_outlined, "Notifications", () {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => const NotificationScreen()));
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const NotificationScreen()));
             // }),
             buildMenuItem(Icons.help_outline, "Help", () {
               Navigator.push(context,
@@ -120,7 +124,33 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  loginProvider.logout(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Confirm Logout"),
+                        content:
+                            const Text("Are you sure you want to log out?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close dialog
+                            },
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close dialog
+                              loginProvider.logout(context);
+                              bottomBarProvider
+                                  .changeTab(0); // Change bottom tab
+                            },
+                            child: const Text("Logout"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0XFF094497),
@@ -142,6 +172,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
           ],
         ),

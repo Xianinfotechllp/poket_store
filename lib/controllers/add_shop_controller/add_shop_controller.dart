@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -34,6 +35,31 @@ class ShopProvider with ChangeNotifier {
       await _shopService.addShop(shop, imageFile);
     } catch (e) {
       errorMessage = e.toString();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateShopDetails(ShopModel shopModel) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      // Send 'category' as a String if the API requires a single category
+      final data = {
+        "shopName": shopModel.shopName,
+        "category":
+            shopModel.category.isNotEmpty ? shopModel.category.first : "",
+        "sellerType": shopModel.sellerType,
+        "state": shopModel.state,
+        "pinCode": shopModel.pinCode,
+      };
+
+      await _shopService.updateShop(shopModel.id!, data);
+      log("Update complete.");
+    } catch (e) {
+      log("Provider error: $e");
     } finally {
       isLoading = false;
       notifyListeners();
