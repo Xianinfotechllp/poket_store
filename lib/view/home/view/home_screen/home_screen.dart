@@ -38,8 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   late LocationMapController _locationMapController;
   late HomeProductController _homeProductController;
-  bool _isDataLoaded =
-      false; // Add a flag to prevent redundant loading in didChangeDependencies
+  bool _isDataLoaded = false;
 
   final List<String> _bannerImages = [
     'assets/slider.png',
@@ -50,41 +49,33 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
-
-    _loadInitialData();
-    log("🏠 HomeScreen initialized");
     _searchController.addListener(_onSearchChanged);
-
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Only load data if it hasn't been loaded yet or if you specifically want to reload
-    // For a full "reload whenever entering this page" behavior, you can remove the _isDataLoaded check
-    // or reset _isDataLoaded to false when navigating away from this screen.
     if (!_isDataLoaded) {
-      // Consider removing this check if you want it to always reload
       _locationMapController =
           Provider.of<LocationMapController>(context, listen: false);
       _homeProductController =
           Provider.of<HomeProductController>(context, listen: false);
       _loadInitialData();
-      _isDataLoaded = true; // Set the flag after initial load
+      _isDataLoaded = true;
     }
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged); // Remove listener
     _searchController.dispose();
     super.dispose();
   }
 
   Future<void> _loadInitialData() async {
     setState(() {
-      _isLoading = true; // Set loading to true at the start of data fetching
-      _errorMessage = null; // Clear any previous error messages
+      _isLoading = true;
+      _errorMessage = null;
     });
     try {
       log("⏳ Fetching data in HomeScreen didChangeDependencies");
@@ -139,18 +130,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final shopProvider = Provider.of<ShopProvider>(context);
     final groceryProvider = Provider.of<GroceriesListProvider>(context);
     final locationMapProvider = Provider.of<LocationMapController>(context);
 
+    // Ensure _allProducts is updated from the controller whenever the controller notifies changes
     _allProducts = _homeProductController.products;
-
-    // List<ShopModel> shopsWithProducts = shopProvider.shops.where((shop) {
-    //   log("${shop.toJson()}");
-    //   return _allProducts.any((product) => product.shop.id == shop.id);
-    // }).toList();
-
+    // If search is active, keep filtered products, otherwise, update with all products
+    if (_searchController.text.isEmpty) {
+      _filteredProducts = _allProducts;
+    }
 
     List<ShopModel> shopsWithProducts = shopProvider.shops;
 
@@ -162,8 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final displayedStores =
         _showAllStores ? shopsWithProducts : shopsWithProducts.take(3).toList();
-    // _homeProductController.loadProducts();
-    // Provider.of<ShopProvider>(context, listen: false).fetchShops();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -193,6 +181,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // --- SEARCH BAR (Moved to top) ---
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: "Search products...",
+                            prefixIcon: const Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // --- END SEARCH BAR ---
+
                       CarouselSlider(
                         options: CarouselOptions(
                           height: 100,
@@ -271,20 +276,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: "Search products...",
-                            prefixIcon: const Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
+                      // The search bar was here, moved up!
+
                       buildSectionTitle("Products", "", () {}),
                       _filteredProducts.isEmpty
                           ? const Center(child: Text("No Products Found"))
@@ -341,16 +334,19 @@ Widget buildStoreItem(String name, Color color) {
       child: Row(
         children: [
           const SizedBox(width: 10),
-          Text(
-            name,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            // Use Expanded to prevent overflow for long shop names
+            child: Text(
+              name,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -392,9 +388,11 @@ class ShopProductsScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ShopProductListScreen(
-                            shopId: shop.id ?? "",
-                            shopName: shop.shopName ?? "Unnamed Shop"),
+                        builder: (context) => ProductDetailsScreen(
+                          // Changed from ShopProductListScreen to ProductDetailsScreen
+                          productId:
+                              product.id, // Pass the actual product object
+                        ),
                       ),
                     );
                   },
