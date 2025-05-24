@@ -120,7 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MapLocationScreen()),
-    );
+    ).then((_) {
+      _loadInitialData(); // Refresh when returning from Map screen
+    });
 
     if (result != null && result is LocationMapModel && _userId != null) {
       await _locationMapController.updateUserLocation(_userId!, result);
