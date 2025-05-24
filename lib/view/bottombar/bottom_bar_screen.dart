@@ -19,7 +19,6 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
     const HomeScreen(),
     const MyShopScreen(),
     const FavoriteScreen(),
-    // const FavouriteScreen(), // Removed from original code
     const ProfileScreen(),
   ];
 
@@ -29,20 +28,14 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // If the current tab is not the home tab, navigate to the home tab.
         if (bottomBarProvider.selectedIndex != 0) {
-
-          bottomBarProvider.changeTab(0); // Use the provider to change the tab
-          return false; // Prevent the default back button behavior (exiting the app).
+          bottomBarProvider.changeTab(0);
+          return false;
         }
-        // If the current tab is the home tab, allow the default back button behavior.
         return true;
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: bottomBarProvider.selectedIndex,
-          children: _screens,
-        ),
+        body: _screens[bottomBarProvider.selectedIndex], // Directly show selected screen
         bottomNavigationBar: Container(
           color: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -53,15 +46,14 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
             gap: 8,
             tabBackgroundColor: const Color.fromARGB(255, 7, 3, 201),
             padding: const EdgeInsets.all(10),
-            selectedIndex: bottomBarProvider.selectedIndex, // Use Provider
+            selectedIndex: bottomBarProvider.selectedIndex,
             onTabChange: (index) {
-              bottomBarProvider.changeTab(index); // Update using Provider
+              bottomBarProvider.changeTab(index);
             },
             tabs: const [
               GButton(icon: Icons.home, text: 'Home'),
               GButton(icon: Icons.business_sharp, text: 'My Shop'),
               GButton(icon: Icons.favorite_border_outlined, text: 'Favorites'),
-              // GButton(icon: Icons.favorite_border, text: 'Favourite'), // Removed from original code
               GButton(icon: Icons.person_3_outlined, text: 'Account'),
             ],
           ),

@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/home_product_controller/home_product_controller.dart';
+import '../../controllers/shop_of_user_controller/shop_of_user_controller.dart';
 
 class AddShop extends StatefulWidget {
   // Now accepts ShopeDetailsModel for editing
@@ -195,6 +196,7 @@ class _AddShopState extends State<AddShop> {
           : "Shop registered successfully!");
       Provider.of<HomeProductController>(context,listen: false).loadProducts();
       Provider.of<ShopProvider>(context, listen: false).fetchShops();
+      Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops();
 
       Navigator.of(context)
           .pop(true); // Pop back to previous screen (details screen)

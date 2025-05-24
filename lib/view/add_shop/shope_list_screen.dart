@@ -23,50 +23,54 @@ class _ShopListScreenState extends State<ShopListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Shops")),
-      body: Consumer<ShopOfUserProvider>(
-        builder: (context, shopProvider, child) {
-          if (shopProvider.isLoading) {
-            return Center(child: CircularProgressIndicator());
-          }
+      body: RefreshIndicator(
 
-          // if (shopProvider.errorMessage.isNotEmpty) {
-          //   return Center(child: Text(shopProvider.errorMessage));
-          // }
+        onRefresh: () => Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops(),
+        child: Consumer<ShopOfUserProvider>(
+          builder: (context, shopProvider, child) {
+            if (shopProvider.isLoading) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-          if (shopProvider.shopList.isEmpty) {
-            return Center(child: Text("No shops available."));
-          }
+            // if (shopProvider.errorMessage.isNotEmpty) {
+            //   return Center(child: Text(shopProvider.errorMessage));
+            // }
 
-          return ListView.builder(
-            itemCount: shopProvider.shopList.length,
-            itemBuilder: (context, index) {
-              ShopOfUser shop = shopProvider.shopList[index];
-              return Card(
-                margin: EdgeInsets.all(10),
-                child: ListTile(
-                  leading: Image.network(
-                    shop.headerImage,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+            if (shopProvider.shopList.isEmpty) {
+              return Center(child: Text("No shops available."));
+            }
+
+            return ListView.builder(
+              itemCount: shopProvider.shopList.length,
+              itemBuilder: (context, index) {
+                ShopOfUser shop = shopProvider.shopList[index];
+                return Card(
+                  margin: EdgeInsets.all(10),
+                  child: ListTile(
+                    leading: Image.network(
+                      shop.headerImage,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(shop.shopName),
+                    subtitle: Text("${shop.place}, ${shop.state}"),
+                    trailing: Text(shop.sellerType),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ShopeDetailsScreen(shopId: shop.id),
+                        ),
+                      );
+                    },
                   ),
-                  title: Text(shop.shopName),
-                  subtitle: Text("${shop.place}, ${shop.state}"),
-                  trailing: Text(shop.sellerType),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ShopeDetailsScreen(shopId: shop.id),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "add_shop",
