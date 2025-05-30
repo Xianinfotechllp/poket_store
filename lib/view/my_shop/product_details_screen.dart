@@ -1,8 +1,10 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
+import 'package:poketstore/controllers/my_shope_controller/my_shop_list_user_controller.dart';
 import 'package:poketstore/view/home/widgets/product_details_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyShopProductDetails extends StatefulWidget {
   final String productId;
@@ -17,10 +19,15 @@ class _MyShopProductDetailsState extends State<MyShopProductDetails> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ProductProvider>(context, listen: false).fetchProduct(widget.productId);
+      Provider.of<ProductProvider>(context, listen: false)
+          .fetchProduct(widget.productId);
     });
     super.initState();
   }
+
+  List<Map<String, dynamic>> _allProductsWithShopName = [];
+  List<Map<String, dynamic>> _filteredProducts = [];
+  String? _userId;
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +189,8 @@ class _MyShopProductDetailsState extends State<MyShopProductDetails> {
   }
 
   void _showEditDialog(BuildContext context, String productId) {
-    final product = Provider.of<ProductProvider>(context, listen: false).product;
+    final product =
+        Provider.of<ProductProvider>(context, listen: false).product;
     if (product == null) return;
 
     final nameController = TextEditingController(text: product.name);
@@ -228,7 +236,9 @@ class _MyShopProductDetailsState extends State<MyShopProductDetails> {
                 "price": int.tryParse(priceController.text.trim()) ?? 0,
               };
 
-              Provider.of<ProductProvider>(context, listen: false).updateProduct(productId, updatedData, context).then((success) {
+              Provider.of<ProductProvider>(context, listen: false)
+                  .updateProduct(productId, updatedData, context)
+                  .then((success) {
                 if (success) Navigator.pop(context);
               });
             },
@@ -253,9 +263,23 @@ class _MyShopProductDetailsState extends State<MyShopProductDetails> {
             child: const Text("Cancel"),
           ),
           ElevatedButton(
-            onPressed: () {
-              Provider.of<ProductProvider>(context, listen: false).deleteProduct(productId).then((_) => Navigator.pop(context));
+            // onPressed: () {
+            //   Provider.of<ProductProvider>(context, listen: false).deleteProduct(productId).then((_) => Navigator.pop(context));
+            // },
+            onPressed: () async {
+              final productProvider =
+                  Provider.of<ProductProvider>(context, listen: false);
+              final shopProvider =
+                  Provider.of<MyShopListUserProvider>(context, listen: false);
+
+              await productProvider.deleteProduct(productId);
+              final prefs = await SharedPreferences.getInstance();
+              _userId = prefs.getString('userId');
+              shopProvider.fetchUserShopList(_userId!);
+              shopProvider.allProductsWithShopName.clear();
+              Navigator.pop(context);
             },
+
             child: const Text("Delete"),
           ),
         ],

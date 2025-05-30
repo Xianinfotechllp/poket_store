@@ -10,15 +10,13 @@ class RegistrationService {
 
   Future<RegistrationModel> registerUser(Map<String, dynamic> data) async {
     try {
-      log("RegistrationService registerUser data: ${jsonEncode(data)}"); // Log the data being sent
-
       Response response = await _dio.post(
         _registerUrl,
         data: jsonEncode(data),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      log("Registration Response: ${response.data}"); // Log the entire response
+      log("Registration Response: ${response.data}");
 
       // Check if response.data is a Map before accessing it.
       if (response.data is Map<String, dynamic>) {
@@ -31,8 +29,7 @@ class RegistrationService {
       }
     } catch (e) {
       log("Registration Error: $e");
-      throw Exception(
-          "Registration failed: $e"); //Include the error e in the new Exception
+      throw Exception("Registration failed");
     }
   }
 }

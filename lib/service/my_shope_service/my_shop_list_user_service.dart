@@ -12,8 +12,8 @@ class MyShopListUserService {
     try {
       final response = await http.get(uri);
 
-      // log('Response Status Code of Product Bottom Bar: ${response.statusCode}');
-      // log('Response Body of Product Bottom Bar : ${response.body}'); // 👈 LOG the raw response
+      log('Response Status Code: ${response.statusCode}');
+      log('Response Body: ${response.body}'); // 👈 LOG the raw response
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);

@@ -22,7 +22,6 @@ class _MyShopScreenState extends State<MyShopScreen> {
   String? _userId;
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _allProductsWithShopName = [];
   List<Map<String, dynamic>> _filteredProducts = [];
 
   @override
@@ -60,7 +59,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
         _processShopData(provider.shopList);
       } else {
         // If shopList is empty, clear products as well
-        _allProductsWithShopName.clear();
+        provider.allProductsWithShopName.clear();
         _filteredProducts.clear();
       }
     }
@@ -68,10 +67,14 @@ class _MyShopScreenState extends State<MyShopScreen> {
   }
 
   void _processShopData(List<ShopData> shopList) {
-    _allProductsWithShopName.clear();
+    final provider = Provider.of<MyShopListUserProvider>(
+      context,
+      listen: false,
+    );
+    provider.allProductsWithShopName.clear();
     for (var shop in shopList) {
       for (var product in shop.products) {
-        _allProductsWithShopName.add({
+        provider.allProductsWithShopName.add({
           "_id": product.id,
           "image": (product.productImage?.isNotEmpty ?? false)
               ? product.productImage
@@ -84,13 +87,17 @@ class _MyShopScreenState extends State<MyShopScreen> {
         });
       }
     }
-    _filteredProducts = List.from(_allProductsWithShopName);
+    _filteredProducts = List.from(provider.allProductsWithShopName);
   }
 
   void _filterProducts() {
     String query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredProducts = _allProductsWithShopName.where((product) {
+      final provider = Provider.of<MyShopListUserProvider>(
+        context,
+        listen: false,
+      );
+      _filteredProducts = provider.allProductsWithShopName.where((product) {
         return (product["name"] as String).toLowerCase().contains(query) ||
             (product["shopName"] as String).toLowerCase().contains(query);
       }).toList();
@@ -99,6 +106,10 @@ class _MyShopScreenState extends State<MyShopScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<MyShopListUserProvider>(
+      context,
+      listen: false,
+    );
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -131,7 +142,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
           ),
         ),
       ),
-      body: _isLoading
+      body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
@@ -146,7 +157,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                       }
 
                       if (provider.isLoading &&
-                          _allProductsWithShopName.isEmpty) {
+                          provider.allProductsWithShopName.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (provider.error != null) {
                         log("Error loading product data: ${provider.error!}");
@@ -158,7 +169,7 @@ class _MyShopScreenState extends State<MyShopScreen> {
                         return const Center(
                             child: Text(
                                 "No products or shops found matching your search."));
-                      } else if (_allProductsWithShopName.isEmpty) {
+                      } else if (provider.allProductsWithShopName.isEmpty) {
                         return const Center(
                             child: Text(
                                 "No products added yet. Click '+' to add."));
