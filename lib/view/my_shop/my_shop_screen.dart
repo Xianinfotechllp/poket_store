@@ -22,7 +22,6 @@ class _MyShopScreenState extends State<MyShopScreen> {
   String? _userId;
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
-  // List<Map<String, dynamic>> _allProductsWithShopName = [];
   List<Map<String, dynamic>> _filteredProducts = [];
 
   @override

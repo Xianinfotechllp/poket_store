@@ -277,18 +277,6 @@ class _MyShopProductDetailsState extends State<MyShopProductDetails> {
               _userId = prefs.getString('userId');
               shopProvider.fetchUserShopList(_userId!);
               shopProvider.allProductsWithShopName.clear();
-              // Fetch updated shop list after deletion
-              // if (_userId != null) {
-              //   await shopProvider.fetchUserShopList(_userId!);
-              //   if (shopProvider.shopList.isNotEmpty) {
-              //     // processShopData(shopProvider.shopList);
-              //   } else {
-              //     _allProductsWithShopName.clear();
-              //     _filteredProducts.clear();
-              //   }
-              //   setState(() {}); // Refresh UI
-              // }
-
               Navigator.pop(context);
             },
 
