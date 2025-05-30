@@ -267,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: _navigateToMapScreen,
                           child: Text(
                             locationMapProvider.locationMap != null
-                                ? "${locationMapProvider.locationMap?.state} - ${locationMapProvider.locationMap?.pincode}"
+                                ? "${locationMapProvider.locationMap?.locality},${locationMapProvider.locationMap?.state} - ${locationMapProvider.locationMap?.pincode}"
                                 : "Fetching location...",
                             style: const TextStyle(
                               fontSize: 16,
