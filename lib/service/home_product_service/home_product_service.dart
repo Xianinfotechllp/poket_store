@@ -1,45 +1,40 @@
+// 3. Service Class
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:poketstore/model/home_product_model/home_product_model.dart';
 
-class HomeProductService {
+class LocationProductService {
   final Dio _dio = Dio();
+  final String _baseUrl =
+      'https://shop-app-backend-gsx6.onrender.com/api/products'; // Base URL
 
-  Future<List<ShopWithProducts>> fetchHomeProducts(String userId) async {
+  // Function to fetch products by user ID
+  Future<List<LocationProduct>> fetchProductsByUserId(String userId) async {
     try {
-      final response = await _dio.get(
-        'https://shop-app-backend-gsx6.onrender.com/api/products/nearbyshop/$userId',
-      );
-      log("home data user id : $userId");
-      log("response of home data : $response");
-      if (response.statusCode == 200) {
-        // Check if response.data is not null and is a Map
-        if (response.data != null && response.data is Map) {
-          // Check for the presence of the 'data' key and if its value is a List
-          if (response.data.containsKey('data') &&
-              response.data['data'] is List) {
-            List<dynamic> shopDataList = response.data['data'];
-            // Map the list of dynamic to a list of ShopWithProducts objects
-            return shopDataList
-                .map((shopData) => ShopWithProducts.fromJson(shopData))
-                .toList();
-          } else {
-            log('HomeProductService: The key "data" is missing or is not a list.');
-            return []; // Return an empty list
-          }
+      final response = await _dio.get('$_baseUrl/nearbyshop/$userId');
+
+      if (response.statusCode == 200 && response.data is Map) {
+        //Improved null and type checking
+        final Map<String, dynamic> responseData =
+            response.data as Map<String, dynamic>;
+        if (responseData.containsKey('products') &&
+            responseData['products'] is List) {
+          List<dynamic> productList = responseData['products'];
+          return productList
+              .map((productJson) => LocationProduct.fromJson(productJson))
+              .toList();
         } else {
-          log('HomeProductService: Unexpected response structure. Expected a Map.');
-          return []; // Return an empty list
+          log('LocationProductService: "products" key is missing or not a List');
+          return [];
         }
       } else {
-        log('HomeProductService: Failed to load products. Status code: ${response.statusCode}');
-        return []; // Return an empty list
+        log('LocationProductService: Failed to fetch products. Status: ${response.statusCode}, Response: ${response.data}');
+        return [];
       }
-    } catch (e) {
-      log('HomeProductService: Error fetching products: $e');
-      return Future.error(
-          e); // Important: rethrow the error to be caught by the caller
+    } catch (error) {
+      log('LocationProductService: Error - $error');
+      return [];
     }
   }
 }

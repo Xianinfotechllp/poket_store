@@ -1,3 +1,4 @@
+// poketstore/view/delivery_address/add_address.dart
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
   final _townController = TextEditingController();
   String? _selectedCountry;
   String? _selectedState;
-  // List of countries
+  // List of countries (keep your existing list)
   final List<String> _countries = [
     'Afghanistan',
     'Albania',
@@ -129,7 +130,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
     'Luxembourg',
     'Madagascar',
     'Malawi',
-    'Malaysia',
+    'Malasia',
     'Maldives',
     'Mali',
     'Malta',
@@ -222,7 +223,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
     'Zimbabwe',
   ];
 
-  // Sample list of states
+  // Sample list of states (keep your existing list)
   final List<String> _states = [
     'Andhra Pradesh',
     'Arunachal Pradesh',
@@ -291,14 +292,6 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
   void _submitAddress(BuildContext context) async {
     log('Submitting address form...');
-    log('Phone: ${_phoneController.text}');
-    log('House No: ${_houseController.text}');
-    log('Area: ${_areaController.text}');
-    log('Landmark: ${_landmarkController.text}');
-    log('Pincode: ${_pincodeController.text}');
-    log('Town: ${_townController.text}');
-    log('Country: $_selectedCountry');
-    log('State: $_selectedState');
 
     if (_formKey.currentState!.validate()) {
       final newAddress = AddressModel(
@@ -332,13 +325,14 @@ class _AddAddressPageState extends State<AddAddressPage> {
             const SnackBar(content: Text('Address updated successfully')),
           );
         }
+        // Pop with a true result to indicate a successful operation
+        Navigator.pop(context, true);
       } catch (error) {
         log('Error during address submission: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $error')),
         );
       }
-      Navigator.pop(context);
     }
   }
 
@@ -423,7 +417,10 @@ class _AddAddressPageState extends State<AddAddressPage> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () => _submitAddress(context),
+                      onPressed: isLoading
+                          ? null
+                          : () => _submitAddress(
+                              context), // Disable button while loading
                       child: Text(widget.address == null
                           ? 'Add Address'
                           : 'Update Address'),

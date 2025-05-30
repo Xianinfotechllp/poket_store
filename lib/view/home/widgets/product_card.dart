@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class ProductCard extends StatelessWidget {
                     // image: FileImage(File(imagePath)),
                     image: NetworkImage(imagePath),
                     onError: (object, stacktrace) {
-                      print("error while loading image: $object");
+                      log("error while loading image: $object");
                     },
                   ),
                 ),
@@ -63,7 +64,7 @@ class ProductCard extends StatelessWidget {
                     price,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Icon(icon, color: Colors.black),
+                  // Icon(icon, color: Colors.black),
                 ],
               ),
             ],

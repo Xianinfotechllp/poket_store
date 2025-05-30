@@ -81,32 +81,35 @@ class LoginScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ForgotePassword(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(right: 15),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.end,
+                //     children: [
+
+                //       GestureDetector(
+                //         onTap: () {
+                //           Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) => ForgotePassword(),
+                //             ),
+                //           );
+                //         },
+                //         child: const Text(
+                //           'Forgot Password?',
+                //           style: TextStyle(fontWeight: FontWeight.w700),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: GestureDetector(
-                    onTap: () => loginProvider.login(context),
+                    onTap: () {
+                      loginProvider.login(context);
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFF0703C9),
@@ -117,9 +120,8 @@ class LoginScreen extends StatelessWidget {
                       child: Center(
                         child: loginProvider.isLoading
                             ? const CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
                               )
                             : const Text(
                                 'Login',
@@ -167,7 +169,7 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(width: 15),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => RegistrationScreen(),

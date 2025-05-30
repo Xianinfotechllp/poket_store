@@ -1,10 +1,12 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/location_controller/location_controller.dart';
+import 'package:provider/provider.dart';
 import 'package:poketstore/model/location_model/location_model.dart';
+import 'dart:convert'; // Import for JSON encoding/decoding
 
 class MapLocationScreen extends StatefulWidget {
   @override
@@ -32,15 +34,15 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
       setState(() {
         _selectedLatLng = LatLng(position.latitude, position.longitude);
       });
-      _updateAddress(_selectedLatLng!);
-      _addMarker(_selectedLatLng!); // Add marker for initial location
+      await _updateAddress(_selectedLatLng!); // Await here
+      _addMarker(_selectedLatLng!);
       if (_mapController != null) {
         _mapController?.animateCamera(
           CameraUpdate.newLatLngZoom(_selectedLatLng!, 15),
         );
       }
     } catch (e) {
-      print("Error getting current location: $e");
+      log("Error getting current location: $e");
       // Handle error appropriately
     }
   }
@@ -57,16 +59,20 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
           _selectedAddress =
               "${place.subAdministrativeArea ?? ''}, ${place.locality ?? ''}, ${place.administrativeArea ?? ''} - ${place.postalCode ?? ''}";
         });
+        // Log the placemark data
+        log("Geocoding API Response: ${jsonEncode(place.toJson())}"); //  Log the entire placemark object
       } else {
         setState(() {
           _selectedAddress = "No address found for this location.";
         });
+        log("Geocoding API Response: No address found");
       }
     } catch (e) {
-      print("Error reverse geocoding: $e");
+      log("Error reverse geocoding: $e");
       setState(() {
         _selectedAddress = "Error getting address.";
       });
+      log("Geocoding API Error: $e");
     }
   }
 
@@ -79,8 +85,8 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
     setState(() {
       _selectedLatLng = latLng;
     });
-    _updateAddress(latLng);
-    _addMarker(latLng); // Add or move the marker to the tapped location
+    await _updateAddress(latLng); // Await here
+    _addMarker(latLng);
   }
 
   void _addMarker(LatLng location) {
@@ -94,10 +100,8 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locationController = Provider.of<LocationController>(
-      context,
-      listen: false,
-    );
+    final locationMapController =
+        Provider.of<LocationMapController>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -115,9 +119,8 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
                   place = parts[0];
                   locality = parts[1];
                   stateWithPincode = parts[2];
-                  List<String> statePincodeParts = stateWithPincode.split(
-                    ' - ',
-                  );
+                  List<String> statePincodeParts =
+                      stateWithPincode.split(' - ');
                   if (statePincodeParts.length == 2) {
                     state = statePincodeParts[0];
                     pincode = statePincodeParts[1];
@@ -131,14 +134,18 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
                   place = parts[0];
                 }
 
-                final newLocation = LocationModel(
+                final newLocation = LocationMapModel(
                   place: place?.trim() ?? '',
                   locality: locality?.trim() ?? '',
                   state: state?.trim() ?? '',
                   pincode: pincode?.trim() ?? '',
                 );
-                locationController.updateLocationFromGPS();
-                Navigator.pop(context);
+
+                // Log the data before sending it.
+                log('Sending location data: ${newLocation.toJson()}');
+
+                Navigator.pop(
+                    context, newLocation); // Pass the LocationMapModel
               } else {
                 // Optionally show a message to the user to select a location
               }
@@ -155,10 +162,10 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
               zoom: 12.0,
             ),
             myLocationEnabled: true,
-            onTap: _onMapTapped, // Listen for map taps
+            onTap: _onMapTapped,
             markers: _selectedLocationMarker != null
                 ? {_selectedLocationMarker!}
-                : {}, // Display the marker
+                : {},
           ),
           Positioned(
             bottom: 20,

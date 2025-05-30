@@ -116,11 +116,12 @@ class MyShopeItemWidget extends StatelessWidget {
   }
 }
 
-Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
+Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName,
+    {required Function(String productId) onProductTap}) {
   return GridView.builder(
     padding: const EdgeInsets.all(10),
     shrinkWrap: true,
-    // physics: const NeverScrollableScrollPhysics(),
+    // physics: const NeverScrollableScrollPhysics(), // Removed to allow scrolling if needed
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,
       crossAxisSpacing: 10,
@@ -131,22 +132,9 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName) {
     itemBuilder: (context, index) {
       final product = productsWithShopName[index];
       return GestureDetector(
-        onTap: () async {
-          final productId = product["_id"].toString();
-          log("Tapped Product ID: $productId");
-
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MyShopProductDetails(productId: productId),
-            ),
-          );
-
-          // Handle refresh logic if needed
-          // if (result == true) {
-          //   Provider.of<MyShopListUserProvider>(context, listen: false)
-          //       .fetchUserShopList(userId); // userId should be accessible
-          // }
+        onTap: () {
+          // Call the provided callback when a product is tapped
+          onProductTap(product["_id"].toString());
         },
         child: Card(
           elevation: 2,

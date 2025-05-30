@@ -4,17 +4,19 @@ class ShopeDetailsModel {
   final List<String> category;
   final String sellerType;
   final String state;
-  final String place;
+  final String? place;
   final String pinCode;
+  final String? locality;
   final String headerImage;
 
   ShopeDetailsModel({
     required this.id,
     required this.shopName,
+    this.locality,
     required this.category,
     required this.sellerType,
     required this.state,
-    required this.place,
+    this.place,
     required this.pinCode,
     required this.headerImage,
   });
@@ -28,6 +30,7 @@ class ShopeDetailsModel {
       state: json['state'] ?? '',
       place: json['place'] ?? '',
       pinCode: json['pinCode'] ?? '',
+      locality: json['locality'] ?? '',
       headerImage: json['headerImage'] ?? '',
     );
   }

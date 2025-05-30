@@ -31,9 +31,7 @@ class LoginProvider extends ChangeNotifier {
 
     try {
       final loginService = LoginService();
-      log(
-        "Attempting login with mobileNumber: ${mobileNumberController.text.trim()}",
-      );
+      log("Attempting login with mobileNumber: ${mobileNumberController.text.trim()}");
 
       final response = await loginService.loginUser(
         mobileNumberController.text.trim(),
@@ -51,6 +49,10 @@ class LoginProvider extends ChangeNotifier {
       await prefs.setString('mobileNumber', mobileNumberController.text.trim());
       await prefs.setString('password', passwordController.text.trim());
 
+      // ✅ Clear the text controllers after successful login
+      mobileNumberController.clear();
+      passwordController.clear();
+
       _isLoading = false;
       notifyListeners();
 
@@ -63,9 +65,9 @@ class LoginProvider extends ChangeNotifier {
       );
 
       // Show success snackbar
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Login successful!")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Login successful!")),
+      );
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -73,7 +75,7 @@ class LoginProvider extends ChangeNotifier {
       log("Login Error: $e");
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed. Please try again.")),
+        const SnackBar(content: Text("Login failed. Please try again.")),
       );
     }
   }

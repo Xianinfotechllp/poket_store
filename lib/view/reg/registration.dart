@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:poketstore/view/login/login_screen.dart';
 
-class RegistrationScreen extends StatelessWidget {
+class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
+
+  @override
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
+}
+
+class _RegistrationScreenState extends State<RegistrationScreen> {
+  bool _hidePassword = true;
+  bool _hideConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -14,144 +22,112 @@ class RegistrationScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+            padding: const EdgeInsets.all(20),
             child: Card(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
+                  borderRadius: BorderRadius.circular(15)),
               elevation: 8,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Form(
                   key: provider.formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
                         "Let's Get Started!",
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                            fontSize: 22, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 5),
                       const Text(
                         'Create an account to get all features',
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
                         textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                       const SizedBox(height: 20),
-                      _buildTextField(
-                        "Full Name",
-                        Icons.person,
-                        provider.nameController,
+
+                      // Input fields
+                      ..._buildInputFields(provider),
+
+                      // Password
+                      _buildPasswordField(
+                        label: "Password",
+                        controller: provider.passwordController,
+                        hidden: _hidePassword,
+                        toggleVisibility: () =>
+                            setState(() => _hidePassword = !_hidePassword),
                       ),
-                      _buildTextField(
-                        "Mobile Number",
-                        Icons.phone_android,
-                        provider.mobileController,
-                        isNumber: true,
+                      _buildPasswordField(
+                        label: "Confirm Password",
+                        controller: provider.confirmPasswordController,
+                        hidden: _hideConfirmPassword,
+                        toggleVisibility: () => setState(
+                            () => _hideConfirmPassword = !_hideConfirmPassword),
+                        validator: provider.validateConfirmPassword,
                       ),
-                      _buildTextField(
-                        "State",
-                        Icons.place_outlined,
-                        provider.stateController,
-                      ),
-                      _buildTextField(
-                        "Place",
-                        Icons.place_outlined,
-                        provider.placeController,
-                      ),
-                      _buildTextField(
-                        "Locality",
-                        Icons.location_city,
-                        provider.localityController,
-                      ),
-                      _buildTextField(
-                        "Pin Code",
-                        Icons.pin_outlined,
-                        provider.pincodeController,
-                        isNumber: true,
-                      ),
-                      _buildTextField(
-                        "Password",
-                        Icons.lock_outline,
-                        provider.passwordController,
-                        isPassword: true,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: TextFormField(
-                          controller: provider.confirmPasswordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: "Confirm Password",
-                            prefixIcon: Icon(Icons.lock_outline),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          validator: provider.validateConfirmPassword,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
+
+                      const SizedBox(height: 20),
+
+                      // Register button
                       SizedBox(
-                        width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue.shade900,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: provider.isLoading
                               ? null
-                              : () => provider.register(context),
+                              : () async {
+                                  FocusScope.of(context)
+                                      .unfocus(); // Hide keyboard
+                                  final success =
+                                      await provider.register(context);
+                                  if (success) {
+                                    provider
+                                        .clearTextFields(); // Optionally clear after success
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => LoginScreen()),
+                                    );
+                                  }
+                                },
                           child: provider.isLoading
                               ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  'Register',
+                                  color: Colors.white)
+                              : const Text('Register',
                                   style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                      fontSize: 18, color: Colors.white)),
                         ),
                       ),
+
                       const SizedBox(height: 20),
+
+                      // Login link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Already have an account?",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
+                          const Text("Already have an account?",
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           TextButton(
                             onPressed: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoginScreen(),
-                                ),
+                                    builder: (_) => LoginScreen()),
                               );
                             },
-                            child: const Text(
-                              'Login here',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
+                            child: const Text("Login here",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue)),
                           ),
                         ],
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -163,30 +139,91 @@ class RegistrationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(
-    String label,
-    IconData icon,
-    TextEditingController controller, {
-    bool isPassword = false,
-    bool isNumber = false,
+  List<Widget> _buildInputFields(RegistrationProvider provider) {
+    final fields = [
+      {
+        'label': 'Full Name',
+        'icon': Icons.person,
+        'controller': provider.nameController
+      },
+      {
+        'label': 'Mobile Number',
+        'icon': Icons.phone_android,
+        'controller': provider.mobileController,
+        'isNumber': true
+      },
+      {
+        'label': 'State',
+        'icon': Icons.place_outlined,
+        'controller': provider.stateController
+      },
+      {
+        'label': 'District',
+        'icon': Icons.map_outlined,
+        'controller': provider.placeController
+      },
+      {
+        'label': 'Locality / Area',
+        'icon': Icons.location_city,
+        'controller': provider.localityController
+      },
+      {
+        'label': 'Pin Code',
+        'icon': Icons.pin_outlined,
+        'controller': provider.pincodeController,
+        'isNumber': true
+      },
+    ];
+
+    return fields.map((field) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: TextFormField(
+          controller: field['controller'] as TextEditingController,
+          keyboardType: field['isNumber'] == true
+              ? TextInputType.number
+              : TextInputType.text,
+          decoration: InputDecoration(
+            labelText: field['label'] as String,
+            prefixIcon: Icon(field['icon'] as IconData),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          validator: (value) => (value == null || value.isEmpty)
+              ? "Please enter ${field['label']}"
+              : null,
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildPasswordField({
+    required String label,
+    required TextEditingController controller,
+    required bool hidden,
+    required VoidCallback toggleVisibility,
+    FormFieldValidator<String>? validator,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         controller: controller,
-        obscureText: isPassword,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        obscureText: hidden,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon),
+          prefixIcon: const Icon(Icons.lock_outline),
+          suffixIcon: IconButton(
+            icon: Icon(hidden ? Icons.visibility_off : Icons.visibility),
+            onPressed: toggleVisibility,
+          ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Please enter $label";
-          }
-          return null;
-        },
+        validator: validator ??
+            (value) {
+              if (value == null || value.isEmpty) return "Please enter $label";
+              if (label == "Password" && value.length < 6)
+                return "Password must be at least 6 characters";
+              return null;
+            },
       ),
     );
   }

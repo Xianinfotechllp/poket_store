@@ -1,22 +1,23 @@
-class LocationModel {
+class LocationMapModel {
   final String state;
   final String place;
   final String locality;
   final String pincode;
 
-  LocationModel({
+  LocationMapModel({
     required this.state,
     required this.place,
     required this.locality,
     required this.pincode,
   });
 
-  factory LocationModel.fromJson(Map<String, dynamic> json) {
-    return LocationModel(
-      state: json['state'] ?? '',
-      place: json['place'] ?? '',
-      locality: json['locality'] ?? '',
-      pincode: json['pincode'] ?? '',
+  factory LocationMapModel.fromJson(Map<String, dynamic> json) {
+    final location = json['location'] ?? {};
+    return LocationMapModel(
+      state: location['state'] ?? '',
+      place: location['place'] ?? '',
+      locality: location['locality'] ?? '',
+      pincode: location['pincode'] ?? '',
     );
   }
 

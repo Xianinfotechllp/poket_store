@@ -12,6 +12,7 @@ import 'package:poketstore/view/notification/notification.dart';
 import 'package:poketstore/view/order_screen/order_screen.dart';
 import 'package:poketstore/view/subscription/subscription.dart';
 import 'package:poketstore/view/user_profile/user_profile.dart';
+import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart'; // Import BottomBarProvider
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -21,6 +22,9 @@ class ProfileScreen extends StatelessWidget {
     final loginProvider = context.watch<LoginProvider>();
     final userProfileController = context.watch<UserProfileController>();
     final profile = userProfileController.userProfile;
+    final bottomBarProvider = Provider.of<BottomBarProvider>(context,
+        listen:
+            false); // Get BottomBarProvider instance.  Use listen: false, as we don't want to rebuild this widget when the bottom bar changes.
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -29,48 +33,41 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 40),
 
-            // Profile Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundImage: AssetImage('assets/person.png'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          profile?.name ?? 'Guest User',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          profile?.state ?? "",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+            // Top blue bar with "Poket Stor"
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 7, 3, 201),
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20))),
+              child: Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
+                    children: [
+                      TextSpan(
+                        text: 'Poket',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      TextSpan(
+                        text: 'Stor',
+                        style: TextStyle(color: Color(0xFFFFEA00)),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
 
-            const SizedBox(height: 20),
-            const Divider(),
-
             // Menu List
             // buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
-            //   Navigator.push(context,
-            //       MaterialPageRoute(builder: (context) => OrdersScreen()));
+            //   Navigator.push(context,
+            //       MaterialPageRoute(builder: (context) => OrdersScreen()));
             // }),
             buildMenuItem(Icons.person_outline, "My Details", () {
               Navigator.push(
@@ -78,12 +75,12 @@ class ProfileScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => const UserProfileScreen()));
             }),
-            buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DeliveryScreen()));
-            }),
+            // buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const DeliveryScreen()));
+            // }),
             // buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
               Navigator.push(context,
@@ -91,16 +88,16 @@ class ProfileScreen extends StatelessWidget {
             }),
             // buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
             // buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => const Subscription()));
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const Subscription()));
             // }),
             // buildMenuItem(Icons.notifications_outlined, "Notifications", () {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => const NotificationScreen()));
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const NotificationScreen()));
             // }),
             buildMenuItem(Icons.help_outline, "Help", () {
               Navigator.push(context,
@@ -120,10 +117,36 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  loginProvider.logout(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Confirm Logout"),
+                        content:
+                            const Text("Are you sure you want to log out?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close dialog
+                            },
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close dialog
+                              loginProvider.logout(context);
+                              bottomBarProvider
+                                  .changeTab(0); // Change bottom tab
+                            },
+                            child: const Text("Logout"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0XFF094497),
+                  backgroundColor: const Color.fromARGB(255, 7, 3, 201),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -142,6 +165,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
           ],
         ),
