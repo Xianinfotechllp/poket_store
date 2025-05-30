@@ -8,6 +8,7 @@ class MyShopListUserProvider extends ChangeNotifier {
   List<ShopData> shopList = [];
   bool isLoading = false;
   String? error;
+  List<Map<String, dynamic>> allProductsWithShopName = [];
 
   Future<void> fetchUserShopList(String userId) async {
     isLoading = true;
