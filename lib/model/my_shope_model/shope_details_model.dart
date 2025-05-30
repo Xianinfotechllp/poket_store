@@ -6,11 +6,13 @@ class ShopeDetailsModel {
   final String state;
   final String? place;
   final String pinCode;
+  final String? locality;
   final String headerImage;
 
   ShopeDetailsModel({
     required this.id,
     required this.shopName,
+    this.locality,
     required this.category,
     required this.sellerType,
     required this.state,
@@ -26,8 +28,9 @@ class ShopeDetailsModel {
       category: List<String>.from(json['category'] ?? []),
       sellerType: json['sellerType'] ?? '',
       state: json['state'] ?? '',
-      // place: json['place'] ?? '',
+      place: json['place'] ?? '',
       pinCode: json['pinCode'] ?? '',
+      locality: json['locality'] ?? '',
       headerImage: json['headerImage'] ?? '',
     );
   }

@@ -1,12 +1,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
+import 'package:poketstore/view/home/widgets/product_details_widget.dart'; // This import seems incorrect for MyShopProductDetails. It should be 'package:poketstore/view/my_shop/my_shop_product_details.dart'
+import 'package:poketstore/view/my_shop/product_details_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poketstore/controllers/my_shope_controller/my_shop_list_user_controller.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:poketstore/view/my_shop/add_product_screen.dart';
-import 'package:poketstore/view/my_shop/widget/widget.dart';
+import 'package:poketstore/view/my_shop/widget/widget.dart'; // Correct import for MyShopProductDetails
 
 class MyShopScreen extends StatefulWidget {
   const MyShopScreen({super.key});
@@ -55,6 +58,10 @@ class _MyShopScreenState extends State<MyShopScreen> {
       await provider.fetchUserShopList(_userId!);
       if (provider.shopList.isNotEmpty) {
         _processShopData(provider.shopList);
+      } else {
+        // If shopList is empty, clear products as well
+        _allProductsWithShopName.clear();
+        _filteredProducts.clear();
       }
     }
     setState(() => _isLoading = false);
@@ -92,99 +99,121 @@ class _MyShopScreenState extends State<MyShopScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text("My Shop"),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(60.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search products or shop names...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color.fromARGB(255, 7, 3, 201),
+        title: const Text(
+          "My Shop",
+          style: TextStyle(color: Colors.white),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search products or shop names...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
             ),
           ),
         ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  Expanded(
-                    child: Consumer<MyShopListUserProvider>(
-                      builder: (context, provider, child) {
-                        if (_userId == null) {
-                          return const Center(
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: Consumer<MyShopListUserProvider>(
+                    builder: (context, provider, child) {
+                      if (_userId == null) {
+                        return const Center(
+                          child: Text(
+                              "Please log in to view your shops and products."),
+                        );
+                      }
+
+                      if (provider.isLoading &&
+                          _allProductsWithShopName.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (provider.error != null) {
+                        log("Error loading product data: ${provider.error!}");
+                        return const Center(
                             child: Text(
-                                "Please log in to view your shops and products."),
-                          );
-                        }
+                                "No Products Available , Add Your Products."));
+                      } else if (_filteredProducts.isEmpty &&
+                          _searchController.text.isNotEmpty) {
+                        return const Center(
+                            child: Text(
+                                "No products or shops found matching your search."));
+                      } else if (_allProductsWithShopName.isEmpty) {
+                        return const Center(
+                            child: Text(
+                                "No products added yet. Click '+' to add."));
+                      }
 
-                        if (provider.isLoading &&
-                            _allProductsWithShopName.isEmpty) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        } else if (provider.error != null) {
-                          log("Error loading product data: ${provider.error!}");
-                          return const Center(
-                              child: Text(
-                                  "No Products Available , Add Your Products."));
-                        } else if (_filteredProducts.isEmpty &&
-                            _searchController.text.isNotEmpty) {
-                          return const Center(
-                              child: Text(
-                                  "No products or shops found matching your search."));
-                        } else if (_allProductsWithShopName.isEmpty) {
-                          return const Center(
-                              child: Text(
-                                  "No products added yet. Click '+' to add."));
-                        }
-
-                        return productMyShopeGridView(_filteredProducts);
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: GestureDetector(
-                      onTap: () => _showAddDialog(context),
-                      child: Container(
-                        height: 50,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 7, 3, 201),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Add Product',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      return productMyShopeGridView(
+                        _filteredProducts,
+                        onProductTap: (productId) async {
+                          // Await the navigation and check the result
+                          final bool? result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  MyShopProductDetails(productId: productId),
                             ),
-                            Icon(Icons.add, color: Colors.white),
-                          ],
-                        ),
+                          );
+                          // If result is true (meaning a change occurred), refresh the list
+                          if (result == true) {
+                            _loadUserShops();
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: GestureDetector(
+                    onTap: () => _showAddDialog(context),
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 7, 3, 201),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Add Product',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(Icons.add, color: Colors.white),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-      ),
+                ),
+              ],
+            ),
     );
   }
 

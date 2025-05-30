@@ -49,10 +49,10 @@ class RegistrationProvider extends ChangeNotifier {
         "name": nameController.text.trim(),
         "mobileNumber": mobileController.text.trim(),
         "state": stateController.text.trim(),
-        // "place": placeController.text.trim(),
+        "place": placeController.text.trim(),
         "pincode": pincodeController.text.trim(),
-        // "locality": localityController.text
-        //     .trim(), // Include locality in user data.  IMPORTANT
+        "locality": localityController.text
+            .trim(), // Include locality in user data.  IMPORTANT
         "password": passwordController.text.trim(),
       };
 

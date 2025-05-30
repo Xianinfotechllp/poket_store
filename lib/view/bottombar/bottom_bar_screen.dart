@@ -35,7 +35,13 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
         return true;
       },
       child: Scaffold(
-        body: _screens[bottomBarProvider.selectedIndex], // Directly show selected screen
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: _screens[bottomBarProvider.selectedIndex],
+        ),
         bottomNavigationBar: Container(
           color: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),

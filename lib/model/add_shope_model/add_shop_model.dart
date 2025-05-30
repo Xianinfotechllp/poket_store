@@ -5,9 +5,9 @@ class ShopModel {
   final List<String> category;
   final String sellerType;
   final String state;
-  // final String place;
+  final String? place;
   final String pinCode;
-  // final String locality;
+  final String? locality;
   final String headerImage;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -15,12 +15,12 @@ class ShopModel {
   ShopModel({
     this.userId,
     this.id,
-    // required this.locality,
+    this.locality,
     required this.shopName,
     required this.category,
     required this.sellerType,
     required this.state,
-    // required this.place,
+    this.place,
     required this.pinCode,
     required this.headerImage,
     this.createdAt,
@@ -30,7 +30,7 @@ class ShopModel {
   factory ShopModel.fromJson(Map<String, dynamic> json) {
     return ShopModel(
       id: json["_id"],
-      // locality: json["locality"] ?? "",
+      locality: json["locality"] ?? "",
       userId: json['userId'] ?? "",
       shopName: json["shopName"] ?? "",
       category: json['category'] == null
@@ -41,7 +41,7 @@ class ShopModel {
               [],
       sellerType: json["sellerType"] ?? "",
       state: json["state"] ?? "",
-      // place: json["place"] ??"",
+      place: json["place"] ?? "",
       pinCode: json["pinCode"] ?? "",
       headerImage: json["headerImage"] ?? "",
       createdAt:
@@ -57,9 +57,9 @@ class ShopModel {
       "category": category,
       "sellerType": sellerType,
       "state": state,
-      // "place": place,
+      "place": place,
       "pinCode": pinCode,
-      // "locality": locality,
+      "locality": locality,
       "headerImage": headerImage,
     };
   }

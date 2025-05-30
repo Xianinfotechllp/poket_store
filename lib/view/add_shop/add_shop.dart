@@ -1,4 +1,3 @@
-// poketstore/view/add_shop/add_shop.dart
 import 'dart:developer';
 import 'dart:io';
 
@@ -84,7 +83,7 @@ class _AddShopState extends State<AddShop> {
       _shopNameController.text = shop.shopName;
       _placeController.text = shop.place ?? '';
       _pinCodeController.text = shop.pinCode;
-      // _localityController.text = shop.locality ?? '';
+      _localityController.text = shop.locality ?? '';
       _selectedSellerType = shop.sellerType;
       _selectedState = shop.state;
       if (shop.category.isNotEmpty) {
@@ -156,9 +155,13 @@ class _AddShopState extends State<AddShop> {
         category: [_selectedCategory!],
         sellerType: _selectedSellerType!,
         state: _selectedState!,
-        // place: _placeController.text.trim().isEmpty ? null : _placeController.text.trim(),
+        place: _placeController.text.trim().isEmpty
+            ? null
+            : _placeController.text.trim(),
         pinCode: _pinCodeController.text.trim(),
-        // locality: _localityController.text.trim().isEmpty ? null : _localityController.text.trim(),
+        locality: _localityController.text.trim().isEmpty
+            ? null
+            : _localityController.text.trim(),
         headerImage: _existingHeaderImageUrl ??
             '', // This will be the old URL if no new image, or empty
         // userId: userId, // Pass userId for update
@@ -178,23 +181,28 @@ class _AddShopState extends State<AddShop> {
         category: [_selectedCategory!],
         sellerType: _selectedSellerType!,
         state: _selectedState!,
-        // place: _placeController.text.trim().isEmpty ? null : _placeController.text.trim(),
+        place: _placeController.text.trim().isEmpty
+            ? null
+            : _placeController.text.trim(),
         pinCode: _pinCodeController.text.trim(),
-        // locality: _localityController.text.trim().isEmpty ? null : _localityController.text.trim(),
+        locality: _localityController.text.trim().isEmpty
+            ? null
+            : _localityController.text.trim(),
         headerImage: "", // Will be set by backend upon upload
         userId: userId,
       );
+      // Log the newShop object before adding it
+      log("New Shop Data: ${newShop.toJson()}");
       await provider.addShop(newShop, _headerImage);
     }
 
     if (provider.errorMessage.isNotEmpty) {
       _showSnackbar(provider.errorMessage);
     } else {
-
       _showSnackbar(isEditing
           ? "Shop updated successfully!"
           : "Shop registered successfully!");
-      Provider.of<HomeProductController>(context,listen: false).loadProducts();
+      Provider.of<HomeProductController>(context, listen: false).loadProducts();
       Provider.of<ShopProvider>(context, listen: false).fetchShops();
       Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops();
 

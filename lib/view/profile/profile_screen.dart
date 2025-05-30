@@ -33,43 +33,36 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 40),
 
-            // Profile Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundImage: AssetImage('assets/person.png'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          profile?.name ?? 'Guest User',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          profile?.state ?? "",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+            // Top blue bar with "Poket Stor"
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 7, 3, 201),
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20))),
+              child: Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
+                    children: [
+                      TextSpan(
+                        text: 'Poket',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      TextSpan(
+                        text: 'Stor',
+                        style: TextStyle(color: Color(0xFFFFEA00)),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 20),
-            const Divider(),
 
             // Menu List
             // buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
@@ -82,12 +75,12 @@ class ProfileScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => const UserProfileScreen()));
             }),
-            buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DeliveryScreen()));
-            }),
+            // buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => const DeliveryScreen()));
+            // }),
             // buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
               Navigator.push(context,
@@ -153,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0XFF094497),
+                  backgroundColor: const Color.fromARGB(255, 7, 3, 201),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

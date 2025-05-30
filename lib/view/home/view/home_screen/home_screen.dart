@@ -14,6 +14,7 @@ import 'package:poketstore/view/home/view/store_horizontal_scroll/product_by_sho
 import 'package:poketstore/view/home/widgets/home_widgets.dart';
 import 'package:poketstore/view/home/widgets/map_location.dart';
 import 'package:poketstore/view/notification/notification.dart';
+import 'package:poketstore/view/product_search/product_search.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -158,20 +159,47 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        title: Image.asset("assets/name.png", width: 63, height: 57),
+        backgroundColor: const Color.fromARGB(255, 7, 3, 201),
+        title: RichText(
+          text: const TextSpan(
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            children: [
+              TextSpan(
+                text: 'Poket',
+                style: TextStyle(color: Colors.white),
+              ),
+              TextSpan(
+                text: 'Stor',
+                style: TextStyle(color: Color(0xFFFFEA00)),
+              ),
+            ],
+          ),
+        ),
         actions: [
           IconButton(
-            icon:
-                Icon(Icons.add_business_outlined, color: Colors.blue.shade900),
+            icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => const AddShop())),
+              context,
+              MaterialPageRoute(builder: (_) => ProductSearchScreen()),
+            ),
           ),
           IconButton(
-            icon: Icon(Icons.notifications_none_sharp,
-                color: Colors.blue.shade900),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => NotificationScreen())),
+            icon: const Icon(Icons.add_business_outlined, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddShop()),
+            ),
+          ),
+          IconButton(
+            icon:
+                const Icon(Icons.notifications_none_sharp, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => NotificationScreen()),
+            ),
           ),
         ],
       ),
@@ -370,93 +398,135 @@ class ShopProductsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(shop.shopName),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: true,
       ),
-      body: products.isEmpty
-          ? const Center(child: Text("No products available in this shop."))
-          : GridView.builder(
-              padding: const EdgeInsets.all(10),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.7,
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          // Background with shop image and rounded bottom corners
+          Container(
+            height: 220,
+            // decoration: BoxDecoration(
+            //   borderRadius: const BorderRadius.only(
+            //     bottomLeft: Radius.circular(40),
+            //     bottomRight: Radius.circular(40),
+            //   ),
+            //   image: DecorationImage(
+            //     image: NetworkImage(
+            //       shop.shopImage.isNotEmpty
+            //           ? shop.shopImage
+            //           : 'https://via.placeholder.com/600x300',
+            //     ),
+            //     fit: BoxFit.cover,
+            //   ),
+            // ),
+            alignment: Alignment.center,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              color: Colors.black.withOpacity(0.4), // Semi-transparent overlay
+              child: Text(
+                shop.shopName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailsScreen(
-                          // Changed from ShopProductListScreen to ProductDetailsScreen
-                          productId:
-                              product.id, // Pass the actual product object
-                        ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: product.productImage.isNotEmpty
-                                  ? Image.network(
-                                      product.productImage,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    )
-                                  : Image.network(
-                                      "https://via.placeholder.com/150",
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            product.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            product.productType,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "₹${product.price > 0 ? product.price : 'N/A'}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
             ),
+          ),
+
+          // Product grid comes below the background
+          Padding(
+            padding: const EdgeInsets.only(top: 240),
+            child: products.isEmpty
+                ? const Center(
+                    child: Text(
+                      "No products available in this shop.",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.7,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailsScreen(
+                                productId: product.id,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(16),
+                                  topRight: Radius.circular(16),
+                                ),
+                                child: Image.network(
+                                  product.productImage.isNotEmpty
+                                      ? product.productImage
+                                      : 'https://via.placeholder.com/150',
+                                  height: 120,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "₹${product.price > 0 ? product.price : 'N/A'}",
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

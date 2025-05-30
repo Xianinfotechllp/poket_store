@@ -18,6 +18,7 @@ import 'package:poketstore/controllers/notification_provider.dart';
 import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:poketstore/controllers/order_controller/order_controller.dart';
 import 'package:poketstore/controllers/product_by_shop_controller/product_by_shop_controller.dart';
+import 'package:poketstore/controllers/product_search_controller/product_search_controller.dart';
 import 'package:poketstore/controllers/search_producer_controller.dart';
 import 'package:poketstore/controllers/set_location_controller.dart';
 import 'package:poketstore/controllers/user_profile_controller/user_profile_controller.dart';
@@ -55,6 +56,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProfileController()),
         ChangeNotifierProvider(create: (_) => GroceriesListProvider()),
         ChangeNotifierProvider(create: (_) => AddressController()),
+        ChangeNotifierProvider(create: (_) => ProductSearchProvider()),
       ],
       child: const MyApp(),
     ),

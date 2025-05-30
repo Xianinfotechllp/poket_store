@@ -30,9 +30,9 @@ class ShopService {
         "category": shop.category,
         "sellerType": shop.sellerType,
         "state": shop.state,
-        // "place": shop.place,
+        "place": shop.place,
         "pinCode": shop.pinCode,
-        // "locality": shop.locality,
+        "locality": shop.locality,
         "headerImage": imageFile != null
             ? await MultipartFile.fromFile(
                 imageFile.path,
