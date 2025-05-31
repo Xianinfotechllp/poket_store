@@ -23,62 +23,59 @@ class _ShopListScreenState extends State<ShopListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Shops")),
-      body: RefreshIndicator(
-
-        onRefresh: () => Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops(),
-        child: Consumer<ShopOfUserProvider>(
-          builder: (context, shopProvider, child) {
-            if (shopProvider.isLoading) {
-              return Center(child: CircularProgressIndicator());
-            }
-
-            // if (shopProvider.errorMessage.isNotEmpty) {
-            //   return Center(child: Text(shopProvider.errorMessage));
-            // }
-
-            if (shopProvider.shopList.isEmpty) {
-              return Center(child: Text("No shops available."));
-            }
-
-            return ListView.builder(
-              itemCount: shopProvider.shopList.length,
-              itemBuilder: (context, index) {
-                ShopOfUser shop = shopProvider.shopList[index];
-                return Card(
-                  margin: EdgeInsets.all(10),
-                  child: ListTile(
-                    leading: Image.network(
-                      shop.headerImage,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(shop.shopName),
-                    subtitle: Text("${shop.place}, ${shop.state}"),
-                    trailing: Text(shop.sellerType),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ShopeDetailsScreen(shopId: shop.id),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            );
-          },
-        ),
+      body: Consumer<ShopOfUserProvider>(
+        builder: (context, shopProvider, child) {
+          return RefreshIndicator(
+            onRefresh: () => shopProvider.fetchUserShops(),
+            child: shopProvider.isLoading
+                ? Center(child: CircularProgressIndicator())
+                : shopProvider.shopList.isEmpty
+                    ? Center(child: Text("No shops available."))
+                    : ListView.builder(
+                        itemCount: shopProvider.shopList.length,
+                        itemBuilder: (context, index) {
+                          final shop = shopProvider.shopList[index];
+                          return Card(
+                            margin: EdgeInsets.all(10),
+                            child: ListTile(
+                              leading: Image.network(
+                                shop.headerImage,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                              title: Text(shop.shopName),
+                              subtitle: Text("${shop.place}, ${shop.state}"),
+                              trailing: Text(shop.sellerType),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ShopeDetailsScreen(shopId: shop.id),
+                                  ),
+                                ).then((_) {
+                                  // Refresh when returning
+                                  shopProvider.fetchUserShops();
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "add_shop",
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddShop()),
-          );
+            MaterialPageRoute(builder: (_) => AddShop()),
+          ).then((_) {
+            Provider.of<ShopOfUserProvider>(context, listen: false)
+                .fetchUserShops();
+          });
         },
         child: Icon(Icons.add),
       ),

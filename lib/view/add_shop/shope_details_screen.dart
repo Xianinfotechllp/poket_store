@@ -1,7 +1,7 @@
-// poketstore/view/my_shope/shope_details_screen.dart
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/shope_details_controller.dart';
-import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart'; // Import ShopProvider
+import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
+import 'package:poketstore/controllers/shop_of_user_controller/shop_of_user_controller.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
 import 'package:provider/provider.dart';
 
@@ -13,13 +13,12 @@ class ShopeDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      // Use MultiProvider if you need both details and the general ShopProvider
       providers: [
         ChangeNotifierProvider(
           create: (_) => ShopeDetailsProvider()..loadShopeDetails(shopId),
         ),
         ChangeNotifierProvider(
-          create: (_) => ShopProvider(), // Provide the general ShopProvider
+          create: (_) => ShopProvider(),
         ),
       ],
       child: Scaffold(
@@ -28,7 +27,6 @@ class ShopeDetailsScreen extends StatelessWidget {
           actions: [
             Consumer<ShopeDetailsProvider>(
               builder: (context, detailsProvider, child) {
-                // Show edit button only if details are loaded
                 if (detailsProvider.shopDetails != null) {
                   return PopupMenuButton<String>(
                     onSelected: (value) async {
@@ -37,66 +35,22 @@ class ShopeDetailsScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => AddShop(
-                              shopToEdit: detailsProvider
-                                  .shopDetails, // Pass ShopeDetailsModel
+                              shopToEdit: detailsProvider.shopDetails,
                             ),
                           ),
                         );
                         if (didUpdate == true) {
-                          detailsProvider
-                              .refreshDetails(shopId); // Refresh the details
+                          detailsProvider.refreshDetails(shopId);
                         }
                       } else if (value == 'delete') {
-                        // Show confirmation dialog before deleting
-                        final bool? confirmDelete = await showDialog<bool>(
-                          context: context,
-                          builder: (BuildContext dialogContext) {
-                            return AlertDialog(
-                              title: const Text("Confirm Delete"),
-                              content: Text(
-                                  "Are you sure you want to delete ${detailsProvider.shopDetails!.shopName}?"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(dialogContext).pop(false),
-                                  child: const Text("Cancel"),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(dialogContext).pop(true),
-                                  child: const Text("Delete"),
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red),
-                                ),
-                              ],
-                            );
-                          },
+                        _deleteShop(
+                          context,
+                          shopId,
+                          detailsProvider.shopDetails!.shopName,
                         );
-
-                        if (confirmDelete == true) {
-                          final shopProvider =
-                              Provider.of<ShopProvider>(context, listen: false);
-                          await shopProvider.deleteShop(shopId);
-
-                          if (shopProvider.errorMessage.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Shop deleted successfully!")),
-                            );
-                            // Navigate back after successful deletion, potentially to the list of shops
-                            Navigator.of(context).pop();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      "Failed to delete shop: ${shopProvider.errorMessage}")),
-                            );
-                          }
-                        }
                       }
                     },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<String>>[
+                    itemBuilder: (BuildContext context) => [
                       const PopupMenuItem<String>(
                         value: 'edit',
                         child: Text('Edit Shop'),
@@ -108,8 +62,7 @@ class ShopeDetailsScreen extends StatelessWidget {
                     ],
                   );
                 }
-                return const SizedBox
-                    .shrink(); // Hide button if no shop details
+                return const SizedBox.shrink();
               },
             ),
           ],
@@ -122,9 +75,12 @@ class ShopeDetailsScreen extends StatelessWidget {
 
             if (provider.shopDetails == null) {
               return Center(
-                  child: Text(provider.errorMessage.isEmpty
+                child: Text(
+                  provider.errorMessage.isEmpty
                       ? "Shop details not found."
-                      : provider.errorMessage));
+                      : provider.errorMessage,
+                ),
+              );
             }
 
             final shop = provider.shopDetails!;
@@ -172,13 +128,11 @@ class ShopeDetailsScreen extends StatelessWidget {
                       style: const TextStyle(fontSize: 16)),
                   Text("Seller Type: ${shop.sellerType}",
                       style: const TextStyle(fontSize: 16)),
-                  // Text("Location: ${shop.place ?? 'N/A'}, ${shop.locality ?? 'N/A'}, ${shop.state}", style: const TextStyle(fontSize: 16)),
+                  Text(
+                      "Location: ${shop.place ?? 'N/A'}, ${shop.locality ?? 'N/A'}, ${shop.state}",
+                      style: const TextStyle(fontSize: 16)),
                   Text("Pincode: ${shop.pinCode}",
                       style: const TextStyle(fontSize: 16)),
-                  // Text("Active: ${shop.active == true ? 'Yes' : 'No'}", style: const TextStyle(fontSize: 16)),
-                  // Text("Pending Orders: ${shop.pendingOrders ?? 0}", style: const TextStyle(fontSize: 16)),
-                  // Text("Total Orders: ${shop.totalOrders ?? 0}", style: const TextStyle(fontSize: 16)),
-                  // Text("Total Sales: ${shop.totalSales ?? 0}", style: const TextStyle(fontSize: 16)),
                 ],
               ),
             );
@@ -186,5 +140,52 @@ class ShopeDetailsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Delete shop method with confirmation and feedback
+  void _deleteShop(BuildContext context, String shopId, String shopName) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: Text("Are you sure you want to delete $shopName?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Delete"),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final shopProvider = Provider.of<ShopProvider>(context, listen: false);
+      final shopOfUserProvider =
+          Provider.of<ShopOfUserProvider>(context, listen: false);
+
+      await shopProvider.deleteShop(shopId);
+
+      if (shopProvider.errorMessage.isEmpty) {
+        await shopOfUserProvider.fetchUserShops();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Shop deleted successfully!")),
+        );
+
+        Navigator.pop(context, true); // Return to the previous screen
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text("Failed to delete shop: ${shopProvider.errorMessage}"),
+          ),
+        );
+      }
+    }
   }
 }
