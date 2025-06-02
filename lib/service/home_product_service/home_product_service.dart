@@ -7,7 +7,7 @@ import 'package:poketstore/model/home_product_model/home_product_model.dart';
 class LocationProductService {
   final Dio _dio = Dio();
   final String _baseUrl =
-      'https://shop-app-backend-gsx6.onrender.com/api/products'; // Base URL
+      'http://shopappsabufree.work.gd:8000/api/products'; // Base URL
 
   // Function to fetch products by user ID
   Future<List<LocationProduct>> fetchProductsByUserId(String userId) async {

@@ -4,7 +4,7 @@ import 'package:poketstore/model/category_model/category_model.dart';
 class CategoryService {
   final Dio _dio = Dio();
   final String _endpoint =
-      'https://shop-app-backend-gsx6.onrender.com/api/category/FixedCategory';
+      'http://shopappsabufree.work.gd:8000/api/category/FixedCategory';
 
   Future<CategoryModel> fetchCategories() async {
     try {

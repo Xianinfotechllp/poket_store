@@ -23,6 +23,7 @@ import 'package:poketstore/controllers/search_producer_controller.dart';
 import 'package:poketstore/controllers/set_location_controller.dart';
 import 'package:poketstore/controllers/user_profile_controller/user_profile_controller.dart';
 import 'package:poketstore/service/permission_service/permission_service.dart';
+import 'package:poketstore/view/login/login_screen.dart';
 import 'package:poketstore/view/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -68,6 +69,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: LoginScreen());
   }
 }

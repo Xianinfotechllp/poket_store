@@ -4,8 +4,7 @@ import 'package:poketstore/model/order_model/order_model.dart';
 
 class OrderService {
   final Dio _dio = Dio();
-  final String baseUrl =
-      "https://shop-app-backend-main.onrender.com/api/order/user";
+  final String baseUrl = "http://shopappsabufree.work.gd:8000/api/order/user";
 
   Future<List<Order>> fetchOrders(String userId, String token) async {
     try {
@@ -34,14 +33,15 @@ class OrderService {
   Future<Order?> fetchOrderDetails(String orderId, String token) async {
     try {
       final response = await _dio.get(
-        "https://shop-app-backend-main.onrender.com/api/order/get-order/$orderId",
+        "http://shopappsabufree.work.gd:8000/api/order/get-order/$orderId",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;
         if (data.containsKey("order")) {
-          return Order.fromJson(data["order"]); // Extract 'order' before parsing
+          return Order.fromJson(
+              data["order"]); // Extract 'order' before parsing
         } else {
           throw Exception("Order data not found in response");
         }
@@ -53,5 +53,4 @@ class OrderService {
       return null;
     }
   }
-
 }

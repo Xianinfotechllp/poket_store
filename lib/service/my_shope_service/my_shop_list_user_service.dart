@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
 
 class MyShopListUserService {
-  final String baseUrl = 'https://shop-app-backend-gsx6.onrender.com/api';
+  final String baseUrl = 'http://shopappsabufree.work.gd:8000/api';
 
   Future<MyShopListUserResponse> fetchUserShopList(String userId) async {
     final Uri uri = Uri.parse('$baseUrl/products/user/$userId');

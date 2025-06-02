@@ -4,8 +4,7 @@ import 'package:poketstore/model/address_model/address_model.dart';
 
 class AddressService {
   final Dio _dio = Dio();
-  final String _baseUrl =
-      'https://shop-app-backend-gsx6.onrender.com/api/delivery';
+  final String _baseUrl = 'http://shopappsabufree.work.gd:8000/api/delivery';
 
   Future<List<AddressModel>> createAddress(
       String userId, AddressModel address) async {

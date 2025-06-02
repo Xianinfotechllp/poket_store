@@ -13,7 +13,7 @@ class LoginService {
       log("Attempting login with mobileNumber: $mobileNumber");
 
       final response = await _dio.post(
-        'https://shop-app-backend-main.onrender.com/auth/user/login',
+        'http://shopappsabufree.work.gd:8000/auth/user/login',
         data: {"mobileNumber": mobileNumber, "password": password},
       );
 

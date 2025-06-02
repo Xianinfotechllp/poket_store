@@ -9,7 +9,7 @@ class LocationMapService {
   Future<LocationMapModel?> fetchUserLocation(String userId) async {
     try {
       final response = await dio.get(
-        'https://shop-app-backend-gsx6.onrender.com/api/user/location/$userId',
+        'https://ec2-13-233-1-147.ap-south-1.compute.amazonaws.com:8000/api/user/location/$userId',
       );
       if (response.statusCode == 200 && response.data['success'] == true) {
         return LocationMapModel.fromJson(response.data);
@@ -24,7 +24,7 @@ class LocationMapService {
       String userId, LocationMapModel location) async {
     try {
       final response = await dio.put(
-        'https://shop-app-backend-gsx6.onrender.com/api/user/updatelocation/$userId',
+        'http://shopappsabufree.work.gd:8000/api/user/updatelocation/$userId',
         data: location.toJson(),
       );
 

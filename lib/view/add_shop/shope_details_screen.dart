@@ -1,26 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/shope_details_controller.dart';
-import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
-import 'package:poketstore/controllers/shop_of_user_controller/shop_of_user_controller.dart';
-import 'package:poketstore/view/add_shop/add_shop.dart';
+import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart'; // Assuming ShopProvider is here
 import 'package:provider/provider.dart';
+import 'package:poketstore/view/add_shop/add_shop.dart';
 
 class ShopeDetailsScreen extends StatelessWidget {
   final String shopId;
 
   const ShopeDetailsScreen({super.key, required this.shopId});
 
+  // Function to show the delete confirmation dialog
+  void _confirmDelete(BuildContext context, String shopId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Shop"),
+        content: const Text(
+          "Are you sure you want to delete this shop? This action cannot be undone.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // Close dialog
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close the dialog first
+              final shopProvider =
+                  Provider.of<ShopProvider>(context, listen: false);
+              await shopProvider.deleteShop(shopId);
+
+              if (shopProvider.errorMessage.isEmpty) {
+                // If deletion was successful, pop this screen and send a 'true' result
+                // to indicate that the previous screen should refresh.
+                Navigator.of(context).pop(true);
+              } else {
+                // Show an error message if deletion failed
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'Error deleting shop: ${shopProvider.errorMessage}')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, // Red color for delete button
+              foregroundColor: Colors.white,
+            ),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => ShopeDetailsProvider()..loadShopeDetails(shopId),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ShopProvider(),
-        ),
-      ],
+    return ChangeNotifierProvider(
+      create: (_) => ShopeDetailsProvider()..loadShopeDetails(shopId),
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Shop Details"),
@@ -40,14 +77,11 @@ class ShopeDetailsScreen extends StatelessWidget {
                           ),
                         );
                         if (didUpdate == true) {
+                          // Refresh details if AddShop indicates an update
                           detailsProvider.refreshDetails(shopId);
                         }
                       } else if (value == 'delete') {
-                        _deleteShop(
-                          context,
-                          shopId,
-                          detailsProvider.shopDetails!.shopName,
-                        );
+                        _confirmDelete(context, shopId);
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -140,52 +174,5 @@ class ShopeDetailsScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// Delete shop method with confirmation and feedback
-  void _deleteShop(BuildContext context, String shopId, String shopName) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirm Delete"),
-        content: Text("Are you sure you want to delete $shopName?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text("Delete"),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      final shopProvider = Provider.of<ShopProvider>(context, listen: false);
-      final shopOfUserProvider =
-          Provider.of<ShopOfUserProvider>(context, listen: false);
-
-      await shopProvider.deleteShop(shopId);
-
-      if (shopProvider.errorMessage.isEmpty) {
-        await shopOfUserProvider.fetchUserShops();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Shop deleted successfully!")),
-        );
-
-        Navigator.pop(context, true); // Return to the previous screen
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text("Failed to delete shop: ${shopProvider.errorMessage}"),
-          ),
-        );
-      }
-    }
   }
 }

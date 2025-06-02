@@ -6,7 +6,7 @@ import 'package:poketstore/model/favorite_model/get_favourite_model.dart';
 
 class FavoriteService {
   final Dio _dio = Dio();
-  final String _baseUrl = 'https://shop-app-backend-gsx6.onrender.com/api';
+  final String _baseUrl = 'http://shopappsabufree.work.gd:8000/api';
 
   Future<bool> addFavorite(String userId, String productId) async {
     final url = '$_baseUrl/favorite/$userId/$productId';
@@ -28,7 +28,7 @@ class FavoriteService {
   Future<List<GetFavoriteModel>> getFavorites(String userId) async {
     try {
       final response = await _dio.get(
-        'https://shop-app-backend-gsx6.onrender.com/api/favorite/$userId',
+        'http://shopappsabufree.work.gd:8000/api/favorite/$userId',
       );
 
       final List favorites = response.data['favorites'];

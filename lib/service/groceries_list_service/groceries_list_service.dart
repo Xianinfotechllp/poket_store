@@ -4,7 +4,7 @@ import 'package:poketstore/model/groceries_list_model/groceries_list_model.dart'
 class GroceriesListService {
   final Dio _dio = Dio();
   final String _url =
-      'https://shop-app-backend-gsx6.onrender.com/api/category/Key/WithFixedCategory';
+      'http://shopappsabufree.work.gd:8000/api/category/Key/WithFixedCategory';
 
   Future<GroceriesListModel?> fetchGroceriesList() async {
     try {

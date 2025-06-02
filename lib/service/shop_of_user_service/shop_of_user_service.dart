@@ -17,7 +17,7 @@ class ShopOfUserService {
 
     try {
       final response = await _dio.get(
-        "https://shop-by-sabu-q.onrender.com/api/shops/by-user",
+        "http://shopappsabufree.work.gd:8000/api/shops/by-user",
         // queryParameters: {"userId": userId},
         options: Options(
           headers: {
