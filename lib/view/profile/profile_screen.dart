@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 40),
+            // const SizedBox(height: 40),
 
             // Top blue bar with "Poket Stor"
             Container(

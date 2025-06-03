@@ -178,6 +178,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20), // Adjust radius as needed
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
