@@ -46,17 +46,19 @@ class ProfileScreen extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                     ),
                     children: [
                       TextSpan(
                         text: 'Poket',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                            color: Colors.white, fontFamily: 'Aparajita'),
                       ),
                       TextSpan(
                         text: 'Stor',
-                        style: TextStyle(color: Color(0xFFFFEA00)),
+                        style: TextStyle(
+                            color: Color(0xFFFFEA00), fontFamily: 'Aparajita'),
                       ),
                     ],
                   ),

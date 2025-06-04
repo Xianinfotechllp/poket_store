@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/login_reg_controller/login_controller.dart';
 import 'package:poketstore/view/bottombar/bottom_bar_screen.dart';
 import 'package:poketstore/view/login/login_screen.dart';
-import 'package:poketstore/view/set_location/set_location.dart';
+import 'package:poketstore/view/set_location/set_location.dart'; // This import might not be used, but keeping it as per original.
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,9 +11,24 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Using a Future.delayed to ensure the UI has time to render before navigation,
+    // and to avoid potential issues with context not being ready immediately.
+    Future.delayed(const Duration(seconds: 3), () {
+      _checkLoginStatus();
+    });
+  }
+
   Future<void> _checkLoginStatus() async {
+    // Ensure the widget is still mounted before performing navigation
+    if (!mounted) return;
+
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final isLoggedIn = await loginProvider.isUserLoggedIn();
+
+    if (!mounted) return; // Check again after async operation
 
     if (isLoggedIn) {
       Navigator.pushReplacement(
@@ -21,20 +36,14 @@ class _SplashScreenState extends State<SplashScreen> {
         MaterialPageRoute(builder: (context) => BottomBarScreen()),
       );
     } else {
+      // Corrected: Navigate to LoginScreen if not logged in
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SplashScreen()),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-  }
-
-  // void initState() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
 
           // Spacer to push content to the bottom
-          Spacer(),
+          const Spacer(), // Use const for Spacer if no dynamic properties
 
           // Bottom Container with Navigation
           Padding(
@@ -73,8 +82,9 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: Container(
                     height: 40,
                     width: 300,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 6, 47, 161),
+                    decoration: const BoxDecoration(
+                      // Added const
+                      color: Color.fromARGB(255, 6, 47, 161),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
@@ -82,7 +92,8 @@ class _SplashScreenState extends State<SplashScreen> {
                         topRight: Radius.circular(50),
                       ),
                     ),
-                    child: Center(
+                    child: const Center(
+                      // Added const
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -103,22 +114,23 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
 
                 // Continue as Guest Text
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
-                  },
-                  child: Text(
-                    'Continue as Guest',
-                    style: TextStyle(
-                      color: const Color.fromARGB(255, 6, 47, 161),
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: () {
+                //     Navigator.pushReplacement(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => LoginScreen()),
+                //     );
+                //   },
+                //   child: const Text(
+                //     // Added const
+                //     'Continue as Guest',
+                //     style: TextStyle(
+                //       color: Color.fromARGB(255, 6, 47, 161),
+                //       fontSize: 14,
+                //       decoration: TextDecoration.underline,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

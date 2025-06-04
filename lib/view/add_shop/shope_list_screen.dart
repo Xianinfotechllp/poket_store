@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/model/shop_of_user_model/shop_of_user_model.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
@@ -22,42 +23,49 @@ class _ShopListScreenState extends State<ShopListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Shops")),
+      appBar: AppBar(title: const Text("Shops")),
       body: Consumer<ShopOfUserProvider>(
         builder: (context, shopProvider, child) {
           return RefreshIndicator(
             onRefresh: () => shopProvider.fetchUserShops(),
             child: shopProvider.isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : shopProvider.shopList.isEmpty
-                    ? Center(child: Text("No shops available."))
+                    ? const Center(child: Text("No shops available."))
                     : ListView.builder(
                         itemCount: shopProvider.shopList.length,
                         itemBuilder: (context, index) {
                           final shop = shopProvider.shopList[index];
                           return Card(
-                            margin: EdgeInsets.all(10),
+                            margin: const EdgeInsets.all(10),
                             child: ListTile(
                               leading: Image.network(
                                 shop.headerImage,
                                 width: 50,
                                 height: 50,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                        Icons.broken_image), // Fallback image
                               ),
                               title: Text(shop.shopName),
                               subtitle: Text("${shop.place}, ${shop.state}"),
                               trailing: Text(shop.sellerType),
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                // Made onTap async
+                                final bool? result = await Navigator.push(
+                                  // Await the navigation
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) =>
                                         ShopeDetailsScreen(shopId: shop.id),
                                   ),
-                                ).then((_) {
-                                  // Refresh when returning
-                                  shopProvider.fetchUserShops();
-                                });
+                                );
+                                // Check if the result is true, indicating a successful update/deletion
+                                if (result == true) {
+                                  shopProvider
+                                      .fetchUserShops(); // Refresh the list
+                                }
                               },
                             ),
                           );
@@ -77,7 +85,7 @@ class _ShopListScreenState extends State<ShopListScreen> {
                 .fetchUserShops();
           });
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
