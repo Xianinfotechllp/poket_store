@@ -39,6 +39,7 @@ class ShopProvider with ChangeNotifier {
       errorMessage = e.toString();
     } finally {
       isLoading = false;
+      fetchShops();
       notifyListeners();
     }
   }
@@ -73,11 +74,12 @@ class ShopProvider with ChangeNotifier {
       log("❌ Provider error updating shop: $e");
     } finally {
       isLoading = false;
+      fetchShops();
       notifyListeners();
     }
   }
 
-  Future<void> deleteShop(String shopId) async {
+  Future<void> deleteShop(String shopId, BuildContext context, void Function() callback ) async {
     isLoading = true;
     errorMessage = '';
     notifyListeners();
@@ -86,10 +88,17 @@ class ShopProvider with ChangeNotifier {
       await _shopService.deleteShop(shopId);
       errorMessage = ""; // Clear error message on success
       log("✅ Shop deleted successfully!");
+      Navigator.of(context).pop(true);
     } catch (e) {
+      //
       errorMessage = e.toString();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting shop: $errorMessage')));
+      Navigator.of(context).pop(true);
+
       log("❌ Provider error deleting shop: $e");
     } finally {
+      callback.call();
+      fetchShops();
       isLoading = false;
       notifyListeners();
     }

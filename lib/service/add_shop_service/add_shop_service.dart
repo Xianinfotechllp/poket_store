@@ -7,7 +7,7 @@ import 'package:poketstore/model/my_shope_model/shope_details_model.dart';
 
 class ShopService {
   final Dio _dio = Dio();
-  final String baseUrl = "http://shopappsabufree.work.gd:8000/api/shops";
+  final String baseUrl = "https://shop-app-backend-gsx6.onrender.com/api/shops";
 
   Future<List<ShopModel>> fetchShops() async {
     try {
@@ -56,18 +56,18 @@ class ShopService {
     } catch (e) {
       log("Error adding shop: $e");
       throw Exception("Error: $e");
+    } finally {
+      fetchShops();
     }
   }
 
-  Future<void> updateShop(
-      String id, ShopeDetailsModel shopDetails, String? token) async {
+  Future<void> updateShop(String id, ShopeDetailsModel shopDetails, String? token) async {
     final url = '$baseUrl/$id';
 
     try {
       FormData formData = FormData.fromMap({
         "shopName": shopDetails.shopName,
-        "category":
-            shopDetails.category.isNotEmpty ? shopDetails.category.first : null,
+        "category": shopDetails.category.isNotEmpty ? shopDetails.category.first : null,
         "sellerType": shopDetails.sellerType,
         "state": shopDetails.state,
         "place": shopDetails.place,
@@ -100,16 +100,16 @@ class ShopService {
       if (response.statusCode == 200) {
         log("Shop updated successfully");
       } else {
-        throw Exception(
-            'Failed to update shop: ${response.statusMessage ?? response.data}');
+        throw Exception('Failed to update shop: ${response.statusMessage ?? response.data}');
       }
     } on DioException catch (e) {
       log("Update error (DioException): ${e.response?.data ?? e.message}");
-      throw Exception(
-          "Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
+      throw Exception("Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
     } catch (e) {
       log("Update error: $e");
       throw Exception("Error: $e");
+    } finally {
+      fetchShops();
     }
   }
 
@@ -120,16 +120,16 @@ class ShopService {
       if (response.statusCode == 200) {
         log("Shop deleted successfully: $id");
       } else {
-        throw Exception(
-            'Failed to delete shop: ${response.statusMessage ?? response.data}');
+        throw Exception('Failed to delete shop: ${response.statusMessage ?? response.data}');
       }
     } on DioException catch (e) {
       log("Delete error (DioException): ${e.response?.data ?? e.message}");
-      throw Exception(
-          "Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
+      throw Exception("Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
     } catch (e) {
       log("Delete error: $e");
       throw Exception("Error: $e");
+    } finally {
+      fetchShops();
     }
   }
 }

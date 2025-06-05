@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/shop_of_user_controller/shop_of_user_controller.dart';
 
 class ShopListScreen extends StatefulWidget {
+  const ShopListScreen({super.key});
+
   @override
   State<ShopListScreen> createState() => _ShopListScreenState();
 }

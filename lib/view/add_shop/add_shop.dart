@@ -75,22 +75,26 @@ class _AddShopState extends State<AddShop> {
   @override
   void initState() {
     super.initState();
-    Provider.of<CategoryController>(context, listen: false).loadCategories();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        Provider.of<CategoryController>(context, listen: false).loadCategories();
 
-    // Pre-populate fields if editing an existing shop
-    if (isEditing) {
-      final shop = widget.shopToEdit!;
-      _shopNameController.text = shop.shopName;
-      _placeController.text = shop.place ?? '';
-      _pinCodeController.text = shop.pinCode;
-      _localityController.text = shop.locality ?? '';
-      _selectedSellerType = shop.sellerType;
-      _selectedState = shop.state;
-      if (shop.category.isNotEmpty) {
-        _selectedCategory = shop.category.first;
-      }
-      _existingHeaderImageUrl = shop.headerImage; // Set existing image URL
-    }
+        // Pre-populate fields if editing an existing shop
+        if (isEditing) {
+          final shop = widget.shopToEdit!;
+          _shopNameController.text = shop.shopName;
+          _placeController.text = shop.place ?? '';
+          _pinCodeController.text = shop.pinCode;
+          _localityController.text = shop.locality ?? '';
+          _selectedSellerType = shop.sellerType;
+          _selectedState = shop.state;
+          if (shop.category.isNotEmpty) {
+            _selectedCategory = shop.category.first;
+          }
+          _existingHeaderImageUrl = shop.headerImage; // Set existing image URL
+        }
+      },
+    );
   }
 
   @override
@@ -116,8 +120,7 @@ class _AddShopState extends State<AddShop> {
         if (compressedFile != null) {
           setState(() {
             _headerImage = File(compressedFile.path);
-            _existingHeaderImageUrl =
-                null; // Clear existing URL if new image is picked
+            _existingHeaderImageUrl = null; // Clear existing URL if new image is picked
           });
         }
       }
@@ -132,8 +135,7 @@ class _AddShopState extends State<AddShop> {
         _selectedCategory == null ||
         _selectedSellerType == null ||
         _selectedState == null) {
-      _showSnackbar(
-          "Please fill all required fields, select an image, and choose a category, seller type, and state.");
+      _showSnackbar("Please fill all required fields, select an image, and choose a category, seller type, and state.");
       return;
     }
 
@@ -155,15 +157,10 @@ class _AddShopState extends State<AddShop> {
         category: [_selectedCategory!],
         sellerType: _selectedSellerType!,
         state: _selectedState!,
-        place: _placeController.text.trim().isEmpty
-            ? null
-            : _placeController.text.trim(),
+        place: _placeController.text.trim().isEmpty ? null : _placeController.text.trim(),
         pinCode: _pinCodeController.text.trim(),
-        locality: _localityController.text.trim().isEmpty
-            ? null
-            : _localityController.text.trim(),
-        headerImage: _existingHeaderImageUrl ??
-            '', // This will be the old URL if no new image, or empty
+        locality: _localityController.text.trim().isEmpty ? null : _localityController.text.trim(),
+        headerImage: _existingHeaderImageUrl ?? '', // This will be the old URL if no new image, or empty
         // userId: userId, // Pass userId for update
         // active: widget.shopToEdit!.active, // Retain existing values for these
         // pendingOrders: widget.shopToEdit!.pendingOrders,
@@ -181,13 +178,9 @@ class _AddShopState extends State<AddShop> {
         category: [_selectedCategory!],
         sellerType: _selectedSellerType!,
         state: _selectedState!,
-        place: _placeController.text.trim().isEmpty
-            ? null
-            : _placeController.text.trim(),
+        place: _placeController.text.trim().isEmpty ? null : _placeController.text.trim(),
         pinCode: _pinCodeController.text.trim(),
-        locality: _localityController.text.trim().isEmpty
-            ? null
-            : _localityController.text.trim(),
+        locality: _localityController.text.trim().isEmpty ? null : _localityController.text.trim(),
         headerImage: "", // Will be set by backend upon upload
         userId: userId,
       );
@@ -199,21 +192,17 @@ class _AddShopState extends State<AddShop> {
     if (provider.errorMessage.isNotEmpty) {
       _showSnackbar(provider.errorMessage);
     } else {
-      _showSnackbar(isEditing
-          ? "Shop updated successfully!"
-          : "Shop registered successfully!");
+      _showSnackbar(isEditing ? "Shop updated successfully!" : "Shop registered successfully!");
       Provider.of<HomeProductController>(context, listen: false).loadProducts();
       Provider.of<ShopProvider>(context, listen: false).fetchShops();
       Provider.of<ShopOfUserProvider>(context, listen: false).fetchUserShops();
 
-      Navigator.of(context)
-          .pop(true); // Pop back to previous screen (details screen)
+      Navigator.of(context).pop(true); // Pop back to previous screen (details screen)
     }
   }
 
   void _showSnackbar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -245,22 +234,15 @@ class _AddShopState extends State<AddShop> {
                                         image: FileImage(_headerImage!),
                                         fit: BoxFit.cover,
                                       )
-                                    : _existingHeaderImageUrl != null &&
-                                            _existingHeaderImageUrl!.isNotEmpty
+                                    : _existingHeaderImageUrl != null && _existingHeaderImageUrl!.isNotEmpty
                                         ? DecorationImage(
-                                            image: NetworkImage(
-                                                _existingHeaderImageUrl!),
+                                            image: NetworkImage(_existingHeaderImageUrl!),
                                             fit: BoxFit.cover,
-                                            onError: (exception, stackTrace) =>
-                                                const DecorationImage(
-                                                    image: AssetImage(
-                                                        'assets/image.png'),
-                                                    fit: BoxFit
-                                                        .cover), // Fallback to default asset
+                                            onError: (exception, stackTrace) => const DecorationImage(
+                                                image: AssetImage('assets/image.png'), fit: BoxFit.cover), // Fallback to default asset
                                           )
                                         : const DecorationImage(
-                                            image:
-                                                AssetImage('assets/image.png'),
+                                            image: AssetImage('assets/image.png'),
                                             fit: BoxFit.cover,
                                           ),
                               ),
@@ -269,9 +251,7 @@ class _AddShopState extends State<AddShop> {
                               bottom: 80,
                               left: 80,
                               child: Text(
-                                isEditing
-                                    ? "Edit Your Shop"
-                                    : "Register Your Shop",
+                                isEditing ? "Edit Your Shop" : "Register Your Shop",
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -292,12 +272,8 @@ class _AddShopState extends State<AddShop> {
                                 child: InkWell(
                                   onTap: _pickImage,
                                   child: Center(
-                                    child: _headerImage == null &&
-                                            (_existingHeaderImageUrl == null ||
-                                                _existingHeaderImageUrl!
-                                                    .isEmpty)
-                                        ? const Icon(Icons.camera_alt,
-                                            color: Colors.white70, size: 50)
+                                    child: _headerImage == null && (_existingHeaderImageUrl == null || _existingHeaderImageUrl!.isEmpty)
+                                        ? const Icon(Icons.camera_alt, color: Colors.white70, size: 50)
                                         : const SizedBox.shrink(),
                                   ),
                                 ),
@@ -331,8 +307,7 @@ class _AddShopState extends State<AddShop> {
                           },
                         ),
                         buildLabel("State"),
-                        buildDropdown("Select state", _selectedState, states,
-                            (value) {
+                        buildDropdown("Select state", _selectedState, states, (value) {
                           setState(() => _selectedState = value);
                         }),
                         buildLabel("District"),
@@ -357,16 +332,12 @@ class _AddShopState extends State<AddShop> {
                                 ),
                               );
 
-                              if (result != null &&
-                                  result is Map<String, String>) {
+                              if (result != null && result is Map<String, String>) {
                                 setState(() {
                                   _placeController.text = result['place'] ?? '';
-                                  _pinCodeController.text =
-                                      result['pincode'] ?? '';
-                                  _localityController.text =
-                                      result['subLocality'] ?? '';
-                                  _selectedState = result['state'] ??
-                                      _selectedState; // Update state from map
+                                  _pinCodeController.text = result['pincode'] ?? '';
+                                  _localityController.text = result['subLocality'] ?? '';
+                                  _selectedState = result['state'] ?? _selectedState; // Update state from map
                                 });
                               }
                             },
@@ -386,22 +357,16 @@ class _AddShopState extends State<AddShop> {
                           child: SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed:
-                                  shopProvider.isLoading ? null : _submitShop,
+                              onPressed: shopProvider.isLoading ? null : _submitShop,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0XFF094497),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
                               child: shopProvider.isLoading
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.white)
+                                  ? const CircularProgressIndicator(color: Colors.white)
                                   : Text(
-                                      isEditing
-                                          ? "Update Shop"
-                                          : "Register Shop",
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 18),
+                                      isEditing ? "Update Shop" : "Register Shop",
+                                      style: const TextStyle(color: Colors.white, fontSize: 18),
                                     ),
                             ),
                           ),
@@ -466,8 +431,7 @@ Widget buildDropdown<T>(
       hint: Text(hint),
       items: items
           .map(
-            (item) =>
-                DropdownMenuItem<T>(value: item, child: Text(item.toString())),
+            (item) => DropdownMenuItem<T>(value: item, child: Text(item.toString())),
           )
           .toList(),
       onChanged: onChanged,

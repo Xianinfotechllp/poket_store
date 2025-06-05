@@ -14,29 +14,37 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Using a Future.delayed to ensure the UI has time to render before navigation,
-    // and to avoid potential issues with context not being ready immediately.
-    Future.delayed(const Duration(seconds: 3), () {
-      _checkLoginStatus();
-    });
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        _checkLoginStatus();
+      },
+    );
   }
 
   Future<void> _checkLoginStatus() async {
     // Ensure the widget is still mounted before performing navigation
-    if (!mounted) return;
+    try {
+      if (!mounted) return;
 
-    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-    final isLoggedIn = await loginProvider.isUserLoggedIn();
+      final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+      final isLoggedIn = await loginProvider.isUserLoggedIn();
 
-    if (!mounted) return; // Check again after async operation
+      if (!mounted) return; // Check again after async operation
 
-    if (isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BottomBarScreen()),
-      );
-    } else {
-      // Corrected: Navigate to LoginScreen if not logged in
+      if (isLoggedIn) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomBarScreen()),
+        );
+      } else {
+        // Corrected: Navigate to LoginScreen if not logged in
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      }
+    } catch (e) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),

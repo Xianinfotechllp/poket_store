@@ -8,7 +8,7 @@ import 'package:poketstore/model/product_search_model/product_search_model.dart'
 class ProductSearchService {
   // Base URL for the product search API.
   static const String _baseUrl =
-      'http://shopappsabufree.work.gd:8000/api/products/search';
+      'https://shop-app-backend-gsx6.onrender.com/api/products/search';
   final Dio _dio = Dio(); // Create a Dio instance
 
   // Method to search for products based on product name and/or locality.

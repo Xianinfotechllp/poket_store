@@ -13,11 +13,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Load user profile from SharedPreferences
-    Provider.of<UserProfileController>(
-      context,
-      listen: false,
-    ).loadUserProfileFromPrefs();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        /// Load user profile from SharedPreferences
+        Provider.of<UserProfileController>(
+          context,
+          listen: false,
+        ).loadUserProfileFromPrefs();
+      },
+    );
   }
 
   @override

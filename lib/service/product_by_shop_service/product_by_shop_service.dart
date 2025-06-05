@@ -8,7 +8,7 @@ class ProductsByShopService {
 
   Future<List<ProductsByShop>> fetchProductsByShopId(String shopId) async {
     final url =
-        'http://shopappsabufree.work.gd:8000/api/products/by-shopId/$shopId';
+        'https://shop-app-backend-gsx6.onrender.com/api/products/by-shopId/$shopId';
 
     try {
       final response = await _dio.get(url);

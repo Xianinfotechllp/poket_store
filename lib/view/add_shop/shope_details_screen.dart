@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/shope_details_controller.dart';
 import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart'; // Assuming ShopProvider is here
+import 'package:poketstore/controllers/shop_of_user_controller/shop_of_user_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
 
@@ -10,10 +11,10 @@ class ShopeDetailsScreen extends StatelessWidget {
   const ShopeDetailsScreen({super.key, required this.shopId});
 
   // Function to show the delete confirmation dialog
-  void _confirmDelete(BuildContext context, String shopId) {
-    showDialog(
+  Future _confirmDelete(BuildContext context, String shopId) {
+    return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text("Delete Shop"),
         content: const Text(
           "Are you sure you want to delete this shop? This action cannot be undone.",
@@ -25,23 +26,13 @@ class ShopeDetailsScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context); // Close the dialog first
-              final shopProvider =
-                  Provider.of<ShopProvider>(context, listen: false);
-              await shopProvider.deleteShop(shopId);
-
-              if (shopProvider.errorMessage.isEmpty) {
-                // If deletion was successful, pop this screen and send a 'true' result
-                // to indicate that the previous screen should refresh.
-                Navigator.of(context).pop(true);
-              } else {
-                // Show an error message if deletion failed
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          'Error deleting shop: ${shopProvider.errorMessage}')),
-                );
-              }
+              final nav = Navigator.of(context);
+              nav.pop(); // Close the dialog first
+              final shopProvider = Provider.of<ShopProvider>(context, listen: false);
+              final shopProvider1 = Provider.of<ShopOfUserProvider>(context, listen: false);
+              await shopProvider.deleteShop(shopId, context, () {
+                shopProvider1.fetchUserShops();
+              });
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red, // Red color for delete button
@@ -110,9 +101,7 @@ class ShopeDetailsScreen extends StatelessWidget {
             if (provider.shopDetails == null) {
               return Center(
                 child: Text(
-                  provider.errorMessage.isEmpty
-                      ? "Shop details not found."
-                      : provider.errorMessage,
+                  provider.errorMessage.isEmpty ? "Shop details not found." : provider.errorMessage,
                 ),
               );
             }
@@ -132,21 +121,18 @@ class ShopeDetailsScreen extends StatelessWidget {
                             width: double.infinity,
                             height: 200,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
+                            errorBuilder: (context, error, stackTrace) => Container(
                               width: double.infinity,
                               height: 200,
                               color: Colors.grey[300],
-                              child: const Icon(Icons.broken_image,
-                                  size: 50, color: Colors.grey),
+                              child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
                             ),
                           )
                         : Container(
                             width: double.infinity,
                             height: 200,
                             color: Colors.grey[300],
-                            child:
-                                const Center(child: Text("No Image Available")),
+                            child: const Center(child: Text("No Image Available")),
                           ),
                   ),
                   const SizedBox(height: 20),
@@ -158,15 +144,10 @@ class ShopeDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text("Category: ${shop.category.join(', ')}",
-                      style: const TextStyle(fontSize: 16)),
-                  Text("Seller Type: ${shop.sellerType}",
-                      style: const TextStyle(fontSize: 16)),
-                  Text(
-                      "Location: ${shop.place ?? 'N/A'}, ${shop.locality ?? 'N/A'}, ${shop.state}",
-                      style: const TextStyle(fontSize: 16)),
-                  Text("Pincode: ${shop.pinCode}",
-                      style: const TextStyle(fontSize: 16)),
+                  Text("Category: ${shop.category.join(', ')}", style: const TextStyle(fontSize: 16)),
+                  Text("Seller Type: ${shop.sellerType}", style: const TextStyle(fontSize: 16)),
+                  Text("Location: ${shop.place ?? 'N/A'}, ${shop.locality ?? 'N/A'}, ${shop.state}", style: const TextStyle(fontSize: 16)),
+                  Text("Pincode: ${shop.pinCode}", style: const TextStyle(fontSize: 16)),
                 ],
               ),
             );
