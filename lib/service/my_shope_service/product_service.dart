@@ -5,7 +5,8 @@ import 'package:poketstore/model/my_shope_model/product_model.dart';
 
 class ProductService {
   final Dio _dio = Dio();
-  final String baseUrl = "http://shopappsabufree.work.gd:8000/api/products";
+  final String baseUrl =
+      "https://shop-app-backend-gsx6.onrender.com/api/products";
 
   /// Add Product////
 
@@ -153,7 +154,7 @@ class ProductService {
   Future<List<Product>> fetchProductsForUser(String userId) async {
     try {
       final response = await _dio.get(
-        "http://shopappsabufree.work.gd:8000/api/products/user/$userId",
+        "https://shop-app-backend-gsx6.onrender.com/api/products/user/$userId",
       );
       log("Response Data: ${response.data}"); // Log the full response
       log("Status Code: ${response.statusCode}"); // Log status code

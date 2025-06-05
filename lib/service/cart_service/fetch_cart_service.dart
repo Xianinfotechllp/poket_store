@@ -5,7 +5,7 @@ import 'package:poketstore/model/cart_model/fetch_cart_model.dart';
 
 class FetchCartService {
   final Dio dio = Dio();
-  final String url = "http://shopappsabufree.work.gd:8000/api/cart/user";
+  final String url = "https://shop-app-backend-gsx6.onrender.com/api/cart/user";
 
   Future<FetchCartModel?> fetchCart(String token) async {
     try {

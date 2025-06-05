@@ -6,7 +6,7 @@ class ShopeDetailsService {
 
   Future<ShopeDetailsModel> fetchShopeDetails(String id) async {
     final response = await _dio.get(
-      'http://shopappsabufree.work.gd:8000/api/shops/$id',
+      'https://shop-app-backend-gsx6.onrender.com/api/shops/$id',
     );
     return ShopeDetailsModel.fromJson(response.data);
   }

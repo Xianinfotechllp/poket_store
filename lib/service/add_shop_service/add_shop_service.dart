@@ -7,7 +7,7 @@ import 'package:poketstore/model/my_shope_model/shope_details_model.dart';
 
 class ShopService {
   final Dio _dio = Dio();
-  final String baseUrl = "http://shopappsabufree.work.gd:8000/api/shops";
+  final String baseUrl = "https://shop-app-backend-gsx6.onrender.com/api/shops";
 
   Future<List<ShopModel>> fetchShops() async {
     try {

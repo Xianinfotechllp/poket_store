@@ -9,7 +9,7 @@ class UserProfileService {
   Future<UserProfile?> fetchUserProfile(String userId) async {
     try {
       final response = await _dio.get(
-        'http://shopappsabufree.work.gd:8000/api/user/details/$userId',
+        'https://shop-app-backend-gsx6.onrender.com/api/user/details/$userId',
       );
 
       if (response.statusCode == 200 && response.data != null) {

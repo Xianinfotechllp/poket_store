@@ -271,7 +271,7 @@ class _AddShopState extends State<AddShop> {
                               child: Text(
                                 isEditing
                                     ? "Edit Your Shop"
-                                    : "Register Your Shop",
+                                    : "Add Your Shop Image",
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,

@@ -4,7 +4,8 @@ import 'package:poketstore/model/order_model/order_model.dart';
 
 class OrderService {
   final Dio _dio = Dio();
-  final String baseUrl = "http://shopappsabufree.work.gd:8000/api/order/user";
+  final String baseUrl =
+      "https://shop-app-backend-gsx6.onrender.com/api/order/user";
 
   Future<List<Order>> fetchOrders(String userId, String token) async {
     try {
@@ -33,7 +34,7 @@ class OrderService {
   Future<Order?> fetchOrderDetails(String orderId, String token) async {
     try {
       final response = await _dio.get(
-        "http://shopappsabufree.work.gd:8000/api/order/get-order/$orderId",
+        "https://shop-app-backend-gsx6.onrender.com/api/order/get-order/$orderId",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
