@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054626111652",
+    "project_id": "shopapp-34593",
+    "storage_bucket": "shopapp-34593.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054626111652:android:2852cd85c1874f59b78631",
+        "android_client_info": {
+          "package_name": "com.example.poketstore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2iSyTJPnnY_lkXoQLl1OFFuxy6j-vEjk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

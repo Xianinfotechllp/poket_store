@@ -89,12 +89,12 @@ class ProfileScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => ShopListScreen()));
             }),
             // buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
-            // buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => const Subscription()));
-            // }),
+            buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Subscription()));
+            }),
             // buildMenuItem(Icons.notifications_outlined, "Notifications", () {
             //   Navigator.push(
             //       context,

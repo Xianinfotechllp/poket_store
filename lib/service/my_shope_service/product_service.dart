@@ -5,7 +5,8 @@ import 'package:poketstore/model/my_shope_model/product_model.dart';
 
 class ProductService {
   final Dio _dio = Dio();
-  final String baseUrl = "https://shop-app-backend-gsx6.onrender.com/api/products";
+  final String baseUrl =
+      "https://shop-app-backend-gsx6.onrender.com/api/products";
 
   /// Add Product////
 

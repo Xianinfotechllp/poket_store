@@ -1,5 +1,8 @@
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -7,8 +10,13 @@ plugins {
 
 android {
     namespace = "com.example.poketstore"
-    compileSdkVersion(35)
+    compileSdkVersion(34)
     ndkVersion = "27.0.12077973"
+
+    // Move buildFeatures to here, near the top of the android block
+    buildFeatures {
+        buildConfig = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,8 +32,8 @@ android {
         applicationId = "com.example.poketstore"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion(23)
-        targetSdkVersion(35)
+        minSdkVersion(21)
+        targetSdkVersion(34)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

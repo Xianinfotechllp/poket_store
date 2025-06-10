@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.dart';
 import 'package:poketstore/controllers/address_controller/address_controller.dart';
@@ -22,6 +23,7 @@ import 'package:poketstore/controllers/product_search_controller/product_search_
 import 'package:poketstore/controllers/search_producer_controller.dart';
 import 'package:poketstore/controllers/set_location_controller.dart';
 import 'package:poketstore/controllers/user_profile_controller/user_profile_controller.dart';
+import 'package:poketstore/service/notification(fcm)_service.dart/notification(fcm)_service.dart';
 import 'package:poketstore/service/permission_service/permission_service.dart';
 import 'package:poketstore/view/login/login_screen.dart';
 import 'package:poketstore/view/splash/splash_screen.dart';
@@ -31,6 +33,9 @@ import 'controllers/shop_of_user_controller/shop_of_user_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();
+  await FirebasePushService().init();
   await PermissionService.requestPermissions();
   runApp(
     MultiProvider(

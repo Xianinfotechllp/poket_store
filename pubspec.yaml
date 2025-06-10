@@ -54,6 +54,8 @@ dependencies:
   google_maps_webservice2: ^1.0.5
   flutter_google_places_hoc081098: ^2.0.0
   meta: ^1.16.0
+  firebase_core: ^1.19.0
+  firebase_messaging: ^11.4.3
 
 dependency_overrides:
   meta: ^1.16.0
@@ -69,6 +71,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.3
+
 flutter_icons:
   android: true
   ios: true

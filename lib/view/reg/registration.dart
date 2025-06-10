@@ -82,18 +82,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           onPressed: provider.isLoading
                               ? null
                               : () async {
-                                  FocusScope.of(context)
-                                      .unfocus(); // Hide keyboard
+                                  FocusScope.of(context).unfocus();
                                   final success =
                                       await provider.register(context);
                                   if (success) {
-                                    provider
-                                        .clearTextFields(); // Optionally clear after success
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) => LoginScreen()),
                                     );
+                                    // Clear after navigation completes
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      provider.clearTextFields();
+                                    });
                                   }
                                 },
                           child: provider.isLoading
@@ -144,13 +146,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       {
         'label': 'Full Name',
         'icon': Icons.person,
-        'controller': provider.nameController
+        'controller': provider.nameController,
+        'validator': (value) {
+          if (value == null || value.isEmpty) {
+            return "Please enter your Full Name";
+          }
+          if (value.length < 4) {
+            return "Full Name must be at least 4 characters";
+          }
+          return null;
+        }
       },
       {
         'label': 'Mobile Number',
         'icon': Icons.phone_android,
         'controller': provider.mobileController,
-        'isNumber': true
+        'isNumber': true,
+        'validator': (value) {
+          if (value == null || value.isEmpty) {
+            return "Please enter your Mobile Number";
+          }
+          if (value.length < 10) {
+            return "Mobile Number must be at least 10 digits";
+          }
+          return null;
+        }
       },
       {
         'label': 'State',
@@ -176,6 +196,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     ];
 
     return fields.map((field) {
+      final FormFieldValidator<String>? customValidator =
+          field['validator'] as FormFieldValidator<String>?;
+
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: TextFormField(
@@ -188,9 +211,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             prefixIcon: Icon(field['icon'] as IconData),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          validator: (value) => (value == null || value.isEmpty)
-              ? "Please enter ${field['label']}"
-              : null,
+          validator: customValidator ??
+              (value) => (value == null || value.isEmpty)
+                  ? "Please enter ${field['label']}"
+                  : null,
         ),
       );
     }).toList();

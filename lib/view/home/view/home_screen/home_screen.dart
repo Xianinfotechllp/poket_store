@@ -249,50 +249,68 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- INTEGRATED SEARCH BAR ---
+                      // --- INTEGRATED SEARCH BAR (Horizontal Layout) ---
                       Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Column(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment
+                              .center, // Align items vertically in center
                           children: [
-                            TextField(
-                              controller: _productNameController,
-                              decoration: InputDecoration(
-                                labelText: 'Product Name',
-                                hintText: 'e.g., "Apple", "Rice"',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                            Expanded(
+                              child: TextField(
+                                controller: _productNameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Product Name',
+                                  hintText: 'e.g., "Apple", "Rice"',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  prefixIcon:
+                                      const Icon(Icons.shopping_bag_outlined),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                      horizontal:
+                                          12), // Reduced vertical padding
                                 ),
-                                prefixIcon:
-                                    const Icon(Icons.shopping_bag_outlined),
+                                onSubmitted: (_) => _performSearch(),
                               ),
-                              onSubmitted: (_) => _performSearch(),
                             ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _localityController,
-                              decoration: InputDecoration(
-                                labelText: 'Locality/Place',
-                                hintText: 'e.g., "Edappal", "Bangalore"',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                            const SizedBox(
+                                width: 16), // Spacing between text fields
+                            Expanded(
+                              child: TextField(
+                                controller: _localityController,
+                                decoration: InputDecoration(
+                                  labelText: 'Locality/Place',
+                                  hintText: 'e.g., "Edappal", "Bangalore"',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  prefixIcon:
+                                      const Icon(Icons.location_on_outlined),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                      horizontal:
+                                          12), // Reduced vertical padding
                                 ),
-                                prefixIcon:
-                                    const Icon(Icons.location_on_outlined),
+                                onSubmitted: (_) => _performSearch(),
                               ),
-                              onSubmitted: (_) => _performSearch(),
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(
+                                width: 16), // Spacing before the search button
                             SizedBox(
-                              width: double.infinity,
+                              height:
+                                  48, // Adjusted height to match compact text fields
                               child: ElevatedButton.icon(
                                 onPressed: _performSearch,
                                 icon: const Icon(Icons.search),
-                                label: const Text('Search Products'),
+                                label: const Text(
+                                    'Search'), // Shorter label for smaller button
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0XFF094497),
                                   foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 14),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12), // Adjusted padding
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),

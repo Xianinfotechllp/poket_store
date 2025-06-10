@@ -60,6 +60,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Future<void> _submitProduct(BuildContext context) async {
+    // --- START: New Stock Quantity Validation ---
+    final int? quantity = int.tryParse(_quantityController.text.trim());
+    if (quantity == null || quantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please add a stock quantity ."),
+        ),
+      );
+      return; // Stop the submission process
+    }
+    // --- END: New Stock Quantity Validation ---
+
     if (!_formKey.currentState!.validate() ||
         _selectedImage == null ||
         _selectedCategories.isEmpty ||
@@ -85,7 +97,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
       price: int.parse(_priceController.text.trim()),
-      quantity: int.parse(_quantityController.text.trim()),
+      quantity: quantity, // Use the parsed and validated quantity
       category: categoryString, // Pass the comma-separated string
       estimatedTime: _estimatedTimeController.text.trim(),
       productType: _selectedType!,
