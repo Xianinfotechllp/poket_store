@@ -25,11 +25,15 @@ class LocationProductService {
               .map((productJson) => LocationProduct.fromJson(productJson))
               .toList();
         } else {
-          log('LocationProductService: "products" key is missing or not a List');
+          log(
+            'LocationProductService: "products" key is missing or not a List',
+          );
           return [];
         }
       } else {
-        log('LocationProductService: Failed to fetch products. Status: ${response.statusCode}, Response: ${response.data}');
+        log(
+          'LocationProductService: Failed to fetch products. Status: ${response.statusCode}, Response: ${response.data}',
+        );
         return [];
       }
     } catch (error) {

@@ -6,8 +6,27 @@ class HelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Help & Support'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 7, 3, 201),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(25),
+              bottomRight: Radius.circular(25),
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            title: const Text(
+              "Help & Support",
+              style: TextStyle(color: Colors.white),
+            ),
+            iconTheme: IconThemeData(color: Colors.white),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

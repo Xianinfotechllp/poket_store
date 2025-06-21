@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poketstore/utilities/custom_app_bar.dart';
 import 'package:poketstore/view/about_app/about_app.dart';
 import 'package:poketstore/view/help/help.dart';
 import 'package:provider/provider.dart';
@@ -22,49 +23,51 @@ class ProfileScreen extends StatelessWidget {
     final loginProvider = context.watch<LoginProvider>();
     final userProfileController = context.watch<UserProfileController>();
     final profile = userProfileController.userProfile;
-    final bottomBarProvider = Provider.of<BottomBarProvider>(context,
-        listen:
-            false); // Get BottomBarProvider instance.  Use listen: false, as we don't want to rebuild this widget when the bottom bar changes.
+    final bottomBarProvider = Provider.of<BottomBarProvider>(
+      context,
+      listen: false,
+    ); // Get BottomBarProvider instance.  Use listen: false, as we don't want to rebuild this widget when the bottom bar changes.
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // const SizedBox(height: 40),
 
             // Top blue bar with "Poket Stor"
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 7, 3, 201),
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20))),
-              child: Center(
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'Poket',
-                        style: TextStyle(
-                            color: Colors.white, fontFamily: 'Aparajita'),
-                      ),
-                      TextSpan(
-                        text: 'Stor',
-                        style: TextStyle(
-                            color: Color(0xFFFFEA00), fontFamily: 'Aparajita'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.symmetric(vertical: 40),
+            //   decoration: BoxDecoration(
+            //       color: const Color.fromARGB(255, 7, 3, 201),
+            //       borderRadius: BorderRadius.only(
+            //           bottomLeft: Radius.circular(20),
+            //           bottomRight: Radius.circular(20))),
+            //   child: Center(
+            //     child: RichText(
+            //       text: TextSpan(
+            //         style: TextStyle(
+            //           fontSize: 25,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //         children: [
+            //           TextSpan(
+            //             text: 'Poket',
+            //             style: TextStyle(
+            //                 color: Colors.white, fontFamily: 'Aparajita'),
+            //           ),
+            //           TextSpan(
+            //             text: 'Stor',
+            //             style: TextStyle(
+            //                 color: Color(0xFFFFEA00), fontFamily: 'Aparajita'),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             // Menu List
             // buildMenuItem(Icons.shopping_bag_outlined, "Orders", () {
@@ -73,9 +76,11 @@ class ProfileScreen extends StatelessWidget {
             // }),
             buildMenuItem(Icons.person_outline, "My Details", () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const UserProfileScreen()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const UserProfileScreen(),
+                ),
+              );
             }),
             // buildMenuItem(Icons.location_on_outlined, "Delivery Address", () {
             //   Navigator.push(
@@ -85,15 +90,17 @@ class ProfileScreen extends StatelessWidget {
             // }),
             // buildMenuItem(Icons.payment_outlined, "Payment Methods", () {}),
             buildMenuItem(Icons.add_business_outlined, "Add Shop", () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ShopListScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShopListScreen()),
+              );
             }),
             // buildMenuItem(Icons.card_giftcard_outlined, "Promo Code", () {}),
             buildMenuItem(Icons.subscriptions_outlined, "Subscription", () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const Subscription()));
+                context,
+                MaterialPageRoute(builder: (context) => const Subscription()),
+              );
             }),
             // buildMenuItem(Icons.notifications_outlined, "Notifications", () {
             //   Navigator.push(
@@ -102,14 +109,16 @@ class ProfileScreen extends StatelessWidget {
             //           builder: (context) => const NotificationScreen()));
             // }),
             buildMenuItem(Icons.help_outline, "Help", () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const HelpScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HelpScreen()),
+              );
             }),
             buildMenuItem(Icons.info_outline, "About", () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AboutAppScreen()));
+                context,
+                MaterialPageRoute(builder: (context) => const AboutAppScreen()),
+              );
             }),
 
             const SizedBox(height: 20),
@@ -124,8 +133,9 @@ class ProfileScreen extends StatelessWidget {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text("Confirm Logout"),
-                        content:
-                            const Text("Are you sure you want to log out?"),
+                        content: const Text(
+                          "Are you sure you want to log out?",
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -137,8 +147,9 @@ class ProfileScreen extends StatelessWidget {
                             onPressed: () {
                               Navigator.of(context).pop(); // Close dialog
                               loginProvider.logout(context);
-                              bottomBarProvider
-                                  .changeTab(0); // Change bottom tab
+                              bottomBarProvider.changeTab(
+                                0,
+                              ); // Change bottom tab
                             },
                             child: const Text("Logout"),
                           ),

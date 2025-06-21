@@ -1,10 +1,19 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
-class NotificationProvider extends ChangeNotifier {
-  bool isNotificationEnabled = false;
+// class NotificationProvider extends ChangeNotifier {
+//   bool isNotificationEnabled = true;
 
-  void toggleNotification() {
-    isNotificationEnabled = !isNotificationEnabled;
-    notifyListeners(); // Notify listeners to update UI
-  }
-}
+//   final List<Map<String, String>> _fcmMessages = [];
+
+//   List<Map<String, String>> get fcmMessages => _fcmMessages.reversed.toList();
+
+//   void toggleNotification() {
+//     isNotificationEnabled = !isNotificationEnabled;
+//     notifyListeners();
+//   }
+
+//   void addFcmMessage(String title, String body) {
+//     _fcmMessages.add({'title': title, 'body': body});
+//     notifyListeners();
+//   }
+// }

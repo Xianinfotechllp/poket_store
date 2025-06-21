@@ -18,7 +18,7 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
   LatLng? _selectedLatLng;
   String _selectedAddress = "Selecting location...";
   Marker?
-      _selectedLocationMarker; // To display a marker on the selected location
+  _selectedLocationMarker; // To display a marker on the selected location
 
   @override
   void initState() {
@@ -60,7 +60,9 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
               "${place.subAdministrativeArea ?? ''}, ${place.locality ?? ''}, ${place.administrativeArea ?? ''} - ${place.postalCode ?? ''}";
         });
         // Log the placemark data
-        log("Geocoding API Response: ${jsonEncode(place.toJson())}"); //  Log the entire placemark object
+        log(
+          "Geocoding API Response: ${jsonEncode(place.toJson())}",
+        ); //  Log the entire placemark object
       } else {
         setState(() {
           _selectedAddress = "No address found for this location.";
@@ -100,8 +102,10 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locationMapController =
-        Provider.of<LocationMapController>(context, listen: false);
+    final locationMapController = Provider.of<LocationMapController>(
+      context,
+      listen: false,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -119,8 +123,9 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
                   place = parts[0];
                   locality = parts[1];
                   stateWithPincode = parts[2];
-                  List<String> statePincodeParts =
-                      stateWithPincode.split(' - ');
+                  List<String> statePincodeParts = stateWithPincode.split(
+                    ' - ',
+                  );
                   if (statePincodeParts.length == 2) {
                     state = statePincodeParts[0];
                     pincode = statePincodeParts[1];
@@ -145,7 +150,9 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
                 log('Sending location data: ${newLocation.toJson()}');
 
                 Navigator.pop(
-                    context, newLocation); // Pass the LocationMapModel
+                  context,
+                  newLocation,
+                ); // Pass the LocationMapModel
               } else {
                 // Optionally show a message to the user to select a location
               }
@@ -163,9 +170,10 @@ class _MapLocationScreenState extends State<MapLocationScreen> {
             ),
             myLocationEnabled: true,
             onTap: _onMapTapped,
-            markers: _selectedLocationMarker != null
-                ? {_selectedLocationMarker!}
-                : {},
+            markers:
+                _selectedLocationMarker != null
+                    ? {_selectedLocationMarker!}
+                    : {},
           ),
           Positioned(
             bottom: 20,

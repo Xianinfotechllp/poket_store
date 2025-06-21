@@ -4,7 +4,7 @@ import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controlle
 import 'package:provider/provider.dart';
 import 'package:poketstore/view/favorite/favorite_screen.dart';
 import 'package:poketstore/view/home/view/home_screen/home_screen.dart';
-import 'package:poketstore/view/my_shop/my_shop_screen.dart';
+import 'package:poketstore/view/my_products/my_shop_screen.dart';
 import 'package:poketstore/view/profile/profile_screen.dart';
 
 class BottomBarScreen extends StatefulWidget {

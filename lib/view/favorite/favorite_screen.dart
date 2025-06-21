@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poketstore/utilities/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/favorite_controller/favorite_controller.dart';
 
@@ -39,22 +40,23 @@ class _FavoriteScreenState extends State<FavoriteScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: AppBar(
-          backgroundColor: const Color.fromARGB(255, 7, 3, 201),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
-          ),
-          title: const Text(
-            'My Favorites',
-            style: TextStyle(color: Colors.white),
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-      ),
+      appBar: CustomAppBar(title: "My Favorites"),
+      // PreferredSize(
+      //   preferredSize: const Size.fromHeight(60),
+      //   child: AppBar(
+      //     backgroundColor: const Color.fromARGB(255, 7, 3, 201),
+      //     shape: const RoundedRectangleBorder(
+      //       borderRadius: BorderRadius.vertical(
+      //         bottom: Radius.circular(20),
+      //       ),
+      //     ),
+      //     title: const Text(
+      //       'My Favorites',
+      //       style: TextStyle(color: Colors.white),
+      //     ),
+      //     iconTheme: const IconThemeData(color: Colors.white),
+      //   ),
+      // ),
       body: Consumer<FavoriteProvider>(
         builder: (context, controller, child) {
           if (controller.isLoading) {
@@ -90,8 +92,9 @@ class _FavoriteScreenState extends State<FavoriteScreen>
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.broken_image, size: 50),
+                    errorBuilder:
+                        (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image, size: 50),
                   ),
                   title: Text(item.name),
                   subtitle: Text(item.description),
@@ -107,13 +110,16 @@ class _FavoriteScreenState extends State<FavoriteScreen>
                           if (controller.errorMessage.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text('Removed from favorites')),
+                                content: Text('Removed from favorites'),
+                              ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text(
-                                      'Failed to remove favorite: ${controller.errorMessage}')),
+                                content: Text(
+                                  'Failed to remove favorite: ${controller.errorMessage}',
+                                ),
+                              ),
                             );
                           }
                         },

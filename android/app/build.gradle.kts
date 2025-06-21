@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.poketstore"
-    compileSdkVersion(34)
+    compileSdkVersion(35)
     ndkVersion = "27.0.12077973"
 
     // Move buildFeatures to here, near the top of the android block
@@ -32,7 +32,7 @@ android {
         applicationId = "com.example.poketstore"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion(21)
+        minSdkVersion(23)
         targetSdkVersion(34)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -44,6 +44,10 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
+    }
+
+      buildFeatures {
+        buildConfig = true
     }
 }
 

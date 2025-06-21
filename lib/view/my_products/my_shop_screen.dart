@@ -2,14 +2,15 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:poketstore/controllers/my_shope_controller/add_product_controller.dart';
 import 'package:poketstore/model/my_shope_model/my_shop_list_user_model.dart';
-import 'package:poketstore/view/home/widgets/product_details_widget.dart'; // This import seems incorrect for MyShopProductDetails. It should be 'package:poketstore/view/my_shop/my_shop_product_details.dart'
-import 'package:poketstore/view/my_shop/product_details_screen.dart';
+import 'package:poketstore/utilities/custom_app_bar.dart';
+import 'package:poketstore/view/home/widgets/product_details_widget.dart';
+import 'package:poketstore/view/my_products/product_details_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poketstore/controllers/my_shope_controller/my_shop_list_user_controller.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
-import 'package:poketstore/view/my_shop/add_product_screen.dart';
-import 'package:poketstore/view/my_shop/widget/widget.dart'; // Correct import for MyShopProductDetails
+import 'package:poketstore/view/my_products/add_product_screen.dart';
+import 'package:poketstore/view/my_products/widget/widget.dart'; // Correct import for MyShopProductDetails
 
 class MyShopScreen extends StatefulWidget {
   const MyShopScreen({super.key});
@@ -76,9 +77,10 @@ class _MyShopScreenState extends State<MyShopScreen> {
       for (var product in shop.products) {
         provider.allProductsWithShopName.add({
           "_id": product.id,
-          "image": (product.productImage?.isNotEmpty ?? false)
-              ? product.productImage
-              : "https://via.placeholder.com/150",
+          "image":
+              (product.productImage?.isNotEmpty ?? false)
+                  ? product.productImage
+                  : "https://via.placeholder.com/150",
           "name": product.name,
           "weight": product.productType ?? "N/A",
           "price":
@@ -97,10 +99,11 @@ class _MyShopScreenState extends State<MyShopScreen> {
         context,
         listen: false,
       );
-      _filteredProducts = provider.allProductsWithShopName.where((product) {
-        return (product["name"] as String).toLowerCase().contains(query) ||
-            (product["shopName"] as String).toLowerCase().contains(query);
-      }).toList();
+      _filteredProducts =
+          provider.allProductsWithShopName.where((product) {
+            return (product["name"] as String).toLowerCase().contains(query) ||
+                (product["shopName"] as String).toLowerCase().contains(query);
+          }).toList();
     });
   }
 
@@ -111,120 +114,115 @@ class _MyShopScreenState extends State<MyShopScreen> {
       listen: false,
     );
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromARGB(255, 7, 3, 201),
-        title: const Text(
-          "My Shop",
-          style: TextStyle(color: Colors.white),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search products or shop names...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200],
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: Consumer<MyShopListUserProvider>(
-                    builder: (context, provider, child) {
-                      if (_userId == null) {
-                        return const Center(
-                          child: Text(
-                              "Please log in to view your shops and products."),
-                        );
-                      }
-
-                      if (provider.isLoading &&
-                          provider.allProductsWithShopName.isEmpty) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (provider.error != null) {
-                        log("Error loading product data: ${provider.error!}");
-                        return const Center(
-                            child: Text(
-                                "No Products Available , Add Your Products."));
-                      } else if (_filteredProducts.isEmpty &&
-                          _searchController.text.isNotEmpty) {
-                        return const Center(
-                            child: Text(
-                                "No products or shops found matching your search."));
-                      } else if (provider.allProductsWithShopName.isEmpty) {
-                        return const Center(
-                            child: Text(
-                                "No products added yet. Click '+' to add."));
-                      }
-
-                      return productMyShopeGridView(
-                        _filteredProducts,
-                        onProductTap: (productId) async {
-                          // Await the navigation and check the result
-                          final bool? result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  MyShopProductDetails(productId: productId),
-                            ),
-                          );
-                          // If result is true (meaning a change occurred), refresh the list
-                          if (result == true) {
-                            _loadUserShops();
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: GestureDetector(
-                    onTap: () => _showAddDialog(context),
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 7, 3, 201),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Add Product',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Icon(Icons.add, color: Colors.white),
-                        ],
+      appBar: CustomAppBar(title: "My Products"),
+      body:
+          provider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0), // Added padding here
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search products or shop names...',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                  Expanded(
+                    child: Consumer<MyShopListUserProvider>(
+                      builder: (context, provider, child) {
+                        if (_userId == null) {
+                          return const Center(
+                            child: Text(
+                              "Please log in to view your shops and products.",
+                            ),
+                          );
+                        }
+
+                        if (provider.isLoading &&
+                            provider.allProductsWithShopName.isEmpty) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (provider.error != null) {
+                          log("Error loading product data: ${provider.error!}");
+                          return const Center(
+                            child: Text(
+                              "No Products Available , Add Your Products.",
+                            ),
+                          );
+                        } else if (_filteredProducts.isEmpty &&
+                            _searchController.text.isNotEmpty) {
+                          return const Center(
+                            child: Text(
+                              "No products or shops found matching your search.",
+                            ),
+                          );
+                        } else if (provider.allProductsWithShopName.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              "No products added yet. Click '+' to add.",
+                            ),
+                          );
+                        }
+
+                        return productMyShopeGridView(
+                          _filteredProducts,
+                          onProductTap: (productId) async {
+                            final bool? result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => MyShopProductDetails(
+                                      productId: productId,
+                                    ),
+                              ),
+                            );
+                            if (result == true) {
+                              _loadUserShops();
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: GestureDetector(
+                      onTap: () => _showAddDialog(context),
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 7, 3, 201),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Add Product',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Icon(Icons.add, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
     );
   }
 
@@ -233,8 +231,9 @@ class _MyShopScreenState extends State<MyShopScreen> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -242,9 +241,10 @@ class _MyShopScreenState extends State<MyShopScreen> {
               children: [
                 const Icon(Icons.info, size: 50, color: Colors.blueAccent),
                 const SizedBox(height: 15),
-                const Text("Notice",
-                    style:
-                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Notice",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 10),
                 const Text(
                   "If you have a store, continue adding a product.\nOtherwise, create one by clicking 'Create'.",
@@ -259,11 +259,14 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.grey[300],
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         onPressed: () => Navigator.pop(context),
-                        child: const Text("Cancel",
-                            style: TextStyle(color: Colors.black)),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -273,14 +276,16 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.blueAccent,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const AddProductScreen()),
+                              builder: (_) => const AddProductScreen(),
+                            ),
                           ).then((value) {
                             if (value == true) _loadUserShops();
                           });
@@ -295,7 +300,8 @@ class _MyShopScreenState extends State<MyShopScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         onPressed: () {
                           Navigator.pop(context);

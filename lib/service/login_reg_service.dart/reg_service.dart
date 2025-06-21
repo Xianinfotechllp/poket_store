@@ -7,8 +7,11 @@ class RegistrationService {
   final Dio _dio = Dio();
   final String _registerUrl =
       "https://shop-app-backend-gsx6.onrender.com/auth/user/register";
+  final String _verifyOtpUrl =
+      "https://shop-app-backend-gsx6.onrender.com/auth/user/verify-registration-otp";
 
-  Future<RegistrationModel> registerUser(Map<String, dynamic> data) async {
+  // Changed return type to Future<void> as it just sends OTP and expects a message
+  Future<void> registerUser(Map<String, dynamic> data) async {
     try {
       Response response = await _dio.post(
         _registerUrl,
@@ -18,18 +21,67 @@ class RegistrationService {
 
       log("Registration Response: ${response.data}");
 
-      // Check if response.data is a Map before accessing it.
-      if (response.data is Map<String, dynamic>) {
-        return RegistrationModel.fromJson(response.data);
+      // Check if the response indicates success (e.g., status 200/201 and a message)
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.data is Map<String, dynamic> &&
+            response.data.containsKey('message')) {
+          log("Server message: ${response.data['message']}");
+          return; // Success, OTP sent
+        } else {
+          throw Exception(
+            "Unexpected success response format for OTP sending.",
+          );
+        }
       } else {
-        // Handle the case where response.data is not a Map.  Maybe it is a String?
-        log("Error: response.data is not a Map.  It is of type ${response.data.runtimeType.toString()} and value ${response.data.toString()}");
-        throw Exception(
-            "Unexpected response format: ${response.data.toString()}");
+        // Handle non-200/201 status codes
+        String errorMessage = "Failed to send OTP.";
+        if (response.data is Map<String, dynamic> &&
+            response.data.containsKey('message')) {
+          errorMessage = response.data['message'];
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
-      log("Registration Error: $e");
-      throw Exception("Registration failed");
+      log("Registration/Send OTP Error (Service): $e");
+      if (e is DioException && e.response != null) {
+        String errorMessage =
+            "Send OTP failed: ${e.response!.data['message'] ?? e.message}";
+        throw Exception(errorMessage);
+      }
+      throw Exception("Failed to send OTP. Please check your network.");
+    }
+  }
+
+  // This method's return type remains Future<Map<String, dynamic>>
+  // because it's expected to return user details and token upon successful verification.
+  Future<Map<String, dynamic>> verifyOtp(String email, String otp) async {
+    try {
+      Response response = await _dio.post(
+        _verifyOtpUrl,
+        data: jsonEncode({"email": email, "otp": otp}),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      log("Verify OTP Response: ${response.data}");
+
+      if (response.data is Map<String, dynamic>) {
+        return response.data;
+      } else {
+        log(
+          "Error: verifyOtp response.data is not a Map. It is of type ${response.data.runtimeType.toString()} and value ${response.data.toString()}",
+        );
+        throw Exception(
+          "Unexpected OTP verification response format: ${response.data.toString()}",
+        );
+      }
+    } catch (e) {
+      log("Verify OTP Error: $e");
+      if (e is DioException && e.response != null) {
+        throw Exception(
+          e.response!.data['message'] ?? "OTP verification failed",
+        );
+      }
+      throw Exception("OTP verification failed");
     }
   }
 }

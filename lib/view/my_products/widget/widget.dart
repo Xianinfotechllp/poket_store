@@ -6,7 +6,7 @@ import 'package:poketstore/controllers/my_shope_controller/add_product_controlle
 import 'package:poketstore/controllers/my_shope_controller/fetch_product.dart';
 import 'package:poketstore/controllers/my_shope_controller/my_shop_list_user_controller.dart';
 import 'package:poketstore/view/home/widgets/product_card.dart';
-import 'package:poketstore/view/my_shop/product_details_screen.dart';
+import 'package:poketstore/view/my_products/product_details_screen.dart';
 import 'package:provider/provider.dart';
 
 class MyShopeItemWidget extends StatelessWidget {
@@ -55,14 +55,15 @@ class MyShopeItemWidget extends StatelessWidget {
                   width: 70,
                   height: 80,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Image.asset(
-                    'assets/default_image.png',
-                    width: 70,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  ),
+                  placeholder:
+                      (context, url) => const CircularProgressIndicator(),
+                  errorWidget:
+                      (context, url, error) => Image.asset(
+                        'assets/default_image.png',
+                        width: 70,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -116,8 +117,10 @@ class MyShopeItemWidget extends StatelessWidget {
   }
 }
 
-Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName,
-    {required Function(String productId) onProductTap}) {
+Widget productMyShopeGridView(
+  List<Map<String, dynamic>> productsWithShopName, {
+  required Function(String productId) onProductTap,
+}) {
   return GridView.builder(
     padding: const EdgeInsets.all(10),
     shrinkWrap: true,
@@ -153,8 +156,9 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName,
                     child: Image.network(
                       product["image"] ?? "",
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Center(child: Icon(Icons.broken_image)),
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              const Center(child: Icon(Icons.broken_image)),
                     ),
                   ),
                 ),
@@ -177,7 +181,7 @@ Widget productMyShopeGridView(List<Map<String, dynamic>> productsWithShopName,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "₹ ${product["price"] ?? "0"}",
+                  " ${product["price"] ?? "0"}",
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.blueAccent,

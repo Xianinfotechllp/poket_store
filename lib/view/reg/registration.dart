@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/controllers/login_reg_controller/registration_controller.dart';
 import 'package:poketstore/view/login/login_screen.dart';
+import 'package:poketstore/view/bottombar/bottom_bar_screen.dart'; // Import for navigation
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -25,7 +26,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             padding: const EdgeInsets.all(20),
             child: Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
+                borderRadius: BorderRadius.circular(15),
+              ),
               elevation: 8,
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -38,7 +40,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         "Let's Get Started!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       const Text(
@@ -48,62 +52,122 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Input fields
+                      // Input fields including the new email field
                       ..._buildInputFields(provider),
 
-                      // Password
-                      _buildPasswordField(
-                        label: "Password",
-                        controller: provider.passwordController,
-                        hidden: _hidePassword,
-                        toggleVisibility: () =>
-                            setState(() => _hidePassword = !_hidePassword),
-                      ),
-                      _buildPasswordField(
-                        label: "Confirm Password",
-                        controller: provider.confirmPasswordController,
-                        hidden: _hideConfirmPassword,
-                        toggleVisibility: () => setState(
-                            () => _hideConfirmPassword = !_hideConfirmPassword),
-                        validator: provider.validateConfirmPassword,
-                      ),
+                      // Password fields (only visible before OTP is sent)
+                      if (!provider.otpSent) ...[
+                        _buildPasswordField(
+                          label: "Password",
+                          controller: provider.passwordController,
+                          hidden: _hidePassword,
+                          toggleVisibility:
+                              () => setState(
+                                () => _hidePassword = !_hidePassword,
+                              ),
+                        ),
+                        _buildPasswordField(
+                          label: "Confirm Password",
+                          controller: provider.confirmPasswordController,
+                          hidden: _hideConfirmPassword,
+                          toggleVisibility:
+                              () => setState(
+                                () =>
+                                    _hideConfirmPassword =
+                                        !_hideConfirmPassword,
+                              ),
+                          validator: provider.validateConfirmPassword,
+                        ),
+                      ],
+
+                      // OTP input field (visible after OTP is sent)
+                      if (provider.otpSent) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: TextFormField(
+                            controller: provider.otpController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'OTP',
+                              prefixIcon: const Icon(Icons.dialpad),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            validator: provider.validateOtp,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child:
+                              provider.otpTimerSeconds > 0
+                                  ? Text(
+                                    "Resend OTP in ${provider.otpTimerSeconds ~/ 60}:${(provider.otpTimerSeconds % 60).toString().padLeft(2, '0')}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  )
+                                  : TextButton(
+                                    onPressed:
+                                        provider.isLoading
+                                            ? null
+                                            : () async {
+                                              FocusScope.of(context).unfocus();
+                                              await provider.sendOtp(context);
+                                            },
+                                    child: const Text("Resend OTP"),
+                                  ),
+                        ),
+                      ],
 
                       const SizedBox(height: 20),
 
-                      // Register button
+                      // Register/Send OTP button
                       SizedBox(
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue.shade900,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                          onPressed: provider.isLoading
-                              ? null
-                              : () async {
-                                  FocusScope.of(context).unfocus();
-                                  final success =
-                                      await provider.register(context);
-                                  if (success) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => LoginScreen()),
-                                    );
-                                    // Clear after navigation completes
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      provider.clearTextFields();
-                                    });
-                                  }
-                                },
-                          child: provider.isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text('Register',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.white)),
+                          onPressed:
+                              provider.isLoading
+                                  ? null
+                                  : () async {
+                                    FocusScope.of(context).unfocus();
+                                    if (provider.otpSent) {
+                                      // If OTP is already sent, this button is for verifying OTP
+                                      final success = await provider
+                                          .verifyOtpAndRegister(context);
+                                      if (success) {
+                                        // Navigation handled in provider on success, no need to clear here
+                                        // provider.clearTextFields(); // Clear fields after successful navigation
+                                      }
+                                    } else {
+                                      // If OTP is not sent, this button is for sending OTP
+                                      final success = await provider.sendOtp(
+                                        context,
+                                      );
+                                      if (success) {
+                                        // If OTP is sent successfully, the OTP field and verify button will appear
+                                      }
+                                    }
+                                  },
+                          child:
+                              provider.isLoading
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                  : Text(
+                                    provider.otpSent ? 'Register' : 'Send OTP',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                         ),
                       ),
 
@@ -113,23 +177,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("Already have an account?",
-                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          const Text(
+                            "Already have an account?",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) => LoginScreen()),
+                                  builder: (_) => LoginScreen(),
+                                ),
+                                (route) => false,
                               );
                             },
-                            child: const Text("Login here",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue)),
+                            child: const Text(
+                              "Login here",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -141,8 +212,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  // Helper method to build common input fields
   List<Widget> _buildInputFields(RegistrationProvider provider) {
-    final fields = [
+    // These fields are always visible
+    final List<Map<String, dynamic>> alwaysVisibleFields = [
       {
         'label': 'Full Name',
         'icon': Icons.person,
@@ -155,13 +228,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             return "Full Name must be at least 4 characters";
           }
           return null;
-        }
+        },
+      },
+      {
+        'label': 'Email',
+        'icon': Icons.email,
+        'controller': provider.emailController,
+        'keyboardType': TextInputType.emailAddress,
+        'validator': provider.validateEmail,
       },
       {
         'label': 'Mobile Number',
         'icon': Icons.phone_android,
         'controller': provider.mobileController,
-        'isNumber': true,
+        'keyboardType': TextInputType.number,
         'validator': (value) {
           if (value == null || value.isEmpty) {
             return "Please enter your Mobile Number";
@@ -170,32 +250,52 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             return "Mobile Number must be at least 10 digits";
           }
           return null;
-        }
+        },
       },
       {
         'label': 'State',
         'icon': Icons.place_outlined,
-        'controller': provider.stateController
+        'controller': provider.stateController,
+        'validator':
+            (value) =>
+                (value == null || value.isEmpty)
+                    ? "Please enter your State"
+                    : null,
       },
       {
         'label': 'District',
         'icon': Icons.map_outlined,
-        'controller': provider.placeController
+        'controller': provider.placeController,
+        'validator':
+            (value) =>
+                (value == null || value.isEmpty)
+                    ? "Please enter your District"
+                    : null,
       },
       {
         'label': 'Locality / Area',
         'icon': Icons.location_city,
-        'controller': provider.localityController
+        'controller': provider.localityController,
+        'validator':
+            (value) =>
+                (value == null || value.isEmpty)
+                    ? "Please enter your Locality / Area"
+                    : null,
       },
       {
         'label': 'Pin Code',
         'icon': Icons.pin_outlined,
         'controller': provider.pincodeController,
-        'isNumber': true
+        'keyboardType': TextInputType.number,
+        'validator':
+            (value) =>
+                (value == null || value.isEmpty)
+                    ? "Please enter your Pin Code"
+                    : null,
       },
     ];
 
-    return fields.map((field) {
+    return alwaysVisibleFields.map((field) {
       final FormFieldValidator<String>? customValidator =
           field['validator'] as FormFieldValidator<String>?;
 
@@ -203,23 +303,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: TextFormField(
           controller: field['controller'] as TextEditingController,
-          keyboardType: field['isNumber'] == true
-              ? TextInputType.number
-              : TextInputType.text,
+          keyboardType:
+              field['keyboardType'] as TextInputType? ?? TextInputType.text,
           decoration: InputDecoration(
             labelText: field['label'] as String,
             prefixIcon: Icon(field['icon'] as IconData),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          validator: customValidator ??
-              (value) => (value == null || value.isEmpty)
-                  ? "Please enter ${field['label']}"
-                  : null,
+          validator:
+              customValidator ??
+              (value) =>
+                  (value == null || value.isEmpty)
+                      ? "Please enter ${field['label']}"
+                      : null,
+          // Disable editing if OTP is sent, for all fields except OTP field itself
+          readOnly: provider.otpSent && field['label'] != 'OTP',
         ),
       );
     }).toList();
   }
 
+  // Helper method to build password fields
   Widget _buildPasswordField({
     required String label,
     required TextEditingController controller,
@@ -241,7 +345,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        validator: validator ??
+        validator:
+            validator ??
             (value) {
               if (value == null || value.isEmpty) return "Please enter $label";
               if (label == "Password" && value.length < 6)

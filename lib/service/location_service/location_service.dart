@@ -21,20 +21,30 @@ class LocationMapService {
   }
 
   Future<LocationMapModel?> updateLocation(
-      String userId, LocationMapModel location) async {
+    String userId,
+    LocationMapModel location,
+  ) async {
     try {
       final response = await dio.put(
         'https://shop-app-backend-gsx6.onrender.com/api/user/updatelocation/$userId',
         data: location.toJson(),
       );
 
+      // ✅ Log the full response data and status code
+      log(
+        "📡 Location update response [${response.statusCode}]: ${response.data}",
+      );
+
       if (response.statusCode == 200 && response.data['success'] == true) {
         return LocationMapModel.fromJson(response.data['location']);
       } else {
+        log(
+          "⚠️ Server returned an error: ${response.data['message'] ?? 'Unknown error'}",
+        );
         return null;
       }
     } catch (e) {
-      log("Error updating location: $e");
+      log("❌ Error updating location: $e");
       return null;
     }
   }
