@@ -4,72 +4,90 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
+  final IconData icon;
   final String imagePath;
   final String title;
   final String weight;
-  final String price;
-  final IconData? icon;
-  // final String id;
+  final dynamic price;
 
   const ProductCard({
-    Key? key,
+    super.key,
+    required this.icon,
     required this.imagePath,
-    // required this.id,
     required this.title,
     required this.weight,
     required this.price,
-    this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    // print("imagePath $imagePath");
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Container(
-        height: 200,
-        width: 150,
-        decoration: BoxDecoration(
-          border: Border.all(width: 1, color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Align items to start
-            children: [
-              Container(
-                height: 60,
-                width: 130,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    // image: FileImage(File(imagePath)),
-                    image: NetworkImage(imagePath),
-                    onError: (object, stacktrace) {
-                      log("error while loading image: $object");
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 5),
-              Text(weight),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    price,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  // Icon(icon, color: Colors.black),
-                ],
-              ),
-            ],
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shadowColor: Colors.black12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image section
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: Image.network(
+              imagePath.isNotEmpty
+                  ? imagePath
+                  : 'https://via.placeholder.com/150',
+              height: 120,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+
+          // Content section
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                if (weight.isNotEmpty)
+                  Text(
+                    weight,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "${price ?? 'N/A'}",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    // Container(
+                    //   padding: const EdgeInsets.all(6),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.black,
+                    //     borderRadius: BorderRadius.circular(8),
+                    //   ),
+                    //   child: Icon(icon, size: 18, color: Colors.white),
+                    // ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

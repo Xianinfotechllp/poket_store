@@ -15,42 +15,42 @@ class ProductProvider with ChangeNotifier {
   String? errorMessage;
 
   Future<void> createProduct({
-    required String shop,
-    required File productImage,
-    required String userId,
-    required String name,
-    required String description,
-    required int price,
-    required int quantity,
-    required String category, // Changed to String
-    required String estimatedTime,
-    required String productType,
-    required String deliveryOption,
+    required String userId, // Keeping userId required
+    String? shop, // Made nullable
+    File? productImage, // Made nullable
+    String? name, // Made nullable
+    String? description, // Made nullable
+    int? price, // Made nullable
+    int? quantity, // Made nullable
+    String? category, // Made nullable
+    String? estimatedTime, // Made nullable
+    String? productType, // Made nullable
+    String? deliveryOption, // Made nullable
   }) async {
     isLoading = true;
     notifyListeners();
 
     log("Creating product with data:");
-    log("Product Image: ${productImage.path}");
+    log("Product Image: ${productImage?.path}"); // Use ?. to safely access
     log("Name: $name");
     log("Description: $description");
     log("Price: $price");
     log("Quantity: $quantity");
-    log("Category: $category"); // Log the string
+    log("Category: $category");
     log("Estimated Time: $estimatedTime");
     log("Product Type: $productType");
     log("Delivery Option: $deliveryOption");
-    log('shope:$shop');
+    log('shop:$shop');
 
     product = await _productService.createProduct(
+      userId: userId,
       productImage: productImage,
       shop: shop,
-      userId: userId,
       name: name,
       description: description,
       price: price,
       quantity: quantity,
-      category: category, // Pass the string
+      category: category,
       estimatedTime: estimatedTime,
       productType: productType,
       deliveryOption: deliveryOption,

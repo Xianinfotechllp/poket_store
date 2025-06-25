@@ -33,12 +33,16 @@ class ShopService {
         "place": shop.place,
         "pinCode": shop.pinCode,
         "locality": shop.locality,
-        "headerImage": imageFile != null
-            ? await MultipartFile.fromFile(
-                imageFile.path,
-                filename: "shop_image.jpg",
-              )
-            : null,
+        "email": shop.email,
+        "mobileNumber": shop.mobileNumber,
+        "landlineNumber ": shop.landlineNumber,
+        "headerImage":
+            imageFile != null
+                ? await MultipartFile.fromFile(
+                  imageFile.path,
+                  filename: "shop_image.jpg",
+                )
+                : null,
         "userId": shop.userId,
       });
 
@@ -61,13 +65,20 @@ class ShopService {
     }
   }
 
-  Future<void> updateShop(String id, ShopeDetailsModel shopDetails, String? token) async {
+  Future<void> updateShop(
+    String id,
+    ShopeDetailsModel shopDetails,
+    String? token,
+  ) async {
     final url = '$baseUrl/$id';
 
     try {
       FormData formData = FormData.fromMap({
         "shopName": shopDetails.shopName,
-        "category": shopDetails.category.isNotEmpty ? shopDetails.category.first : null,
+        "category":
+            shopDetails.category!.isNotEmpty
+                ? shopDetails.category!.first
+                : null,
         "sellerType": shopDetails.sellerType,
         "state": shopDetails.state,
         "place": shopDetails.place,
@@ -100,11 +111,15 @@ class ShopService {
       if (response.statusCode == 200) {
         log("Shop updated successfully");
       } else {
-        throw Exception('Failed to update shop: ${response.statusMessage ?? response.data}');
+        throw Exception(
+          'Failed to update shop: ${response.statusMessage ?? response.data}',
+        );
       }
     } on DioException catch (e) {
       log("Update error (DioException): ${e.response?.data ?? e.message}");
-      throw Exception("Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
+      throw Exception(
+        "Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}",
+      );
     } catch (e) {
       log("Update error: $e");
       throw Exception("Error: $e");
@@ -120,11 +135,15 @@ class ShopService {
       if (response.statusCode == 200) {
         log("Shop deleted successfully: $id");
       } else {
-        throw Exception('Failed to delete shop: ${response.statusMessage ?? response.data}');
+        throw Exception(
+          'Failed to delete shop: ${response.statusMessage ?? response.data}',
+        );
       }
     } on DioException catch (e) {
       log("Delete error (DioException): ${e.response?.data ?? e.message}");
-      throw Exception("Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}");
+      throw Exception(
+        "Error: ${e.response?.data['message'] ?? e.message ?? e.toString()}",
+      );
     } catch (e) {
       log("Delete error: $e");
       throw Exception("Error: $e");

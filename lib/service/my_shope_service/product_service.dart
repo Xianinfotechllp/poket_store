@@ -11,34 +11,35 @@ class ProductService {
   /// Add Product////
 
   Future<Product?> createProduct({
-    required String userId,
-    required String shop,
-    required File productImage,
-    required String name,
-    required String description,
-    required int price,
-    required int quantity,
-    required String category, // Changed to String
-    required String estimatedTime,
-    required String productType,
-    required String deliveryOption,
+    required String userId, // Keeping userId required as it's often essential
+    String? shop, // Made nullable
+    File? productImage, // Made nullable. Handle with care if image is crucial.
+    String? name, // Made nullable
+    String? description, // Made nullable
+    int? price, // Made nullable
+    int? quantity, // Made nullable
+    String? category, // Made nullable
+    String? estimatedTime, // Made nullable
+    String? productType, // Made nullable
+    String? deliveryOption, // Made nullable
   }) async {
     try {
       FormData formData = FormData.fromMap({
-        "productImage": await MultipartFile.fromFile(
-          productImage.path,
-          filename: productImage.path.split('/').last,
-        ),
+        if (productImage != null) // Conditionally add if not null
+          "productImage": await MultipartFile.fromFile(
+            productImage.path,
+            filename: productImage.path.split('/').last,
+          ),
         "userId": userId,
-        "shop": shop,
-        "name": name,
-        "description": description,
-        "price": price.toString(),
-        "quantity": quantity.toString(),
-        "category": category, // Pass the string here
-        "estimatedTime": estimatedTime,
-        "productType": productType,
-        "deliveryOption": deliveryOption,
+        if (shop != null) "shop": shop,
+        if (name != null) "name": name,
+        if (description != null) "description": description,
+        if (price != null) "price": price.toString(),
+        if (quantity != null) "quantity": quantity.toString(),
+        if (category != null) "category": category,
+        if (estimatedTime != null) "estimatedTime": estimatedTime,
+        if (productType != null) "productType": productType,
+        if (deliveryOption != null) "deliveryOption": deliveryOption,
       });
 
       Response response = await _dio.post(baseUrl, data: formData);
@@ -74,38 +75,41 @@ class ProductService {
           }
 
           // Map JSON to Product List
-          List<Product> productList = productsJson.map((json) {
-            log("Processing Product: ${json['name']}");
+          List<Product> productList =
+              productsJson.map((json) {
+                log("Processing Product: ${json['name']}");
 
-            // Handle incorrect category format
-            List<String> categories;
-            if (json["category"] is List) {
-              categories = List<String>.from(json["category"]);
-            } else {
-              categories = [];
-            }
+                // Handle incorrect category format
+                List<String> categories;
+                if (json["category"] is List) {
+                  categories = List<String>.from(json["category"]);
+                } else {
+                  categories = [];
+                }
 
-            return Product(
-              // shop: json["shop"],
-              id: json["_id"],
-              // totalAmount: json["totalAmount"],
-              name: json["name"],
-              description: json["description"] ?? "",
-              price: json["price"] ?? 0,
-              quantity: json["quantity"] ?? 0,
-              category: categories,
-              productImage: json["productImage"] ?? "",
-              sold: json["sold"] ?? 0,
-              estimatedTime: json["estimatedTime"] ?? "",
-              productType: json["productType"] ?? "",
-              deliveryOption: json["deliveryOption"] ?? "",
-              userId: json["userId"] ?? "",
-              createdAt: DateTime.tryParse(json["createdAt"] ?? "") ??
-                  DateTime.now(), // ✅ Convert String to DateTime
-              updatedAt: DateTime.tryParse(json["updatedAt"] ?? "") ??
-                  DateTime.now(), // ✅ Convert String to DateTime
-            );
-          }).toList();
+                return Product(
+                  // shop: json["shop"],
+                  id: json["_id"],
+                  // totalAmount: json["totalAmount"],
+                  name: json["name"],
+                  description: json["description"] ?? "",
+                  price: json["price"] ?? 0,
+                  quantity: json["quantity"] ?? 0,
+                  category: categories,
+                  productImage: json["productImage"] ?? "",
+                  sold: json["sold"] ?? 0,
+                  estimatedTime: json["estimatedTime"] ?? "",
+                  productType: json["productType"] ?? "",
+                  deliveryOption: json["deliveryOption"] ?? "",
+                  userId: json["userId"] ?? "",
+                  createdAt:
+                      DateTime.tryParse(json["createdAt"] ?? "") ??
+                      DateTime.now(), // ✅ Convert String to DateTime
+                  updatedAt:
+                      DateTime.tryParse(json["updatedAt"] ?? "") ??
+                      DateTime.now(), // ✅ Convert String to DateTime
+                );
+              }).toList();
 
           log("Total Products Fetched: ${productList.length}");
           return productList;

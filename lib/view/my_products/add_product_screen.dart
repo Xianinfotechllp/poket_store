@@ -79,13 +79,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
 
     if (!_formKey.currentState!.validate() ||
-        _selectedImage == null ||
         _selectedCategories.isEmpty ||
         _selectedShopId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Please fill all fields, select an image, choose at least one category, and select a shop.",
+            "Please fill all fields, choose at least one category, and select a shop.",
           ),
         ),
       );

@@ -26,8 +26,10 @@ import 'package:poketstore/controllers/login_reg_controller/registration_control
 import 'package:poketstore/controllers/order_controller/order_controller.dart';
 import 'package:poketstore/controllers/product_by_shop_controller/product_by_shop_controller.dart';
 import 'package:poketstore/controllers/product_search_controller/product_search_controller.dart';
+import 'package:poketstore/controllers/product_search_controller/shop_search_controller.dart';
 import 'package:poketstore/controllers/search_producer_controller.dart';
 import 'package:poketstore/controllers/set_location_controller.dart';
+import 'package:poketstore/controllers/shop_nearby_controller/shop_nearby_controller.dart';
 import 'package:poketstore/controllers/subscription_controller/subscription_controller.dart';
 import 'package:poketstore/controllers/user_profile_controller/user_profile_controller.dart';
 import 'package:poketstore/service/notification(fcm)_service.dart/notification(fcm)_service.dart'; // FCM notification service
@@ -87,6 +89,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FCMProvider()),
         ChangeNotifierProvider(create: (_) => FCMNotificationController()),
         ChangeNotifierProvider(create: (_) => ForgotPasswordController()),
+        ChangeNotifierProvider(create: (_) => ShopSearchController()),
+        ChangeNotifierProvider(create: (_) => ShopNearbyController()),
       ],
       // The root widget of the application.
       child: const MyApp(),

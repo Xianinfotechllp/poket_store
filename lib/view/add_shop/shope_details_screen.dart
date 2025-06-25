@@ -191,10 +191,12 @@ class ShopeDetailsScreen extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
+                    // Safely check if headerImage is not null AND not empty
                     child:
-                        shop.headerImage.isNotEmpty
+                        (shop.headerImage != null &&
+                                shop.headerImage!.isNotEmpty)
                             ? Image.network(
-                              shop.headerImage,
+                              shop.headerImage!, // Now it's safe to use '!'
                               width: double.infinity,
                               height: 220,
                               fit: BoxFit.cover,
@@ -231,7 +233,7 @@ class ShopeDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                   Text(
-                    shop.shopName,
+                    shop.shopName ?? '',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -239,13 +241,16 @@ class ShopeDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const Divider(height: 30, thickness: 1),
-                  _buildDetailRow("Category", shop.category.join(', ')),
-                  _buildDetailRow("Seller Type", shop.sellerType),
+                  _buildDetailRow("Category", shop.category!.join(', ')),
+                  _buildDetailRow("Seller Type", shop.sellerType ?? ''),
                   _buildDetailRow(
                     "Location",
                     "${shop.place ?? 'N/A'}, ${shop.locality ?? 'N/A'}, ${shop.state}",
                   ),
-                  _buildDetailRow("Pincode", shop.pinCode),
+                  _buildDetailRow("Pincode", shop.pinCode ?? ''),
+                  _buildDetailRow("Email", shop.email ?? ''),
+                  _buildDetailRow("MobileNumber", shop.mobileNumber ?? ''),
+                  _buildDetailRow("LanlineNumber", shop.landlineNumber ?? ''),
                 ],
               ),
             );

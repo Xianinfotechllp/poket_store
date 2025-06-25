@@ -28,6 +28,11 @@ class _AddShopState extends State<AddShop> {
   final TextEditingController _placeController = TextEditingController();
   final TextEditingController _pinCodeController = TextEditingController();
   final TextEditingController _localityController = TextEditingController();
+  // New controllers for the new fields
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _mobileNumberController = TextEditingController();
+  final TextEditingController _landlineNumberController =
+      TextEditingController();
 
   final List<String> sellerTypes = ["Producer", "Trader"];
   final List<String> states = [
@@ -76,16 +81,20 @@ class _AddShopState extends State<AddShop> {
       Provider.of<CategoryController>(context, listen: false).loadCategories();
       if (isEditing) {
         final shop = widget.shopToEdit!;
-        _shopNameController.text = shop.shopName;
+        _shopNameController.text = shop.shopName ?? '';
         _placeController.text = shop.place ?? '';
-        _pinCodeController.text = shop.pinCode;
+        _pinCodeController.text = shop.pinCode ?? '';
         _localityController.text = shop.locality ?? '';
         _selectedSellerType = shop.sellerType;
         _selectedState = shop.state;
-        if (shop.category.isNotEmpty) {
-          _selectedCategory = shop.category.first;
+        if (shop.category!.isNotEmpty) {
+          _selectedCategory = shop.category?.first;
         }
         _existingHeaderImageUrl = shop.headerImage;
+        // Populate new fields when editing
+        _emailController.text = shop.email ?? '';
+        _mobileNumberController.text = shop.mobileNumber ?? '';
+        _landlineNumberController.text = shop.landlineNumber ?? '';
       }
     });
   }
@@ -96,6 +105,10 @@ class _AddShopState extends State<AddShop> {
     _placeController.dispose();
     _pinCodeController.dispose();
     _localityController.dispose();
+    // Dispose new controllers
+    _emailController.dispose();
+    _mobileNumberController.dispose();
+    _landlineNumberController.dispose();
     super.dispose();
   }
 
@@ -125,7 +138,6 @@ class _AddShopState extends State<AddShop> {
 
   void _submitShop() async {
     if (!_formKey.currentState!.validate() ||
-        (_headerImage == null && _existingHeaderImageUrl == null) ||
         _selectedCategory == null ||
         _selectedSellerType == null ||
         _selectedState == null) {
@@ -164,6 +176,18 @@ class _AddShopState extends State<AddShop> {
                 : _localityController.text.trim(),
         headerImage:
             _existingHeaderImageUrl ?? '', // Use existing if no new image
+        email:
+            _emailController.text.trim().isEmpty
+                ? null
+                : _emailController.text.trim(),
+        mobileNumber:
+            _mobileNumberController.text.trim().isEmpty
+                ? null
+                : _mobileNumberController.text.trim(),
+        landlineNumber:
+            _landlineNumberController.text.trim().isEmpty
+                ? null
+                : _landlineNumberController.text.trim(),
       );
       await shopProvider.updateShop(
         updatedShopDetails,
@@ -185,6 +209,18 @@ class _AddShopState extends State<AddShop> {
                 : _localityController.text.trim(),
         headerImage: "", // Will be updated by the server
         userId: userId,
+        email:
+            _emailController.text.trim().isEmpty
+                ? null
+                : _emailController.text.trim(),
+        mobileNumber:
+            _mobileNumberController.text.trim().isEmpty
+                ? null
+                : _mobileNumberController.text.trim(),
+        landlineNumber:
+            _landlineNumberController.text.trim().isEmpty
+                ? null
+                : _landlineNumberController.text.trim(),
       );
       await shopProvider.addShop(newShop, _headerImage);
     }
@@ -293,6 +329,27 @@ class _AddShopState extends State<AddShop> {
                           "Enter pin code",
                           isNumeric: true,
                         ),
+                        // New fields
+                        _buildLabel("Email"),
+                        _buildTextField(
+                          _emailController,
+                          "Enter email address",
+                          isEmail: true,
+                        ),
+                        _buildLabel("Mobile Number"),
+                        _buildTextField(
+                          _mobileNumberController,
+                          "Enter mobile number",
+                          isNumeric: true,
+                        ),
+                        _buildLabel("Landline Number (Optional)"),
+                        _buildTextField(
+                          _landlineNumberController,
+                          "Enter landline number",
+                          isNumeric: true,
+                          isOptional: true, // Mark as optional
+                        ),
+
                         const SizedBox(height: 20),
                         _buildLabel("Shop Image"),
                         Padding(
@@ -498,18 +555,28 @@ class _AddShopState extends State<AddShop> {
     TextEditingController controller,
     String hintText, {
     bool isNumeric = false,
+    bool isEmail = false,
+    bool isOptional = false, // New parameter for optional fields
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: TextFormField(
         controller: controller,
-        keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+        keyboardType:
+            isNumeric
+                ? TextInputType.number
+                : (isEmail ? TextInputType.emailAddress : TextInputType.text),
         validator: (value) {
-          if (value == null || value.isEmpty) {
+          if (!isOptional && (value == null || value.isEmpty)) {
             return "This field is required";
           }
-          if (isNumeric && int.tryParse(value) == null) {
+          if (isNumeric && value!.isNotEmpty && int.tryParse(value) == null) {
             return "Please enter a valid number";
+          }
+          if (isEmail &&
+              value!.isNotEmpty &&
+              !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+            return "Please enter a valid email";
           }
           return null;
         },

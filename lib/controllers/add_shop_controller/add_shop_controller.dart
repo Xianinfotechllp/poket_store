@@ -50,7 +50,7 @@ class ShopProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      if (shopDetails.id.isEmpty) {
+      if (shopDetails.id!.isEmpty) {
         // Check for empty ID as well
         throw Exception("Shop ID is required for updating.");
       }
@@ -64,7 +64,7 @@ class ShopProvider with ChangeNotifier {
       }
 
       // Pass the ID, shopDetails, newImageFile, and token to the service
-      await _shopService.updateShop(shopDetails.id, shopDetails, token);
+      await _shopService.updateShop(shopDetails.id ?? '', shopDetails, token);
       errorMessage = ""; // Clear error message on success
       log("✅ Shop updated successfully!");
     } catch (e) {
