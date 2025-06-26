@@ -1,131 +1,197 @@
-// poketstore/controllers/address_controller/address_controller.dart
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:poketstore/model/address_model/address_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poketstore/service/address_service/address_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AddressController extends ChangeNotifier {
-  final AddressService _service = AddressService();
-  List<AddressModel> addresses = [];
-  bool isLoading = false;
-  String errorMessage = ''; // <--- Add this line to define errorMessage
+/// Controller for managing delivery addresses.
+/// Extends [ChangeNotifier] to provide state management and notify listeners of changes.
+class DeliveryAddressController extends ChangeNotifier {
+  final DeliveryAddressService _service = DeliveryAddressService();
 
-  Future<void> addAddress(AddressModel address) async {
-    isLoading = true;
-    errorMessage = ''; // Clear any previous error message
-    notifyListeners();
-    log('Attempting to add address...');
+  List<Address> addresses = []; // List to hold fetched addresses
+  bool loading = false; // Indicates if an operation is in progress
+  String? errorMessage; // Stores any error messages
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+  /// Submits a new address to the backend.
+  Future<void> submitAddress(Address address) async {
+    loading = true;
+    errorMessage = null; // Clear any previous errors
+    notifyListeners(); // Notify UI that loading has started
 
-      if (userId == null) {
-        throw Exception('User ID not found in SharedPreferences');
-      }
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
 
-      // Assuming createAddress returns the updated list or the newly created address
-      // If it returns the updated list, assign it directly.
-      // If it returns just the new address, you might want to add it to the existing list.
-      // For now, let's assume it returns the updated list of addresses.
-      addresses = await _service.createAddress(userId, address);
-      log('Address added successfully: ${address.toJson()}');
-    } catch (e) {
-      errorMessage = e.toString(); // Set the error message
-      log('Error adding address: $e');
-    } finally {
-      isLoading = false;
-      notifyListeners();
+    if (userId == null) {
+      errorMessage = "User ID not found in local storage. Please log in.";
+      loading = false;
+      notifyListeners(); // Notify UI about the error
+      log(
+        'DeliveryAddressController: User ID is null during address submission.',
+      );
+      return;
     }
-  }
-
-  Future<void> getAddresses() async {
-    isLoading = true;
-    errorMessage = ''; // Clear any previous error message
-    notifyListeners();
-    log('Fetching addresses...');
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+      // Call the service to create the address, expecting AddressListResponse
+      final AddressListResponse? result = await _service.createAddress(
+        userId,
+        address,
+      );
 
-      if (userId == null) {
-        throw Exception('User ID not found in SharedPreferences');
-      }
-
-      addresses = await _service.getAddresses(userId);
-      log('Addresses fetched successfully. Count: ${addresses.length}');
-    } catch (e) {
-      errorMessage = e.toString(); // Set the error message
-      log('Error fetching addresses: $e');
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> updateAddress(
-      String addressId, AddressModel updatedAddress) async {
-    isLoading = true; // Set loading true at the start
-    errorMessage = ''; // Clear any previous error message
-    notifyListeners();
-    log('Attempting to update address with ID: $addressId');
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
-
-      if (userId == null) {
-        throw Exception('User ID not found in SharedPreferences');
-      }
-
-      final updated =
-          await _service.updateAddress(userId, addressId, updatedAddress);
-
-      final index = addresses.indexWhere((element) => element.id == addressId);
-      if (index != -1) {
-        addresses[index] = updated;
-        log('Address updated at index $index: ${updated.toJson()}');
+      if (result != null) {
+        addresses =
+            result
+                .addresses; // Update the list with addresses from the response
+        log(
+          'DeliveryAddressController: Address created successfully. Current addresses: ${addresses.length}',
+        );
       } else {
-        log('Updated address not found in current list (might need to re-fetch all)');
-        // Optionally, re-fetch all addresses if the updated one wasn't found
-        // await getAddresses();
+        errorMessage =
+            "Failed to create address: No data received or an error occurred on the server.";
+        log(
+          'DeliveryAddressController: Failed to create address, result was null.',
+        );
       }
-      // No need to return updated here, as the UI will re-fetch or use the updated list
     } catch (e) {
-      errorMessage = e.toString(); // Set the error message
-      log('Error updating address: $e');
-      // No rethrow here, as errorMessage is now handled by the controller
+      errorMessage = "Error creating address: $e";
+      log('DeliveryAddressController: Error in submitAddress: $e');
     } finally {
-      isLoading = false; // Set loading false in finally block
+      loading = false;
+      notifyListeners(); // Notify UI that loading has ended (success or failure)
+    }
+  }
+
+  /// Fetches existing delivery addresses for the current user.
+  Future<void> fetchAddresses() async {
+    loading = true;
+    errorMessage = null; // Clear any previous errors
+    notifyListeners(); // Notify UI that loading has started
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      errorMessage = "User ID not found in local storage. Please log in.";
+      loading = false;
+      notifyListeners(); // Notify UI about the error
+      log('DeliveryAddressController: User ID is null during address fetch.');
+      return;
+    }
+
+    try {
+      // Call the service to get addresses, expecting AddressListResponse
+      final AddressListResponse? result = await _service.getAddresses(userId);
+
+      if (result != null) {
+        addresses = result.addresses; // Update the list with fetched addresses
+        log(
+          'DeliveryAddressController: Addresses fetched successfully. Found ${addresses.length} addresses.',
+        );
+      } else {
+        errorMessage =
+            "Failed to fetch addresses: No data received or an error occurred on the server.";
+        log(
+          'DeliveryAddressController: Failed to fetch addresses, result was null.',
+        );
+      }
+    } catch (e) {
+      errorMessage = "Error fetching addresses: $e";
+      log('DeliveryAddressController: Error in fetchAddresses: $e');
+    } finally {
+      loading = false;
+      notifyListeners(); // Notify UI that loading has ended
+    }
+  }
+
+  /// Updates an existing address.
+  Future<void> updateAddress(String addressId, Address updatedAddress) async {
+    loading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      errorMessage = "User ID not found in local storage. Please log in.";
+      loading = false;
+      notifyListeners();
+      log('DeliveryAddressController: User ID is null during address update.');
+      return;
+    }
+
+    try {
+      final AddressListResponse? result = await _service.updateAddress(
+        userId,
+        addressId,
+        updatedAddress,
+      );
+
+      if (result != null) {
+        addresses = result.addresses; // Update the local list with the new data
+        log(
+          'DeliveryAddressController: Address updated successfully. Current addresses: ${addresses.length}',
+        );
+      } else {
+        errorMessage =
+            "Failed to update address: No data received or an error occurred on the server.";
+        log(
+          'DeliveryAddressController: Failed to update address, result was null.',
+        );
+      }
+    } catch (e) {
+      errorMessage = "Error updating address: $e";
+      log('DeliveryAddressController: Error in updateAddress: $e');
+    } finally {
+      loading = false;
       notifyListeners();
     }
   }
 
+  /// Deletes an existing address.
   Future<void> deleteAddress(String addressId) async {
-    isLoading = true;
-    errorMessage = ''; // Clear any previous error message
+    loading = true;
+    errorMessage = null;
     notifyListeners();
-    log('Attempting to delete address with ID: $addressId');
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      errorMessage = "User ID not found in local storage. Please log in.";
+      loading = false;
+      notifyListeners();
+      log(
+        'DeliveryAddressController: User ID is null during address deletion.',
+      );
+      return;
+    }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+      final AddressListResponse? result = await _service.deleteAddress(
+        userId,
+        addressId,
+      );
 
-      if (userId == null) {
-        throw Exception('User ID not found in SharedPreferences');
+      if (result != null) {
+        addresses = result.addresses; // Update the local list after deletion
+        log(
+          'DeliveryAddressController: Address deleted successfully. Remaining addresses: ${addresses.length}',
+        );
+        // The UI (BottomSheet) will handle clearing its own selection based on the updated 'addresses' list.
+      } else {
+        errorMessage =
+            "Failed to delete address: No data received or an error occurred on the server.";
+        log(
+          'DeliveryAddressController: Failed to delete address, result was null.',
+        );
       }
-
-      await _service.deleteAddress(userId, addressId);
-      addresses.removeWhere((address) => address.id == addressId);
-      log('Address deleted successfully: $addressId');
     } catch (e) {
-      errorMessage = e.toString(); // Set the error message
-      log('Error deleting address: $e');
+      errorMessage = "Error deleting address: $e";
+      log('DeliveryAddressController: Error in deleteAddress: $e');
     } finally {
-      isLoading = false;
+      loading = false;
       notifyListeners();
     }
   }

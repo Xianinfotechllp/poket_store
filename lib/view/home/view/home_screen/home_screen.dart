@@ -11,6 +11,7 @@ import 'package:poketstore/controllers/product_search_controller/shop_search_con
 import 'package:poketstore/controllers/shop_nearby_controller/shop_nearby_controller.dart';
 import 'package:poketstore/model/add_shope_model/add_shop_model.dart';
 import 'package:poketstore/model/location_model/location_model.dart';
+import 'package:poketstore/model/shop_nearby_model/shop_nearby_model.dart';
 import 'package:poketstore/utilities/custom_app_bar.dart';
 import 'package:poketstore/utilities/search_bar.dart';
 import 'package:poketstore/view/add_shop/add_shop.dart';
@@ -176,7 +177,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final groceryProvider = Provider.of<GroceriesListProvider>(context);
     final locationMapProvider = Provider.of<LocationMapController>(context);
     final productSearchProvider = Provider.of<ProductSearchProvider>(context);
-
+    bool isShopSearching = _shopNameController.text.isNotEmpty;
+    final shopSearchProvider = _shopSearchController;
     List<Map<String, dynamic>> productsToDisplayFormatted;
     bool isSearching =
         _productNameController.text.isNotEmpty ||
@@ -215,7 +217,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // ✅ Display all shops
-    List<ShopModel> allShops = shopProvider.shops;
+
+    List<ShopNearbyModel> allShops;
+
+    if (isShopSearching && shopSearchProvider.shops.isNotEmpty) {
+      allShops =
+          shopSearchProvider.shops.map((shop) {
+            return ShopNearbyModel(id: shop.id, shopName: shop.shopName);
+          }).toList();
+    } else {
+      allShops = shopNearbyController.shops;
+    }
+
     final displayedStores =
         _showAllStores ? allShops : allShops.take(3).toList();
 
@@ -298,36 +311,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(
                       height: 50,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: displayedStores.length,
-                        itemBuilder: (context, index) {
-                          final shop = displayedStores[index];
-                          return InkWell(
-                            onTap: () {
-                              // You might need to convert ShopNearbyModel to ShopModel if ShopProductsScreen needs that.
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ShopProductsScreen(
-                                        shop: ShopModel(
-                                          id: shop.id,
-                                          shopName: shop.shopName,
-                                          // add other required fields if needed
+                      child:
+                          shopNearbyController.isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: displayedStores.length,
+                                itemBuilder: (context, index) {
+                                  final shop = displayedStores[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => ShopProductsScreen(
+                                                shop: ShopModel(
+                                                  id: shop.id ?? '',
+                                                  shopName: shop.shopName ?? '',
+                                                  // Add other required fields here if necessary
+                                                ),
+                                              ),
                                         ),
-                                      ),
-                                ),
-                              );
-                            },
-                            child: buildStoreItem(
-                              shop.shopName ?? '',
-                              Colors.blue.shade100,
-                            ),
-                          );
-                        },
-                      ),
+                                      );
+                                    },
+                                    child: buildStoreItem(
+                                      shop.shopName ?? '',
+                                      Colors.blue.shade100,
+                                    ),
+                                  );
+                                },
+                              ),
                     ),
+
                     const SizedBox(height: 20),
                     if (isSearching && productSearchProvider.isLoading)
                       const Center(child: CircularProgressIndicator())

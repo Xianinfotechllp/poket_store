@@ -1,83 +1,80 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poketstore/model/cart_model/cart_model.dart';
 import 'package:poketstore/service/cart_service/cart_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class CartProvider extends ChangeNotifier {
+// Assuming you have a model for a cart item that includes productId and quantity
+// For example:
+// class CartItem {
+//   final String productId;
+//   final int quantity;
+//   CartItem({required this.productId, required this.quantity});
+// }
+
+class CartController extends ChangeNotifier {
   final CartService _cartService = CartService();
-  Cart? cart;
+  bool _isAdding = false;
+  bool get isAdding => _isAdding;
 
-  Future<void> addCart(List<CartItem> items) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+  // Add a list to hold current cart items (you'll need to fetch this from your backend)
+  List<String> _cartProductIds = []; // Stores just product IDs for quick checks
+  List<String> get cartProductIds => _cartProductIds;
 
-      if (token == null || token.isEmpty) {
-        log("⚠️ No valid token found. Redirecting to login...");
-        return;
-      }
-
-      log("🔹 Token found, proceeding with cart update.$token");
-
-      cart = await _cartService.addToCart(items, token);
-
-      notifyListeners();
-    } catch (e) {
-      log("❌ Error Adding cart controller: $e");
-    }
+  CartController() {
+    // Optionally, fetch cart items when the controller is initialized
+    fetchCartItems();
   }
 
-  bool isLoading = false;
-  // Future<void> fetchCart() async {
-  //   isLoading = true;
-  //   notifyListeners();
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final token = prefs.getString('token');
-
-  //     log('Fetching cart with token: $token'); // Log the token
-
-  //     if (token == null || token.isEmpty) {
-  //       log('No valid token found.');
-  //       isLoading = false;
-  //       notifyListeners();
-  //       return;
-  //     }
-
-  //     cart = await _cartService.fetchCart(token);
-
-  //     log(
-  //       'Cart fetched successfully: ${cart?.items.length} items',
-  //     ); // Log cart data
-  //   } catch (e) {
-  //     log('Error fetching cart: $e');
-  //     cart = null; // Ensure cart is null on error
-  //   }
-  //   isLoading = false;
-  //   notifyListeners();
-  // }
-
-  Future<void> updateCart(List<CartItem> items) async {
-    isLoading = true;
+  Future<void> fetchCartItems() async {
+    // Implement logic to fetch actual cart items from your backend
+    // For now, let's simulate it or assume it's done elsewhere
+    // This is a placeholder. You'll likely have a service call here
+    _cartProductIds = []; // Clear existing for refresh
+    log("Fetching cart items (simulated)...");
+    // Example: Replace with actual API call to get user's cart
+    // final response = await _cartService.getCart(token);
+    // if (response.statusCode == 200) {
+    //   List<dynamic> cartData = response.data['items'];
+    //   _cartProductIds = cartData.map((item) => item['productId'] as String).toList();
+    // }
     notifyListeners();
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+  }
 
-      if (token == null || token.isEmpty) {
-        log('No valid token found.');
-        isLoading = false;
-        notifyListeners();
-        return;
-      }
+  bool isProductInCart(String productId) {
+    return _cartProductIds.contains(productId);
+  }
 
-      cart = await _cartService.updateCart(items, token);
-    } catch (e) {
-      log('Error updating cart: $e');
-      cart = null;
+  Future<bool> addProductToCart(String productId, int quantity) async {
+    if (isProductInCart(productId)) {
+      log("Product already in cart: $productId");
+      return false; // Indicate that it was not added (because it's already there)
     }
-    isLoading = false;
+
+    _isAdding = true;
     notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    log("Retrieved token: $token");
+    if (token == null) {
+      _isAdding = false;
+      notifyListeners();
+      return false; // Token missing, cannot proceed
+    }
+
+    final success = await _cartService.addToCart(
+      CartRequestModel(productId: productId, quantity: quantity),
+      token,
+    );
+
+    if (success) {
+      // If successfully added to backend, add to our local list
+      _cartProductIds.add(productId);
+    }
+
+    _isAdding = false;
+    notifyListeners();
+    return success;
   }
 }

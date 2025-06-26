@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart';
+import 'package:poketstore/view/cart_screen/cart_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:poketstore/view/favorite/favorite_screen.dart';
 import 'package:poketstore/view/home/view/home_screen/home_screen.dart';
@@ -18,6 +19,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const MyShopScreen(),
+    CartScreen(),
     const FavoriteScreen(),
     const ProfileScreen(),
   ];
@@ -59,6 +61,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
             tabs: const [
               GButton(icon: Icons.home, text: 'Home'),
               GButton(icon: Icons.business_sharp, text: 'My Shop'),
+              GButton(icon: Icons.shopping_cart_outlined, text: 'Cart'),
               GButton(icon: Icons.favorite_border_outlined, text: 'Favorites'),
               GButton(icon: Icons.person_3_outlined, text: 'Account'),
             ],

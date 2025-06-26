@@ -1,55 +1,35 @@
 import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:poketstore/model/order_model/order_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderService {
-  final Dio _dio = Dio();
-  final String baseUrl = "https://shop-app-backend-gsx6.onrender.com/api/order/user";
+  final Dio _dio = Dio(
+    BaseOptions(baseUrl: 'https://shop-app-backend-gsx6.onrender.com/api/'),
+  );
 
-  Future<List<Order>> fetchOrders(String userId, String token) async {
+  Future<OrderResponse?> placeOrder(PlaceOrderRequest request) async {
     try {
-      final response = await _dio.get(
-        "$baseUrl/$userId",
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(
+        'token',
+      ); // Make sure token is saved in SharedPreferences
+
+      final response = await _dio.post(
+        'order/place',
+        data: request.toJson(),
         options: Options(
           headers: {
-            "Authorization": "Bearer $token",
-            "Content-Type": "application/json",
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
           },
         ),
       );
-
-      if (response.statusCode == 200 && response.data['orders'] != null) {
-        List<dynamic> ordersJson = response.data['orders'];
-        return ordersJson.map((json) => Order.fromJson(json)).toList();
-      } else {
-        throw Exception("Failed to fetch orders");
-      }
+      log('Place Order Response: ${response.data}');
+      return OrderResponse.fromJson(response.data);
     } catch (e) {
-      log("Error fetching orders: $e");
-      return [];
-    }
-  }
-
-  Future<Order?> fetchOrderDetails(String orderId, String token) async {
-    try {
-      final response = await _dio.get(
-        "https://shop-app-backend-gsx6.onrender.com/api/order/get-order/$orderId",
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-      );
-
-      if (response.statusCode == 200 && response.data != null) {
-        final data = response.data;
-        if (data.containsKey("order")) {
-          return Order.fromJson(
-              data["order"]); // Extract 'order' before parsing
-        } else {
-          throw Exception("Order data not found in response");
-        }
-      } else {
-        throw Exception("Failed to fetch order details");
-      }
-    } catch (e) {
-      log("Error fetching order details service: $e");
+      log('Place order failed: $e');
       return null;
     }
   }

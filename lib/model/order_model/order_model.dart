@@ -1,113 +1,137 @@
-class Address {
-  final String street;
-  final String city;
-  final String state;
-  final String pincode;
+class PlaceOrderRequest {
+  final List<OrderItem> items;
+  final String addressId;
 
-  Address({
-    required this.street,
-    required this.city,
-    required this.state,
-    required this.pincode,
-  });
+  PlaceOrderRequest({required this.items, required this.addressId});
 
-  factory Address.fromJson(Map<String, dynamic> json) {
-    return Address(
-      street: json['street'] ?? "",
-      city: json['city'] ?? "",
-      state: json['state'] ?? "",
-      pincode: json['pincode'] ?? "",
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'street': street,
-      'city': city,
-      'state': state,
-      'pincode': pincode
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'items': items.map((e) => e.toJson()).toList(),
+    'addressId': addressId,
+  };
 }
 
 class OrderItem {
   final String productId;
+  final int quantity;
+
+  OrderItem({required this.productId, required this.quantity});
+
+  Map<String, dynamic> toJson() => {
+    'productId': productId,
+    'quantity': quantity,
+  };
+}
+
+class OrderResponse {
+  final String message;
+  final OrderData order;
+  final bool success;
+
+  OrderResponse({
+    required this.message,
+    required this.order,
+    required this.success,
+  });
+
+  factory OrderResponse.fromJson(Map<String, dynamic> json) {
+    return OrderResponse(
+      message: json['message'],
+      order: OrderData.fromJson(json['order']),
+      success: json['success'] ?? false,
+    );
+  }
+}
+
+class OrderData {
+  final String userId;
+  final List<OrderedItem> items;
+  final int totalCartAmount;
+  final String status;
+  final String paymentStatus;
+  final OrderAddress address;
+  final String id;
+
+  OrderData({
+    required this.userId,
+    required this.items,
+    required this.totalCartAmount,
+    required this.status,
+    required this.paymentStatus,
+    required this.address,
+    required this.id,
+  });
+
+  factory OrderData.fromJson(Map<String, dynamic> json) {
+    return OrderData(
+      userId: json['userId'],
+      items:
+          (json['items'] as List).map((e) => OrderedItem.fromJson(e)).toList(),
+      totalCartAmount: json['totalCartAmount'],
+      status: json['status'],
+      paymentStatus: json['paymentStatus'],
+      address: OrderAddress.fromJson(json['address']),
+      id: json['_id'],
+    );
+  }
+}
+
+class OrderedItem {
+  final String productId;
   final String name;
   final int price;
   final int quantity;
+  final int totalAmount;
 
-  OrderItem({
+  OrderedItem({
     required this.productId,
     required this.name,
     required this.price,
     required this.quantity,
+    required this.totalAmount,
   });
 
-  factory OrderItem.fromJson(Map<String, dynamic> json) {
-    return OrderItem(
-      productId: json['productId'] ?? "",
-      name: json['name'] ?? "",
-      price: json['price'] is int ? json['price'] : int.tryParse(json['price'].toString()) ?? 0,
-      quantity: json['quantity'] is int ? json['quantity'] : int.tryParse(json['quantity'].toString()) ?? 0,
+  factory OrderedItem.fromJson(Map<String, dynamic> json) {
+    return OrderedItem(
+      productId: json['productId'],
+      name: json['name'],
+      price: json['price'],
+      quantity: json['quantity'],
+      totalAmount: json['totalAmount'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'productId': productId,
-      'name': name,
-      'price': price,
-      'quantity': quantity,
-    };
   }
 }
 
-class Order {
-  final String id;
-  final String userId;
-  final Address address;
-  final List<OrderItem> items;
-  final int totalAmount;
-  final String status;
-  final String paymentStatus;
-  final DateTime createdAt;
+class OrderAddress {
+  final String houseNo;
+  final String area;
+  final String landmark;
+  final String town;
+  final String state;
+  final String pincode;
+  final String phoneNumber;
+  final String countryName;
 
-  Order({
-    required this.id,
-    required this.userId,
-    required this.address,
-    required this.items,
-    required this.totalAmount,
-    required this.status,
-    required this.paymentStatus,
-    required this.createdAt,
+  OrderAddress({
+    required this.houseNo,
+    required this.area,
+    required this.landmark,
+    required this.town,
+    required this.state,
+    required this.pincode,
+    required this.phoneNumber,
+    required this.countryName,
   });
 
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-      id: json['_id'] ?? "",
-      userId: json['userId'] is Map ? json['userId']['_id'] ?? "" : json['userId'] ?? "",
-      address: Address.fromJson(json['address'] ?? {}),
-      items: (json['items'] as List?)
-          ?.map((item) => OrderItem.fromJson(item))
-          .toList() ?? [],
-      totalAmount: json['totalAmount'] ?? 0,
-      status: json['status'] ?? "",
-      paymentStatus: json['paymentStatus'] ?? "",
-      createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
+  factory OrderAddress.fromJson(Map<String, dynamic> json) {
+    return OrderAddress(
+      houseNo: json['houseNo'],
+      area: json['area'],
+      landmark: json['landmark'],
+      town: json['town'],
+      state: json['state'],
+      pincode: json['pincode'],
+      phoneNumber: json['phoneNumber'],
+      countryName: json['countryName'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'userId': userId,
-      'address': address.toJson(),
-      'items': items.map((item) => item.toJson()).toList(),
-      'totalAmount': totalAmount,
-      'status': status,
-      'paymentStatus': paymentStatus,
-      'createdAt': createdAt.toIso8601String(),
-    };
   }
 }

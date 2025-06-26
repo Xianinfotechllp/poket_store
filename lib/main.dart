@@ -7,6 +7,7 @@ import 'package:poketstore/controllers/add_shop_controller/add_shop_controller.d
 import 'package:poketstore/controllers/address_controller/address_controller.dart';
 import 'package:poketstore/controllers/bottom_bar_controller/bottombar_controller.dart';
 import 'package:poketstore/controllers/cart_controller/cart_controller.dart';
+// import 'package:poketstore/controllers/cart_controller/checkout_controller.dart';
 import 'package:poketstore/controllers/cart_controller/fetch_cart_controller.dart';
 import 'package:poketstore/controllers/category_controller/category_controller.dart';
 import 'package:poketstore/controllers/favorite_controller/favorite_controller.dart';
@@ -70,8 +71,8 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ProductProvider()),
         ChangeNotifierProvider(create: (context) => FetchProductProvider()),
         ChangeNotifierProvider(create: (context) => CategoryController()),
-        ChangeNotifierProvider(create: (context) => CartProvider()),
-        ChangeNotifierProvider(create: (context) => OrderProvider()),
+        ChangeNotifierProvider(create: (context) => CartController()),
+        ChangeNotifierProvider(create: (context) => OrderController()),
         ChangeNotifierProvider(create: (_) => ShopProvider()),
         ChangeNotifierProvider(create: (_) => ShopOfUserProvider()),
         ChangeNotifierProvider(create: (_) => MyShopListUserProvider()),
@@ -83,7 +84,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LocationMapController()),
         ChangeNotifierProvider(create: (_) => UserProfileController()),
         ChangeNotifierProvider(create: (_) => GroceriesListProvider()),
-        ChangeNotifierProvider(create: (_) => AddressController()),
+        ChangeNotifierProvider(create: (_) => DeliveryAddressController()),
         ChangeNotifierProvider(create: (_) => ProductSearchProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => FCMProvider()),
@@ -91,6 +92,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ForgotPasswordController()),
         ChangeNotifierProvider(create: (_) => ShopSearchController()),
         ChangeNotifierProvider(create: (_) => ShopNearbyController()),
+        ChangeNotifierProvider(create: (_) => FetchCartController()),
       ],
       // The root widget of the application.
       child: const MyApp(),

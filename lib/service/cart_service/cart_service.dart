@@ -4,41 +4,15 @@ import 'package:poketstore/model/cart_model/cart_model.dart';
 
 class CartService {
   final Dio _dio = Dio();
-  final String _baseUrl = "https://shop-app-backend-gsx6.onrender.com/api/cart";
 
-  Future<Cart> addToCart(List<CartItem> items, String token) async {
+  Future<bool> addToCart(CartRequestModel request, String token) async {
+    const url = 'https://shop-app-backend-gsx6.onrender.com/api/cart/add';
+
     try {
-      log("🔹 Sending request to update cart: ${items.map((e) => e.toJson())}");
-      log("Token being sent: $token");
+      log("Sending payload: ${request.toJson()}");
       final response = await _dio.post(
-        _baseUrl,
-        data: {"items": items.map((e) => e.toJson()).toList()},
-        options: Options(
-          headers: {
-            "Authorization": "Bearer $token",
-            "Content-Type": "application/json",
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        log("✅ Cart updated successfully: ${response.data}");
-        return Cart.fromJson(response.data['cart']);
-      } else {
-        throw Exception(
-          "Failed to update cart. Status: ${response.statusCode}",
-        );
-      }
-    } catch (e) {
-      log("❌ Error updating cart: $e");
-      throw Exception("Failed to update cart");
-    }
-  }
-
-  Future<Cart> fetchCart(String token) async {
-    try {
-      final response = await _dio.get(
-        '$_baseUrl/user',
+        url,
+        data: request.toJson(),
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -47,52 +21,12 @@ class CartService {
         ),
       );
 
-      if (response.statusCode == 200) {
-        log('Cart fetched successfully: ${response.data}');
-        return Cart.fromJson(response.data['cart']);
-      } else {
-        throw Exception('Failed to fetch cart. Status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      log(
-        'Dio Error fetching cart: ${e.response?.statusCode} - ${e.response?.data}',
-      );
-      throw Exception('Failed to fetch cart');
-    } catch (e) {
-      log('Error fetching cart: $e');
-      throw Exception('Failed to fetch cart');
-    }
-  }
+      log("Add to cart response: ${response.data}");
 
-  Future<Cart> updateCart(List<CartItem> items, String token) async {
-    try {
-      final response = await _dio.post(
-        '$_baseUrl',
-        data: {"items": items.map((e) => e.toJson()).toList()},
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        log('Cart updated successfully: ${response.data}');
-        return Cart.fromJson(response.data['cart']);
-      } else {
-        throw Exception(
-          'Failed to update cart. Status: ${response.statusCode}',
-        );
-      }
-    } on DioException catch (e) {
-      log(
-        'Dio error updating cart: ${e.response?.statusCode} - ${e.response?.data}',
-      );
-      throw Exception('Failed to update cart');
+      return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {
-      log('Error updating cart: $e');
-      throw Exception('Failed to update cart');
+      log("Add to cart error: $e");
+      return false;
     }
   }
 }

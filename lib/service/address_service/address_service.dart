@@ -1,91 +1,119 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
+// Ensure this import points to your updated address_model.dart file
 import 'package:poketstore/model/address_model/address_model.dart';
 
-class AddressService {
+/// Service class for interacting with the delivery address API.
+class DeliveryAddressService {
   final Dio _dio = Dio();
-  final String _baseUrl = 'https://shop-app-backend-gsx6.onrender.com/api/delivery';
 
-  Future<List<AddressModel>> createAddress(
-      String userId, AddressModel address) async {
+  /// Creates a new delivery address for a given user.
+  /// Returns an [AddressListResponse] if successful, otherwise null.
+  Future<AddressListResponse?> createAddress(
+    String userId,
+    Address address,
+  ) async {
+    final url =
+        'https://shop-app-backend-gsx6.onrender.com/api/delivery/create/$userId';
+
     try {
+      // Send the address data nested under an "address" key, as indicated by your backend.
       final response = await _dio.post(
-        '$_baseUrl/create/$userId',
-        data: {'address': address.toJson()},
+        url,
+        data: {"address": address.toJson()},
       );
 
-      if (response.statusCode == 200 && response.data['addresses'] != null) {
-        List data = response.data['addresses'];
-        return data.map((item) => AddressModel.fromJson(item)).toList();
-      }
-
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<AddressModel>> getAddresses(String userId) async {
-    try {
-      final response = await _dio.get('$_baseUrl/get/$userId');
-      if (response.statusCode == 200) {
-        final data = response.data['addresses'] as List;
-        return data.map((e) => AddressModel.fromJson(e)).toList();
-      } else {
-        throw Exception('Failed to fetch addresses: ${response.statusCode}');
-      }
-    } catch (error) {
-      if (error is DioException) {
-        throw Exception('Dio error: ${error.message}');
-      } else {
-        throw Exception('Error fetching addresses: $error');
-      }
-    }
-  }
-
-  Future<AddressModel> updateAddress(
-      String userId, String addressId, AddressModel updatedAddress) async {
-    try {
-      final response = await _dio.put(
-        '$_baseUrl/update/$userId/$addressId',
-        data: updatedAddress.toJson(),
-      );
-
-      if (response.statusCode == 200) {
-        return AddressModel.fromJson(response.data);
-      } else {
-        throw Exception('Failed to update address: ${response.statusCode}');
-      }
+      log("Create address response data: ${response.data}");
+      // Parse the response using the new AddressListResponse model
+      return AddressListResponse.fromJson(response.data);
     } on DioException catch (e) {
-      log('Dio Error: ${e.message}');
-      log('Dio Error Type: ${e.type}');
-      log('Dio Error Response: ${e.response?.data}');
-      log('Dio Error Stacktrace: ${e.stackTrace}');
-      throw Exception('Dio error during update: ${e.message}');
+      // Handle Dio-specific errors (e.g., network issues, bad response)
+      log("Create address Dio error: ${e.message}");
+      if (e.response != null) {
+        log("Create address Dio error response data: ${e.response?.data}");
+      }
+      return null;
     } catch (e) {
-      log('Error update: ${e.toString()}');
-      rethrow;
+      // Handle any other unexpected errors
+      log("Create address generic error: $e");
+      return null;
     }
   }
 
-  Future<void> deleteAddress(String userId, String addressId) async {
-    try {
-      final response = await _dio.delete(
-        '$_baseUrl/delete/$userId/$addressId',
-      );
+  /// Fetches all delivery addresses for a given user.
+  /// Returns an [AddressListResponse] if successful, otherwise null.
+  Future<AddressListResponse?> getAddresses(String userId) async {
+    final url =
+        'https://shop-app-backend-gsx6.onrender.com/api/delivery/get/$userId';
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete address: ${response.statusCode}');
-      }
+    try {
+      final response = await _dio.get(url);
+      log("Get address response data: ${response.data}");
+      // Parse the response using the new AddressListResponse model
+      return AddressListResponse.fromJson(response.data);
     } on DioException catch (e) {
-      log('Dio Error: ${e.message}');
-      log('Dio Error Type: ${e.type}');
-      log('Dio Error Response: ${e.response?.data}');
-      log('Dio Error Stacktrace: ${e.stackTrace}');
-      throw Exception('Dio error during deletion: ${e.message}');
+      // Handle Dio-specific errors
+      log("Get address Dio error: ${e.message}");
+      if (e.response != null) {
+        log("Get address Dio error response data: ${e.response?.data}");
+      }
+      return null;
     } catch (e) {
-      log('Error delete: ${e.toString()}');
-      rethrow;
+      // Handle any other unexpected errors
+      log("Get address generic error: $e");
+      return null;
+    }
+  }
+
+  Future<AddressListResponse?> updateAddress(
+    String userId,
+    String addressId,
+    Address address,
+  ) async {
+    final url =
+        'https://shop-app-backend-gsx6.onrender.com/api/delivery/update/$userId/$addressId';
+
+    try {
+      // Send the updated address data nested under an "address" key.
+      final response = await _dio.put(url, data: {"address": address.toJson()});
+
+      log("Update address response data: ${response.data}");
+      // Parse the response using the AddressListResponse model
+      return AddressListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      log("Update address Dio error: ${e.message}");
+      if (e.response != null) {
+        log("Update address Dio error response data: ${e.response?.data}");
+      }
+      return null;
+    } catch (e) {
+      log("Update address generic error: $e");
+      return null;
+    }
+  }
+
+  Future<AddressListResponse?> deleteAddress(
+    String userId,
+    String addressId,
+  ) async {
+    final url =
+        'https://shop-app-backend-gsx6.onrender.com/api/delivery/delete/$userId/$addressId';
+
+    try {
+      final response = await _dio.delete(url);
+
+      log("Delete address response data: ${response.data}");
+      // Parse the response using the AddressListResponse model
+      return AddressListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      log("Delete address Dio error: ${e.message}");
+      if (e.response != null) {
+        log("Delete address Dio error response data: ${e.response?.data}");
+      }
+      return null;
+    } catch (e) {
+      log("Delete address generic error: $e");
+      return null;
     }
   }
 }
